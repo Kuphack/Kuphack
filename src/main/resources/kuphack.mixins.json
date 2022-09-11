@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.github.Vaapukkax.kuphack.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    
+  ],
+  "client": [
+    events.BlockPlaceMixin,
+    events.BreakMixin,
+    events.ChatMixin,
+    events.MinecraftEventMixin,
+    events.ClientPlayerInteractionMixin,
+    flagclash.FlagMixin,
+    flagclash.HUDMixin,
+    flagclash.SpreadsheetKeybindMixin,
+    flagclash.ScoreboardMixin,
+    MultiplayerScreenMixin,
+    VinueText
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -5,4 +5,3 @@
 <span>Developer: **Vaapukkax**</span>
 
 <a href="https://discord.gg/X69dD2CYSD">Discord</a> | <a href="https://github.com/Kuphack/Kuphack/releases">Download Mod</a><br><br>
-<span>At the moment the Minecraft Mod is closed source, this will change in future.</span>
