@@ -58,9 +58,6 @@ public class MinehutServerListScreen extends Screen {
         this.parent = parent;
     }
 
-    // ToggleButtonWidget
-    // 
-    
     @Override
     protected void init() {
         super.init();
@@ -100,7 +97,7 @@ public class MinehutServerListScreen extends Screen {
         );
 
         this.categoryWidget = new CategoryDropdownWidget(
-        	this, textRenderer, this.width / 2 - 50, this.height - 52, 98
+        	this, textRenderer, this.width / 2 - 49, this.height - 52, 97
         );
         this.addSelectableChild(categoryWidget);
         
@@ -108,7 +105,7 @@ public class MinehutServerListScreen extends Screen {
         this.textField = new TextFieldWidget(
         	this.textRenderer,
         	this.width / 2 + 4 + 50, this.height - 52,
-        	100, 20,
+        	99, 20,
         	Text.of("Search")
         );
         this.textField.setText(oldSearch);
@@ -146,19 +143,19 @@ public class MinehutServerListScreen extends Screen {
 	}
     
     public void refresh() {    	
+    	this.error = null;
+    	this.refreshButton.active = false;
     	
-    	error = null;
-    	refreshButton.active = false;
     	new Thread(() -> {
     		ArrayList<Server> entries = new ArrayList<>();
 	    	
 	        try {
-				long l = System.currentTimeMillis();
-				Minehut mhClient = Kuphack.get().getMinehut();
-				List<Server> servers = mhClient.getOnlineServers(category.get());
-				Kuphack.LOGGER.info("Minehut servers loaded in "+(System.currentTimeMillis()-l)+"ms");
+				long start = System.currentTimeMillis();
+				Minehut minehut = Kuphack.get().getMinehut();
+				List<Server> servers = minehut.getOnlineServers(category.get());
+				Kuphack.LOGGER.info("Minehut servers loaded in "+(System.currentTimeMillis()-start)+"ms");
 
-				NetworkStatistics stats = mhClient.getStatistics();
+				NetworkStatistics stats = minehut.getStatistics();
                 this.playerCount = stats.getPlayerCount();
                 this.serverCount = stats.getServerCount();
 
@@ -179,7 +176,7 @@ public class MinehutServerListScreen extends Screen {
                 	this.trending.put(entry.getKey(), entry.getValue());
                 }
                 
-                sort(entries);
+                this.sort(entries);
 	        } catch (Exception e) {
 				if (!(e instanceof IllegalStateException || e.getMessage().equals("Socket closed")))
 					e.printStackTrace();
@@ -201,27 +198,10 @@ public class MinehutServerListScreen extends Screen {
     	}).start();
     }
     
-    private static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
-        SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<Map.Entry<K,V>>(
-            new Comparator<Map.Entry<K,V>>() {
-                @Override public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
-                    int res = e1.getValue().compareTo(e2.getValue());
-                    return res != 0 ? res : 1; // Special fix to preserve items with equal values
-                }
-            }
-        );
-        sortedEntries.addAll(map.entrySet());
-        return sortedEntries;
-    }
-    
     public void sort(List<Server> entries) {
     	if (sortType == SortType.SHUFFLE) {
     		Collections.shuffle(entries);
     	} else Collections.sort(entries, sortType.getComparator(this));
-    }
-    
-    private boolean isInvalid(Server entry) {
-    	return entry.isLobby() || entry.isSubserver() || !entry.isOnline();
     }
     
     public boolean isShown(Server entry) {
@@ -308,14 +288,6 @@ public class MinehutServerListScreen extends Screen {
         super.render(matrices, mouseX, mouseY, delta);
     }
     
-    private List<Text> split(String text) {
-    	List<Text> lines = new ArrayList<>();
-    	for (String line : text.split("\n")) {
-    		lines.add(Text.of(line));
-    	}
-    	return lines;
-    }
-    
     public void connect() {
     	
         MinehutServerListWidget.Entry entry = (MinehutServerListWidget.Entry)this.serverListWidget.getSelectedOrNull();
@@ -343,6 +315,31 @@ public class MinehutServerListScreen extends Screen {
 
     protected void updateJoinButtonState() {
         this.buttonJoin.active = this.serverListWidget.getSelectedOrNull() != null;
+    }
+    
+    private boolean isInvalid(Server entry) {
+    	return entry.isLobby() || entry.isSubserver() || !entry.isOnline();
+    }
+    
+    private static List<Text> split(String text) {
+    	List<Text> lines = new ArrayList<>();
+    	for (String line : text.split("\n")) {
+    		lines.add(Text.of(line));
+    	}
+    	return lines;
+    }
+    
+    private static <K,V extends Comparable<? super V>> SortedSet<Map.Entry<K,V>> entriesSortedByValues(Map<K,V> map) {
+        SortedSet<Map.Entry<K,V>> sortedEntries = new TreeSet<Map.Entry<K,V>>(
+            new Comparator<Map.Entry<K,V>>() {
+                @Override public int compare(Map.Entry<K,V> e1, Map.Entry<K,V> e2) {
+                    int res = e1.getValue().compareTo(e2.getValue());
+                    return res != 0 ? res : 1; // Special fix to preserve items with equal values
+                }
+            }
+        );
+        sortedEntries.addAll(map.entrySet());
+        return sortedEntries;
     }
 
 }

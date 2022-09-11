@@ -103,7 +103,9 @@ public class CategoryDropdownWidget extends ClickableWidget {
 				
 				i++;
 			}
-		} else textRenderer.drawWithShadow(matrices, getCategory() != null ? getCategory().toString() : "[All Categories]", this.x + 4, this.y + (this.height - 8) / 2, Color.WHITE.getRGB());
+		} else textRenderer.drawWithShadow(
+			matrices, getCategory() != null ? getCategory().toString() : "[All Categories]", this.x + 4, this.y + (this.height - 8) / 2, Color.WHITE.getRGB()
+		);
     }
     
     private Rectangle getBounds(Category category) {

@@ -27,19 +27,16 @@ public class AdBlockFeature extends Feature implements EventListener {
 	
 	public void onEvent(ChatEvent e) {
 		if (!toggle) return;
-		
 		String string = getString(e.getMessage(), new StringBuilder());
-		
-//		boolean marketAd = string.matches("(.*\n)?\\[(Minehut|Market)]\\s.+");
-		
+
 		if (string.startsWith("\u00a7d[AD]") || string.startsWith("[AD]")) {
-			total++;
+			this.total++;
 			e.getClientPlayer().sendMessage(Text.of("\u00a7cBlocked "+total+" ad"+(total == 1 ? "" : "s")), true);
 			e.setCancelled(true);
 		}
 	}
 	
-	public String getString(Text text, StringBuilder builder) {
+	private String getString(Text text, StringBuilder builder) {
 		builder.append(text.getString());
 		for (Text sibling : text.getSiblings()) {
 			getString(sibling, builder);
