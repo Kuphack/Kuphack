@@ -86,7 +86,7 @@ public enum Charm implements Widget {
 	@Override
 	public ItemStack getIcon() {
 		ItemStack stack = new ItemStack(item);
-		stack.setCustomName(Text.literal("\u00a7f"+toString()));
+		stack.setCustomName(Text.literal("§f"+toString()));
 		return stack;
 	}
 	

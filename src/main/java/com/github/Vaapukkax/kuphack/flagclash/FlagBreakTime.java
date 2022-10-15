@@ -1,5 +1,9 @@
 package com.github.Vaapukkax.kuphack.flagclash;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 import com.github.Vaapukkax.kuphack.Feature;
 import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.Servers;
@@ -23,30 +27,29 @@ public class FlagBreakTime extends Feature implements WorldRenderEvents.AfterEnt
 	}
 	
 	public void show(BlockPos pos) {
-		location = new Vec3d(pos.getX()+0.5, pos.getY()+2, pos.getZ()+0.5);
-		time = System.currentTimeMillis()+20000;
+		location = new Vec3d(pos.getX() + 0.5, pos.getY() + 2, pos.getZ() + 0.5);
+		time = System.currentTimeMillis() + 20_000;
 	}
 
 	@Override
 	public void afterEntities(WorldRenderContext context) {
-		if (time != -1) {
-			double seconds = (time-System.currentTimeMillis())/1000d;
-			if (seconds < 0) {
-				time = -1;
-			} else {
-				MinecraftClient client = MinecraftClient.getInstance();
-				
-				MatrixStack matrix = context.matrixStack();
-				matrix.push();
-				
-				Vec3d p = context.camera().getPos();
-				matrix.translate(-p.x, -p.y, -p.z);
-				
-				matrix.translate(location.x, location.y, location.z);
-				Kuphack.renderText(Text.of("\u00a75Breaking in: "+seconds+"s"), matrix, client.getBufferBuilders().getEffectVertexConsumers());
-				matrix.pop();
-			}
-		}
+		if (time == -1) return;
+		
+		double seconds = (time - System.currentTimeMillis()) / 1000d;
+		if (seconds > 0) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			MatrixStack matrix = context.matrixStack();
+			matrix.push();
+			
+			Vec3d pos = context.camera().getPos();
+			matrix.translate(-pos.x, -pos.y, -pos.z);
+			
+			matrix.translate(location.x, location.y, location.z);
+			DecimalFormat format = new DecimalFormat("0.000");
+			format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+			Kuphack.renderText(Text.of("§5Breaking in: "+format.format(seconds)+"s"), matrix, client.getBufferBuilders().getEffectVertexConsumers());
+			matrix.pop();
+		} else this.time = -1;
 	}
 	
 }

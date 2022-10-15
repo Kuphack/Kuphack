@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash.screens;
+package com.github.Vaapukkax.kuphack.flagclash.sheets;
 
 import java.util.Collection;
 import java.util.Map;
@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
+@Deprecated
 @Environment(value=EnvType.CLIENT)
 public class SpreadsheetTab extends DrawableHelper {
 

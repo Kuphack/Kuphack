@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -28,6 +30,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ibm.icu.text.DecimalFormat;
+import com.ibm.icu.text.DecimalFormatSymbols;
 import com.mojang.datafixers.util.Pair;
 
 import net.fabricmc.api.ModInitializer;
@@ -63,7 +66,7 @@ public class Kuphack implements ModInitializer, EventListener {
 	private final ArrayList<Feature> features = new ArrayList<>();
 	
 	public MinehutButtonState mhButtonState = isFeather() ? MinehutButtonState.LEFT_CORNER : MinehutButtonState.RIGHT_CORNER;
-	public boolean autoUpdate = false;
+	public boolean autoUpdate = true;
 	
 	private Servers server;
 	private long customCheckTimeout = -1;
@@ -217,7 +220,7 @@ public class Kuphack implements ModInitializer, EventListener {
 	
 	public void onEvent(ChatEvent e) {
 		if (isOnMinehut()) {
-			if (e.getMessage().getString().equals("\u00a73Sending you to the lobby!")) {
+			if (e.getMessage().getString().equals("§3Sending you to the lobby!")) {
 				setServer(Servers.LOBBY);
 			} else if (getServer() == Servers.LOBBY) {
 				String message = e.getMessage().getString();
@@ -239,7 +242,7 @@ public class Kuphack implements ModInitializer, EventListener {
 	}
 	
 	public static Kuphack get() {
-		return instance;
+		return Kuphack.instance;
 	}
 	
 	private static boolean isOnMinehut(ServerInfo info) {
@@ -252,9 +255,9 @@ public class Kuphack implements ModInitializer, EventListener {
 	}
 	
 	public static String round(double value) {
-		DecimalFormat df = new DecimalFormat("#.#");
-//		df.setRoundingMode(RoundingMode.DOWN);
-		return df.format(value).replace(",", ".");
+		DecimalFormat df = new DecimalFormat("0.#");
+		df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+		return df.format(value);
 	}
 	
 	public static Servers getServer() {
@@ -327,14 +330,16 @@ public class Kuphack implements ModInitializer, EventListener {
 		matrix.pop();
 	}
 	
-	public static String stripColor(String message, char color) {
+	private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-ORX]");
+	
+	public static String stripColor(String message) {
 		if (message.isBlank()) return message;
-		return message.replaceAll("(?i)"+color+"[0-9A-FK-ORX]", "");
+		return COLOR_PATTERN.matcher(message).replaceAll("");
 	}
 	
 	public static String translateColor(String message) {
 		if (message.isBlank()) return message;
-		return message.replaceAll("&(?=([a-fA-F0-9]|k|l|m|n|o|r))", "\u00a7");
+		return message.replaceAll("(?i)&(?=[0-9A-FK-ORX])", "§");
 	}
 	
 	public static <T extends MutableText> T color(T text, Color color) {
@@ -351,6 +356,18 @@ public class Kuphack implements ModInitializer, EventListener {
 
 	public static String formatTime(double seconds) {
 		return (int)(seconds/60/60)+"h "+(int)(seconds/60%60)+"m "+(int)(seconds%60d)+"s";
+	}
+
+	public static void error(Throwable throwable) {
+		MinecraftClient c = MinecraftClient.getInstance();
+		Servers server = Kuphack.getServer();
+		if (c.player != null) c.player.sendMessage(Text.of(
+			"§c[Kuphack] Error occured " + (
+			server != null ? " maybe relating to " + server
+			: "outside of any server"
+			) + " (Printed to console)"
+		), true);
+		throwable.printStackTrace();
 	}
 	
 }

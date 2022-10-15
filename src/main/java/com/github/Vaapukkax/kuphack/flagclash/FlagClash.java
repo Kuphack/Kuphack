@@ -5,20 +5,19 @@ import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.Servers;
 import com.github.Vaapukkax.kuphack.flagclash.widgets.Quest;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 public class FlagClash {
 
 	public static BigInteger upgradePrice = BigInteger.ZERO;
 	
-	private static final String[] ve = {
+	private static final HashMap<String, String> statCache = new HashMap<>();
+	private static final String[] valueSuffix = {
 		"k",
 		"m",
 		"b",
@@ -52,13 +51,17 @@ public class FlagClash {
 	}
 	
 	public static String timeAsString(double time) {
-		return time > 60 ? Kuphack.round(time/60d)+"m" : Kuphack.round(time)+"s";
+		if (time < 60) return Kuphack.round(time)+"s";
+		String text = Kuphack.round(time/60d%60d)+"m";
+		if (time > 3600) text = Kuphack.round(time/60/60)+"h";
+		return text;
 	}
 	
 	public static Quest getQuest() {
 		return Quest.fromName(getStat("Quest").split("\\s")[0]);
 	}
 	
+	// TODO needs a recode, this code sucks no cap
 	public static BigInteger toRealValue(String s) {
 		try {
 			return new BigInteger(s);
@@ -67,53 +70,49 @@ public class FlagClash {
 				String suffix = (s.charAt(s.length()-1)+"");
 				double d = Double.parseDouble(s.substring(0, s.length()-1));
 	
-				int io = (Arrays.asList(ve).indexOf(suffix)+1);
+				int io = (Arrays.asList(valueSuffix).indexOf(suffix)+1);
 				StringBuilder sb = new StringBuilder("1");
 				for (int i = 0; i < io; i++) sb.append("000");
 				
 				return new BigDecimal(d).multiply(new BigDecimal(sb.toString())).toBigInteger();
 			} catch (Exception e2) {
 				Kuphack.LOGGER.error("toRealValue("+(s == null ? "null" : "\""+s+"\"")+")");
-				error(e2);
+				Kuphack.error(e2);
 				return BigInteger.ZERO;
 			}
 		}
 	}
 	public static String toVisualValue(BigInteger value) {
 		String is = value.toString();
-		
 		int io = ((is.length()-1)/3)-1;
 		
-		if (io < 0) {
-			return is.toString();
-		} else {
-			String suffix = ve[io];
+		if (io < 0) return is.toString();
+		
+		String suffix = valueSuffix[io];
 			
-			String p = is.substring(0, is.length()-io*3);
-			String prefix = is.substring(0, p.length()/2)+"."+is.substring(p.length()/2, p.length()).substring(0, 2);
-			return prefix+suffix;
-		}
+		String p = is.substring(0, is.length()-io*3);
+		String prefix = is.substring(0, p.length()/2)+"."+is.substring(p.length()/2, p.length()).substring(0, 2);
+		return prefix + suffix;
 	}
 	
 	public static BigInteger getCoins() {
 		return toRealValue(getStat("Gold").split("\\s")[0]);
 	}
 		
-	private static HashMap<String, String> oldStat = new HashMap<>();
 	public static String getStat(String stat) {
-		if (Kuphack.getServer() != Servers.FLAGCLASH) return oldStat.containsKey(stat) ? oldStat.get(stat) : "0";
-		List<Text> sb = Kuphack.getScoreboard();
-		for (int i = 0; i < sb.size(); i++) {
-			String sfs = sb.get(i).getString().replaceAll("(^\\s*)|(\\s*$)", "");
-			if (sfs.contains(stat)) {
-				String s = sfs.substring(sfs.indexOf(stat+": ")+(stat+": ").length());
-				s = s.substring(0, s.length()-4);
-//				if (s.indexOf(" ") != -1) s = s.substring(0, s.indexOf(" "));
-				oldStat.put(stat, s);
-				return s;
-			}
+		if (Kuphack.getServer() != Servers.FLAGCLASH)
+			return statCache.getOrDefault(stat, "0");
+		for (Text line : Kuphack.getScoreboard()) {
+			String cutLine = line.getString().replaceAll("(^\\s+)|(\\s+$)", "");
+			if (!cutLine.contains(stat)) continue;
+			
+			String value = Kuphack.stripColor(cutLine.substring(cutLine.indexOf(stat+": ")+(stat+": ").length()));
+			statCache.put(stat, value);
+			return value;
 		}
-		return oldStat.containsKey(stat) ? oldStat.get(stat) : "";
+		// couldn't find statistic on the sidebar
+		if (statCache.containsKey(stat)) return statCache.get(stat);
+		throw new IllegalArgumentException("Couldn't find '"+stat+"' on the sidebar");
 	}
 	
 	public static BigInteger getGPS() {
@@ -122,12 +121,11 @@ public class FlagClash {
 			if (integer.equals(BigInteger.ZERO)) return BigInteger.ONE;
 			return integer;
 		} catch (Exception e) {
-			error(e);
+			Kuphack.error(e);
 			return BigInteger.ONE;
 		}
 	}
 	public static BigDecimal getMultiplier() {
-//		if (true) return BigDecimal.ONE;
 		try {
 			String raw = getStat("Gps");
 			if (raw.isEmpty()) return BigDecimal.ONE;
@@ -142,15 +140,9 @@ public class FlagClash {
 			
 			return BigDecimal.valueOf(Integer.parseInt(intString)/100d);
 		} catch (Exception e) {
-			error(e);
+			Kuphack.error(e);
 			return BigDecimal.ONE;
 		}
-	}
-	
-	private static void error(Throwable throwable) {
-		MinecraftClient c = MinecraftClient.getInstance();
-		if (c.player != null) c.player.sendMessage(Text.of("\u00a7c[Kuphack] Error occured related to FlagClash (Printed to console)"), true);
-		throwable.printStackTrace();
 	}
 	
 }

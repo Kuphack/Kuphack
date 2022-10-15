@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.github.Vaapukkax.kuphack.AdBlockFeature;
 import com.github.Vaapukkax.kuphack.Kuphack;
+import com.github.Vaapukkax.kuphack.Servers;
 import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
 import com.github.Vaapukkax.kuphack.finder.MinehutServerListScreen;
 import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
@@ -148,9 +149,15 @@ public class SettingsKuphackScreen extends Screen {
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    	Servers server = Kuphack.getServer();
+    	Text connected = Text.of(server != null ? "Connected to " + server
+    		: Kuphack.isOnMinehut() ? "No extra features on this server"
+    	: "");
+    	
         this.renderBackground(matrices);
         this.buttonList.render(matrices, mouseX, mouseY, delta);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+        textRenderer.drawWithShadow(matrices, connected, this.width - this.textRenderer.getWidth(connected) - 15, 15, 0xFFFFFF);
         super.render(matrices, mouseX, mouseY, delta);
         
         for (ButtonWidget button : tooltips.keySet()) {

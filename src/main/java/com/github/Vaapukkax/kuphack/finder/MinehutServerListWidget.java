@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.finder.MinehutServerListWidget.Entry;
@@ -52,7 +53,8 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Entry
         super(client, width, height, top, bottom, entryHeight);
         this.screen = screen;
     }
-    
+
+    @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
     	if (screen.categoryWidget.isFocused()) return false;
     	return super.isMouseOver(mouseX, mouseY);
@@ -118,6 +120,19 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Entry
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    	if (keyCode == GLFW.GLFW_KEY_R && this.getHoveredEntry() instanceof ServerEntry) {
+    		ServerEntry entry = (ServerEntry) this.getHoveredEntry();
+    		if (!entry.updating) {
+	    		new Thread(() -> {
+	        		try {
+	        			entry.updating = true;
+	        			entry.server.update();
+	        		} finally {
+	        			entry.updating = false;
+	        		}
+	        	}).start();
+    		}
+    	}
         Entry entry = (Entry)this.getSelectedOrNull();
         return entry != null && entry.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
     }
@@ -178,8 +193,10 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Entry
         private final MinecraftClient client;
         private final Server server;
         private final ItemStack icon;
+        
         private long time;
-
+        private boolean updating;
+        
         protected ServerEntry(MinehutServerListScreen screen, Server server) {
             this.screen = screen;
             this.server = server;
@@ -200,7 +217,9 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Entry
                 this.client.textRenderer.draw(matrices, motdList.get(i), (float)(x + 32 + 3), (float)(y + 12 + this.client.textRenderer.fontHeight * i), 0x808080);
             }
             
-            Text playerCountText = Text.of(this.server.getPlayerCount()+"/"+this.server.getMaxPlayerCount());
+            Text playerCountText = Text.of(updating ? "Updating..."
+            	: this.server.getPlayerCount() + "/" + this.server.getMaxPlayerCount()
+            );
             int width = this.client.textRenderer.getWidth(playerCountText);
             this.client.textRenderer.draw(matrices, playerCountText, (float)(x + entryWidth - width - 15 - 2), (float)(y + 1), 0x808080);
 
@@ -293,9 +312,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Entry
             if (Screen.hasShiftDown()) {
                 MinehutServerListWidget multiplayerServerListWidget = this.screen.serverListWidget;
                 int i = multiplayerServerListWidget.children().indexOf(this);
-                if (i == -1) {
-                    return true;
-                }
+                if (i == -1) return true;
             }
             return super.keyPressed(keyCode, scanCode, modifiers);
         }

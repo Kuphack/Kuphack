@@ -14,7 +14,6 @@
     events.ClientPlayerInteractionMixin,
     flagclash.FlagMixin,
     flagclash.HUDMixin,
-    flagclash.SpreadsheetKeybindMixin,
     flagclash.ScoreboardMixin,
     MultiplayerScreenMixin,
     VinueText

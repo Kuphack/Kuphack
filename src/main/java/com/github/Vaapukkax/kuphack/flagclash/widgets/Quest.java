@@ -41,30 +41,66 @@ public enum Quest implements Widget {
 		this.difficulty = difficulty;
 	}
 
+	@Override
 	public String toString() {
 		return WordUtils.capitalize(name().replaceAll("_", " ").toLowerCase());
 	}
 	
 	private static final ArrayList<String> unknownQuests = new ArrayList<>();
+
+	@Override
+	public int getX() {
+		if (this.x == -1) this.x = Arrays.asList(values()).indexOf(this);
+		return this.x;
+	}
+
+	@Override
+	public int getY() {
+		return 0;
+	}
+
+	@Override
+	public ItemStack getIcon() {
+		ItemStack stack = new ItemStack(Items.FILLED_MAP);
+		MutableText text = Kuphack.color(Text.literal(toString()), new Color(143, 172, 205));
+		stack.setCustomName(text.append(" "+getDifficultyAsString()));
+		return stack;
+	}
+
+	public String getDifficultyAsString() {
+	    StringBuilder sb = new StringBuilder();
+	    for (int i = 0; i < 5; i++) {
+	    	if (i < difficulty) sb.append(FILLED_STAR);
+	    	else sb.append(EMPTY_STAR);
+	    }
+	    return sb.toString();
+	}
+
+	@Override
+	public List<Text> getDescription() {
+		return Arrays.asList(
+			Kuphack.color(Text.literal(" "+description), Color.decode("#5c5a96"))
+		);
+	}
+	
+	public static int getCurrentProcentage() {
+		for (Text line : Kuphack.getScoreboard()) {
+			if (line.getString().chars().filter(ch -> ch == '|').count() >= 15) {
+				return getProcentage(line.getSiblings()) * 5;
+			}
+		}
+		return 0;
+	}
 	
 	public static Quest fromName(String name) {
 		for (Quest quest : values()) {
 			if (quest.toString().equalsIgnoreCase(name)) return quest;
 		}
 		if (!unknownQuests.contains(name)) {
-			Kuphack.LOGGER.info("[Kuphack] Unknown quests: {"+String.join(", ", name)+"} [Hello! Kuphack doesnt know this quest so giv us the quest name and desc to fix this in the next update]");
+			Kuphack.LOGGER.info("[Kuphack] Unknown quests: '"+name+"' [Kuphack doesn't recognize this quest, please inform us]");
 			unknownQuests.add(name);
 		}
 		return null;
-	}
-	
-	public static int getCurrentProcentage() {
-		for (Text line : Kuphack.getScoreboard()) {
-			if (line.getString().chars().filter(ch -> ch == '|').count() >= 15) {
-				return getProcentage(line.getSiblings())*5;
-			}
-		}
-		return 0;
 	}
 	
 	private static int getProcentage(List<Text> siblings) {
@@ -83,48 +119,6 @@ public enum Quest implements Widget {
 			}
 		}
 		return procentage;
-	}
-
-	@Override
-	public int getX() {
-		if (x == -1) {
-			x = Arrays.asList(values()).indexOf(this);
-		}
-		return x;
-	}
-
-	@Override
-	public int getY() {
-		return 0;
-	}
-
-	@Override
-	public ItemStack getIcon() {
-		ItemStack stack = new ItemStack(Items.FILLED_MAP);
-		MutableText text = Kuphack.color(Text.literal(toString()), new Color(143, 172, 205));
-		stack.setCustomName(text.append(" "+getDifficultyAsString()));
-		
-//		NbtList loreTag = new NbtList();
-//		loreTag.add(NbtString.of("[{\"text\":\" "+description+"\",\"italic\":\"false\",\"color\":\"#5c5a96\"}]"));
-//		stack.getOrCreateSubNbt(ItemStack.DISPLAY_KEY).put(ItemStack.LORE_KEY, loreTag);
-
-		return stack;
-	}
-
-	public String getDifficultyAsString() {
-	    StringBuilder sb = new StringBuilder();
-	    for (int i = 0; i < 5; i++) {
-	    	if (i < difficulty) sb.append(FILLED_STAR);
-	    	else sb.append(EMPTY_STAR);
-	    }
-	    return sb.toString();
-	}
-
-	@Override
-	public List<Text> getDescription() {
-		return Arrays.asList(
-			Kuphack.color(Text.literal(" "+description), Color.decode("#5c5a96"))
-		);
 	}
 	
 }

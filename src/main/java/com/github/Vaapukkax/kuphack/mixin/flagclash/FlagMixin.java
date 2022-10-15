@@ -16,7 +16,6 @@ import com.github.Vaapukkax.kuphack.flagclash.FlagClash;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -38,7 +37,7 @@ public class FlagMixin {
 		MinecraftClient m = MinecraftClient.getInstance();
 		Text title = get().getTitle();
 		
-		if (title.getString().contains("Flag") && title.getString().contains("Upgrade")) {
+		if (title.getString().contains("Flag Menu")) {
 			if (!isHoldingFlag()) {
 				FlagClash.upgradePrice = getUpgradePrice();
 				time = FlagClash.getUpgradeTime();
@@ -46,7 +45,7 @@ public class FlagMixin {
 			if (time == -1.0) return;
 			ci.cancel();
 			
-			title = title.copy().append(Text.literal("\u00a77: "+FlagClash.timeAsString(time)));
+			title = title.copy().append(Text.literal("§7 Upgrade: "+FlagClash.timeAsString(time)));
 		}
 		
 		if (ci.isCancelled()) {
@@ -57,31 +56,21 @@ public class FlagMixin {
 	
 	private BigInteger getUpgradePrice() {
 		try {
-			GenericContainerScreen t = get();
-			MinecraftClient m = MinecraftClient.getInstance();
-			
-			DefaultedList<Slot> sl = t.getScreenHandler().slots;
-			for (int i = 0; i < sl.size(); i++) {
-				ItemStack s = sl.get(i).getStack();
-				List<Text> l = s.getTooltip(m.player, new TooltipContext() {
-					@Override
-					public boolean isAdvanced() {
-						return false;
-					}
-				});
-				if (l != null && l.size() >= 3) {
-					String line = l.get(2).getString();
-					if (line.contains("Costs: ")) {
-						return FlagClash.toRealValue(line.substring(1).split(" ")[1]);
-					}
+			MinecraftClient client = MinecraftClient.getInstance();
+			DefaultedList<Slot> slots = get().getScreenHandler().slots;
+			for (Slot slot : slots) {
+				List<Text> tooltip = slot.getStack().getTooltip(client.player, () -> false);
+				if (tooltip.size() < 3) continue;
+				
+				String line = tooltip.get(2).getString();
+				if (line.contains("Costs: ")) {
+					return FlagClash.toRealValue(line.substring(" Costs: ".length()));
 				}
 			}
-			return null;
 		} catch (Exception e) {
-			Kuphack.LOGGER.error("Something went wrong with displaying upgrade time");
-			e.printStackTrace();
-			return null;
+			Kuphack.error(e);
 		}
+		return null;
 	}
 	
 	private boolean isHoldingFlag() {

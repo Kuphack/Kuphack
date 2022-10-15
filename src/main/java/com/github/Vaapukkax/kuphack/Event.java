@@ -42,9 +42,8 @@ public abstract class Event {
 						if (parameters[0].getType().isAssignableFrom(event.getClass())) {
 							try {
 								method.invoke(listener, event);
-							} catch (Exception e) {
-								Kuphack.LOGGER.warn("Error during executing event");
-								e.printStackTrace();
+							} catch (Throwable e) {
+								Kuphack.error(e);
 							}
 						}
 					}

@@ -8,11 +8,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.flagclash.screens.SpreadSheetScreen;
+import com.github.Vaapukkax.kuphack.flagclash.sheets.SpreadSheetScreen;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 
+@Deprecated
 @Mixin(KeyBinding.class)
 public class SpreadsheetKeybindMixin {
 

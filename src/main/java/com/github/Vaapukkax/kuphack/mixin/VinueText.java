@@ -30,7 +30,7 @@ public abstract class VinueText extends EntityRenderer<AbstractClientPlayerEntit
 	    if (player.getGameProfile().getId().equals(UUID.fromString("d76c3884-1ead-40a9-8f65-461d3b5264e2"))) {//"Vinue".equals(text.getString())) {
 			matrixStack.push();
 		    matrixStack.translate(0, 0.2, 0);
-		    super.renderLabelIfPresent(player, Text.of("\u00a7dQuniaLover69"), matrixStack, vertexConsumerProvider, i);
+		    super.renderLabelIfPresent(player, Text.of("§dQuniaLover69"), matrixStack, vertexConsumerProvider, i);
 			matrixStack.pop();
 	    }
 	}

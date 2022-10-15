@@ -6,13 +6,9 @@ import net.minecraft.text.Text;
 
 public class ChatEvent extends Event {
 
-	private Text message;
+	private final Text message;
 	
 	public ChatEvent(Text message) {
-		this.message = message;
-	}
-	
-	public void setMessage(Text message) {
 		this.message = message;
 	}
 	

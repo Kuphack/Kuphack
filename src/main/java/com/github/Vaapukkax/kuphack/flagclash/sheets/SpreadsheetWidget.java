@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash.screens;
+package com.github.Vaapukkax.kuphack.flagclash.sheets;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,6 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
+@Deprecated
 @Environment(value=EnvType.CLIENT)
 public class SpreadsheetWidget extends DrawableHelper {
     private static final Identifier WIDGETS_TEXTURE = new Identifier("textures/gui/advancements/widgets.png");

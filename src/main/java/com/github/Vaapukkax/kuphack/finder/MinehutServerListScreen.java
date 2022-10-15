@@ -211,13 +211,11 @@ public class MinehutServerListScreen extends Screen {
     	String search = textField.getText().toLowerCase();
     	if (search.isBlank()) return true;
  
-    	String motd = Kuphack.stripColor(entry.getMOTD().toLowerCase(), '§').replaceAll("\n", " ");
+    	String motd = Kuphack.stripColor(entry.getMOTD().toLowerCase()).replaceAll("\n", " ");
     	
     	int motdi = 0;
     	for (String word : search.split("\\s")) {
-    		if (motd.contains(word)) {
-    			motdi++;
-    		}
+    		if (motd.contains(word)) motdi++;
     	}
     	
     	return entry.getName().toLowerCase().contains(search) || motdi == search.split("\\s").length;

@@ -49,7 +49,7 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 			
 			MinecraftClient client = MinecraftClient.getInstance();
 			if (client.player != null) {
-				client.player.sendMessage(Text.of("\u00a7a"+player.getName().getString()+" is now a friend"), false);
+				client.player.sendMessage(Text.of("§a"+player.getName().getString()+" is now a friend"), false);
 				client.player.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1, 1);
 			}
 			
@@ -67,7 +67,7 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 			
 			MinecraftClient client = MinecraftClient.getInstance();
 			if (client.player != null) {
-				client.player.sendMessage(Text.of("\u00a72"+player.getName().getString()+" is no longer a friend"), false);
+				client.player.sendMessage(Text.of("§2"+player.getName().getString()+" is no longer a friend"), false);
 				client.player.playSound(SoundEvents.ENTITY_VILLAGER_HURT, 1, 1);
 			}
 			save();
@@ -138,7 +138,7 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 			if (isFriend((PlayerEntity)e.getTarget())) {
 				e.setCancelled(true);
 				if (lastDamaged != e.getTarget())
-					e.getClientPlayer().sendMessage(Text.of("\u00a7cCan't attack a friend"), false);
+					e.getClientPlayer().sendMessage(Text.of("§cCan't attack a friend"), false);
 				e.getClientPlayer().playSound(SoundEvents.ITEM_SHIELD_BLOCK, 1, 1);
 			}
 			lastDamaged = (PlayerEntity)e.getTarget();

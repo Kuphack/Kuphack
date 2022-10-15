@@ -39,7 +39,7 @@ public class ScoreboardMixin {
 	
 	@Inject(method = "renderScoreboardSidebar", at = @At(value = "INVOKE"), cancellable = true)
     private void renderScoreboardSidebar(MatrixStack matrices, ScoreboardObjective objective, CallbackInfo ci) {
-		if (Kuphack.getServer() == Servers.FLAGCLASH || Kuphack.getServer() == Servers.FUNGIFY) {
+		if (Kuphack.getServer() == Servers.FLAGCLASH) {
 			MinecraftClient client = MinecraftClient.getInstance();
 			ci.cancel();
 						
@@ -53,7 +53,7 @@ public class ScoreboardMixin {
 	        int j = i = get().getTextRenderer().getWidth(text);
 	        int k = get().getTextRenderer().getWidth(SCOREBOARD_JOINER);
 	        
-	        if (Kuphack.getServer() == Servers.FLAGCLASH && Kuphack.get().getFeature(FlagLocation.class).isFlagPlaced()) {
+	        if (Kuphack.get().getFeature(FlagLocation.class).isFlagPlaced()) {
 	        	double time = FlagClash.getUpgradeTime();
 	        	if (time != -1) list2.add(Text.literal(" \u00a7fUpgrade Time: "+FlagClash.timeAsString(time)));
 	        }

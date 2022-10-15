@@ -40,7 +40,7 @@ public class ServerTrendingComparator implements Comparator<Server> {
 		int total = 0;
 		ArrayList<String> words = new ArrayList<>();
 		
-    	for (String word : Kuphack.stripColor(entry.getMOTD(), '§').split("\\s+")) {
+    	for (String word : Kuphack.stripColor(entry.getMOTD()).split("\\s+")) {
 	    	word = word.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
     		if (word.length() > 2 && !words.contains(word)) {
 	    		int points = trending.containsKey(word) ? trending.get(word) : 0;

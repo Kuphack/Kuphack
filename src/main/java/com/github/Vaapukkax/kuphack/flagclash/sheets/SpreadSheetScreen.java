@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash.screens;
+package com.github.Vaapukkax.kuphack.flagclash.sheets;
 
 import java.awt.Color;
 import java.util.Map;
@@ -24,6 +24,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(value = EnvType.CLIENT)
+@Deprecated
 public class SpreadSheetScreen extends Screen {
 	
 	private static final Identifier WINDOW_TEXTURE = new Identifier("textures/gui/advancements/window.png");
