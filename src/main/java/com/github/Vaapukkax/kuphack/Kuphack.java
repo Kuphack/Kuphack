@@ -66,7 +66,7 @@ public class Kuphack implements ModInitializer, EventListener {
 	private final ArrayList<Feature> features = new ArrayList<>();
 	
 	public MinehutButtonState mhButtonState = isFeather() ? MinehutButtonState.LEFT_CORNER : MinehutButtonState.RIGHT_CORNER;
-	public boolean autoUpdate = true;
+	public boolean autoUpdate = !isFeather();
 	
 	private Servers server;
 	private long customCheckTimeout = -1;

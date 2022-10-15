@@ -24,8 +24,6 @@ import net.minecraft.util.Util;
 
 public class UpdateChecker {
 
-//	private static final String repository = "https://github.com/kuphack/kuphack/";
-
 	private static UpdateStatus status;
 	private static Runnable download;
 	
@@ -81,6 +79,12 @@ public class UpdateChecker {
 			status = new UpdateStatus("Dev: v"+getCurrentTag()+" Latest: v"+getLatestVersion(getLatestRelease()), () -> {
 				if (c.world == null) open(url);
 			});
+			return;
+		}
+		
+		if (Kuphack.isFeather()) {
+			Kuphack.LOGGER.info("[Kuphack.cc] can't download on feather");
+			status = new UpdateStatus("Can't auto update on Feather, please download it automatically", () -> open(url));
 			return;
 		}
 		
