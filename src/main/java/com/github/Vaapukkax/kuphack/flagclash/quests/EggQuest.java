@@ -27,7 +27,7 @@ public class EggQuest extends Feature implements WorldRenderEvents.AfterEntities
 //	private Vec3d location;
 	
 	public EggQuest() {
-		super(Servers.FLAGCLASH);
+		super("Allows you to find eggs more easily", Servers.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
 	

@@ -8,8 +8,8 @@ public abstract class HotkeyFeature extends Feature implements ClientTickEvents.
 
 	private final KeyBinding binding;
 	
-	public HotkeyFeature(Servers... servers) {
-		super(servers);
+	public HotkeyFeature(String description, Servers... servers) {
+		super(description, servers);
 		this.binding = null;
 	}
 	
@@ -17,11 +17,9 @@ public abstract class HotkeyFeature extends Feature implements ClientTickEvents.
 	
 	@Override
 	public void onStartTick(MinecraftClient client) {
-		if (binding == null || !isOnServer() || client.player == null) return;
+		if (binding == null || isPlaying()) return;
 		
-		while (binding.wasPressed()) {
-			onPress(client);
-		}
+		while (binding.wasPressed()) this.onPress(client);
 	}
 
 }

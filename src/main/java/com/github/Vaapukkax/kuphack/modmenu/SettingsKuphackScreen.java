@@ -4,12 +4,11 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.AdBlockFeature;
+import com.github.Vaapukkax.kuphack.Feature;
 import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.Servers;
 import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
@@ -19,6 +18,7 @@ import com.github.Vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.Vaapukkax.kuphack.updater.UpdateStatus;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -26,13 +26,14 @@ import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 public class SettingsKuphackScreen extends Screen {
 
-	private boolean lobbyInjectToggle = false, autoUpdate = false;
-	private boolean checkedForUpdate = false;
+	private boolean autoUpdate = false;
 	
+	private boolean checkedForUpdate = false;
 	private final HashMap<ButtonWidget, String> tooltips = new HashMap<>();
 	private ButtonListWidget buttonList;
 
@@ -56,7 +57,7 @@ public class SettingsKuphackScreen extends Screen {
         int xR = x + 160;
         int y = this.height / 6 - 3;
 
-        load();
+        this.load();
         
         tooltips.put(this.addDrawableChild(new ButtonWidget(
         	x, y, 150, 20, // top-left
@@ -70,48 +71,35 @@ public class SettingsKuphackScreen extends Screen {
         		
         		button.setMessage(Text.of("MH List Button: "+Kuphack.get().mhButtonState));
         	}
-        )), "Affects the location of the Minehut server list button\nin the Multiplayer menu");
+        )), "Affects the location of the Minehut server list button in the Multiplayer menu");
         
         tooltips.put(this.addDrawableChild(new ButtonWidget(
-        	xR, y, 150, 20, // top-right
-        	Text.of("List Replacement: "+lobbyInjectToggle),
-        	button -> {
-        		lobbyInjectToggle = !lobbyInjectToggle;
-        		button.setMessage(Text.of("List Replacement: "+lobbyInjectToggle));
-        	}
-        )), "Whether to use the custom Minehut server list\nwhen opening the server list in the lobby");
-
-        AdBlockFeature adBlock = Kuphack.get().getFeature(AdBlockFeature.class);
-        tooltips.put(this.addDrawableChild(new ButtonWidget(
-    		x, y += 24, 150, 20, // middle-left
-    		Text.of("Ad Block: "+adBlock.toggle),
-    		button -> {
-    			adBlock.toggle = !adBlock.toggle;
-    			button.setMessage(Text.of("Ad Block: "+adBlock.toggle));
-    		}
-        )), "Removes server advertisments in the lobby");
-        
-        tooltips.put(this.addDrawableChild(new ButtonWidget(
-    		xR, y, 150, 20, // middle-right
+    		xR, y, 150, 20, // top-right
     		Text.of("Server List..."),
     		button -> client.setScreen(new MinehutServerListScreen(this))
-        )), "Opens the Minehut server list\ncan also be accessed in multiplayer menu");
-
+        )), "Opens the Minehut server list which can also be accessed in multiplayer menu");
+        
         tooltips.put(this.addDrawableChild(new ButtonWidget(
-    		x, y += 24, 150, 20, // bottom-left
+    		x, y += 24, 150, 20, // mid-left
     		Text.of("Auto Update: "+autoUpdate),
     		button -> {
         		autoUpdate = !autoUpdate;
         		button.setMessage(Text.of("Auto Update: "+autoUpdate));
     		}
-        )), "Toggles automatic updating of Kuphack.\nDisabled by default cause it downloads the newest\nversion even when the Minecraft version doesn't match.");
+        )), "Toggles automatic updating and downloading (unless on Feather) of Kuphack.");
         
         tooltips.put(this.addDrawableChild(new ButtonWidget(
-    		xR, y, 150, 20, // bottom-right
+    		xR, y, 150, 20, // mid-right
+    		Text.of("Features..."),
+    		button -> this.client.setScreen(new FeatureManagementScreen(this))
+        )), "Opens the feature management screen. You can toggle features from there, which ain't recommended but be free to do so");
+        
+        tooltips.put(this.addDrawableChild(new ButtonWidget(
+    		x, y += 24, 150, 20, // bottom-left
     		Text.of("Check for Updates"),
     		button -> checkForUpdates(button)
-        )), "Retrieves the latest kuphack update\nand downloads it if possible.");
-
+        )), "Retrieves the latest kuphack update and downloads it if possible.");
+        
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 28 /*y += 24*/, 200, 20, ScreenTexts.DONE, button -> this.client.setScreen(this.parent)));
         initialized = true;
     }
@@ -162,11 +150,8 @@ public class SettingsKuphackScreen extends Screen {
         
         for (ButtonWidget button : tooltips.keySet()) {
         	if (button.isHovered()) {
-        		ArrayList<Text> tooltip = new ArrayList<>();
-        		for (String line : tooltips.get(button).split("\n")) {
-        			tooltip.add(Text.of(line));
-        		}
-        		renderTooltip(matrices, tooltip, mouseX, mouseY);
+        		List<OrderedText> tooltip = textRenderer.wrapLines(Text.of(tooltips.get(button)), 250);
+        		renderOrderedTooltip(matrices, tooltip, mouseX, mouseY);
         	}
         }
     }
@@ -186,12 +171,8 @@ public class SettingsKuphackScreen extends Screen {
 		JsonObject object = new Gson().fromJson(Kuphack.get().readDataFile(), JsonObject.class);
 		if (object == null) return;
 		
-    	if (object.has("lobbyInject"))
-    		lobbyInjectToggle = object.get("lobbyInject").getAsBoolean();
     	if (object.has("mhButtonState"))
     		Kuphack.get().mhButtonState = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
-    	if (object.has("adblock"))
-    		Kuphack.get().getFeature(AdBlockFeature.class).toggle = object.get("adblock").getAsBoolean();
     	if (object.has("auto-update"))
     		Kuphack.get().autoUpdate = object.get("auto-update").getAsBoolean();
     }
@@ -204,9 +185,11 @@ public class SettingsKuphackScreen extends Screen {
     	
     	object.add("friends", Kuphack.get().getFeature(FriendFeature.class).toJsonArray());
     	
-    	object.addProperty("lobbyInject", lobbyInjectToggle);
+    	JsonArray array = new JsonArray();
+    	Kuphack.get().getFeatures().stream().filter(Feature::isDisabled)
+    		.forEach(feature -> array.add(feature.getClass().getSimpleName()));
+    	object.add("disabled", array);
     	object.addProperty("mhButtonState", Kuphack.get().mhButtonState.name());
-    	object.addProperty("adblock", Kuphack.get().getFeature(AdBlockFeature.class).toggle);
     	object.addProperty("auto-update", Kuphack.get().autoUpdate);
     	
     	write(gson.toJson(object));

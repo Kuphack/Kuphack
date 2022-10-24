@@ -27,7 +27,7 @@ public class DelicateFlowerQuest extends Feature implements WorldRenderEvents.Af
 //	private Vec3d location;
 	
 	public DelicateFlowerQuest() {
-		super(Servers.FLAGCLASH);
+		super("Allows you to find the delicate flowers more easily", Servers.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
 	

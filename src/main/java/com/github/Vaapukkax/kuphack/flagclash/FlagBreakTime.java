@@ -22,7 +22,7 @@ public class FlagBreakTime extends Feature implements WorldRenderEvents.AfterEnt
 	private long time = -1;
 	
 	public FlagBreakTime() {
-		super(Servers.FLAGCLASH);
+		super("Shows the flag break time above your flag", Servers.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
 	

@@ -3,8 +3,6 @@ package com.github.Vaapukkax.kuphack.flagclash.sheets;
 import java.awt.Color;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import com.github.Vaapukkax.kuphack.flagclash.widgets.Charm;
 import com.github.Vaapukkax.kuphack.flagclash.widgets.GoldFountain;
 import com.github.Vaapukkax.kuphack.flagclash.widgets.Quest;
@@ -44,7 +42,6 @@ public class SpreadSheetScreen extends Screen {
 	private static final Text EMPTY_TEXT = Text.translatable("advancements.empty");
 	private final Map<Widget, SpreadsheetTab> tabs = Maps.newLinkedHashMap();
 	
-	@Nullable
 	private SpreadsheetTab selectedTab;
 	private boolean movingTab;
 	
@@ -246,7 +243,6 @@ public class SpreadSheetScreen extends Screen {
 		this.alpha += (alphaDestination-alpha)*0.2f;//(bl ? MathHelper.clamp(this.alpha + 0.04f, 0.0f, 0.5f) : MathHelper.clamp(this.alpha - 0.08f, 0.0f, 1.0f));
 	}
 
-	@Nullable
 	public SpreadsheetWidget getSpreadsheetWidget(Widget widget) {
 		for (SpreadsheetTab tab : tabs.values()) {
 			for (SpreadsheetWidget spreadsheetWidget : tab.getWidgets()) {
@@ -257,12 +253,11 @@ public class SpreadSheetScreen extends Screen {
 		return null;
 	}
 
-	@Nullable
-	private SpreadsheetTab getTab(SpreadsheetWidget widget) {
-		while (widget.getParent() != null) {
-			widget = widget.getParent();
-		}
-		return this.tabs.get(widget.getWidget());
-	}
+//	private SpreadsheetTab getTab(SpreadsheetWidget widget) {
+//		while (widget.getParent() != null) {
+//			widget = widget.getParent();
+//		}
+//		return this.tabs.get(widget.getWidget());
+//	}
 
 }

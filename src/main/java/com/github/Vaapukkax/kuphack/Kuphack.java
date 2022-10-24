@@ -20,9 +20,11 @@ import org.slf4j.LoggerFactory;
 import com.github.Vaapukkax.kuphack.events.ChatEvent;
 import com.github.Vaapukkax.kuphack.events.ServerJoinEvent;
 import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
+import com.github.Vaapukkax.kuphack.flagclash.FastPipe;
 import com.github.Vaapukkax.kuphack.flagclash.FlagBreakTime;
 import com.github.Vaapukkax.kuphack.flagclash.FlagLocation;
 import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.Vaapukkax.kuphack.flagclash.RevokerArea;
 import com.github.Vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.Vaapukkax.minehut.Minehut;
 import com.google.common.collect.Iterables;
@@ -83,6 +85,8 @@ public class Kuphack implements ModInitializer, EventListener {
 		features.add(new FlagBreakTime());
 		features.add(new FlagLocation());
 		features.add(new FriendFeature());
+		features.add(new RevokerArea());
+		features.add(new FastPipe());
 		
 		// LOBBY
 		features.add(new AdBlockFeature());
@@ -92,7 +96,7 @@ public class Kuphack implements ModInitializer, EventListener {
 		Gson gson = new Gson();
 		JsonObject object = new JsonObject();
 		try {
-			object = gson.fromJson(Kuphack.get().readDataFile(), JsonObject.class);
+			object = gson.fromJson(readDataFile(), JsonObject.class);
 		} catch (Exception e) {}
 		if (object != null) {
 			if (object.has("mhButtonState"))
@@ -109,11 +113,12 @@ public class Kuphack implements ModInitializer, EventListener {
 			public void onStartTick(MinecraftClient client) {
 				boolean debug = FabricLoader.getInstance().isDevelopmentEnvironment();
 				if (debug && getServer() != Servers.FLAGCLASH)
-					onEvent(new ServerJoinEvent(new ServerInfo("FlagClash", "fungify.minehut.gg", false)));
+					onEvent(new ServerJoinEvent(new ServerInfo("FlagClash", "flagclash.minehut.gg", false)));
 
 				if (client.isInSingleplayer() && !debug) setServer(null);
 				
-				if (System.currentTimeMillis()-customCheckTimeout > 3000) {
+				// TODO recode, there are better ways to do this
+				if (System.currentTimeMillis()-customCheckTimeout > 1500) {
 					for (Servers server : Servers.values()) {
 						if (getServer() != server && server.test(client)) {
 							setServer(server);
@@ -153,13 +158,13 @@ public class Kuphack implements ModInitializer, EventListener {
 		customCheckTimeout = System.currentTimeMillis();
 		
 		for (Feature feature : features) {
-			if (feature.isOnServer()) feature.onDisable();
+			if (feature.isOnServer() && !feature.isDisabled()) feature.onDeactivate();
 		}
 		
 		this.server = server;
 		
 		for (Feature feature : features) {
-			if (feature.isOnServer()) feature.onEnable();
+			if (feature.isOnServer() && !feature.isDisabled()) feature.onActivate();
 		}
 	}
 
@@ -195,6 +200,11 @@ public class Kuphack implements ModInitializer, EventListener {
 			if (feature.getClass().isAssignableFrom(clazz)) return clazz.cast(feature);
 		}
 		return null;
+	}
+	
+	public List<Feature> getFeatures() {
+		return this.features.stream().filter(feature -> !feature.getClass().equals(FlagLocation.class))
+			.collect(Collectors.toUnmodifiableList());
 	}
 	
 	public void onEvent(ServerJoinEvent e) {

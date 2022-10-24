@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.github.Vaapukkax.kuphack.Event;
-import com.github.Vaapukkax.kuphack.events.BlockPlaceEvent;
+import com.github.Vaapukkax.kuphack.events.ClientBlockPlaceEvent;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
@@ -24,7 +24,7 @@ public class BlockPlaceMixin {
 		if (ci.getReturnValue() == ActionResult.SUCCESS) {
 			BlockPos pos = context.getBlockPos().add(context.getSide().getVector());
 			Block block = c.world.getBlockState(pos).getBlock();
-			Event.call(new BlockPlaceEvent(pos, block));
+			Event.call(new ClientBlockPlaceEvent(pos, block));
 		}
 	}
 }

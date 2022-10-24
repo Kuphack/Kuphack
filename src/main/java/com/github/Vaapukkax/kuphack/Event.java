@@ -29,11 +29,13 @@ public abstract class Event {
 	public static void register(EventListener listener) {
 		if (!listeners.contains(listener)) listeners.add(listener);
 	}
+	
 	public static void unregister(EventListener listener) {
 		if (listeners.contains(listener)) listeners.remove(listener);
 	}
 	
 	public static void call(Event event) {
+		long start = System.currentTimeMillis();
 		for (EventListener listener : new ArrayList<>(listeners)) {
 			for (Method method : listener.getClass().getDeclaredMethods()) {
 				if (method.getName().equalsIgnoreCase("onEvent")) {
@@ -50,6 +52,10 @@ public abstract class Event {
 				}
 			}
 		}
+		long difference = System.currentTimeMillis() - start;
+		if (difference > 50) Kuphack.LOGGER.info(
+			event.getClass().getSimpleName()+" took a while! approx " + difference + " ms"
+		);
 	}
 	
 }

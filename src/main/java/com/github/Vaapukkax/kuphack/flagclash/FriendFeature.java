@@ -3,6 +3,7 @@ package com.github.Vaapukkax.kuphack.flagclash;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,9 @@ import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvents;
@@ -33,7 +36,7 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 	private PlayerEntity lastDamaged;
 	
 	public FriendFeature() {
-		super(Servers.FLAGCLASH, Servers.BITZONE);
+		super("Lets you not attack your friends", Servers.FLAGCLASH, Servers.BITZONE);
 		HudRenderCallback.EVENT.register(this);
 		ClientLifecycleEvents.CLIENT_STOPPING.register(e -> save());
 		load();
@@ -158,9 +161,13 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 			
 			if (client.mouse.wasMiddleButtonClicked()) {
 				if (!middlePressed) {
-					
 					if (!isFriend(player)) {
-						if (client.player.isSneaking()) addFriend(player);
+						if (client.player.isSneaking()) {
+							if (isDisabled()) client.player.sendMessage(
+								Text.of("§cFriend feature isn't enabled!")
+							, true);
+							addFriend(player);
+						}
 					} else removeFriend(player);
 					
 					middlePressed = true;
@@ -168,14 +175,44 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 			} else middlePressed = false;
 			
 			if (isFriend(player)) {
-				TextRenderer tr = client.textRenderer;
-				
-				String str = client.targetedEntity.getName().getString()+" Friended";
-				tr.drawWithShadow(matrix, str, client.getWindow().getScaledWidth()/2-tr.getWidth(str)/2, 30, new Color(85, 255, 85).getRGB());
-				str = "Remove by Middle Clicking";
-				tr.drawWithShadow(matrix, str, client.getWindow().getScaledWidth()/2-tr.getWidth(str)/2, 39, new Color(0, 170, 0).getRGB());
+				String text = isDisabled() ? "Friend feature is disabled" : client.targetedEntity.getName().getString() + " Friended";
+				client.textRenderer.drawWithShadow(matrix, text,
+					client.getWindow().getScaledWidth()/2 - client.textRenderer.getWidth(text)/2, 30
+				, (isDisabled() ? new Color(255, 85, 85) : new Color(85, 255, 85)).getRGB());
+				text = isDisabled() ? "Remove friend by Middle Clicking" : "Remove by Middle Clicking";
+				client.textRenderer.drawWithShadow(matrix, text,
+					client.getWindow().getScaledWidth()/2 - client.textRenderer.getWidth(text)/2, 39
+				, (isDisabled() ? new Color(170, 0, 0) : new Color(0, 170, 0)).getRGB());
 			}
 		}
+	}
+	
+	public List<String> getFriendNames() {
+		ClientPlayNetworkHandler players = client.getNetworkHandler();
+		return this.friends.stream().map(uuid -> {
+			PlayerListEntry entry = players != null ? players.getPlayerListEntry(uuid) : null;
+			return entry != null ? entry.getProfile().getName() : uuid.toString();
+		}).sorted().toList();
+	}
+	
+	@Override
+	public String getDescription() {
+		StringBuilder builder = new StringBuilder();
+		Iterator<String> iterator = this.getFriendNames().iterator();
+		while (iterator.hasNext()) {
+			builder.append(iterator.next());
+			if (iterator.hasNext()) builder.append(", ");
+		}
+		if (builder.isEmpty()) {
+			GameOptions options = client.options;
+			return "Add friends with ["+options.sneakKey.getBoundKeyLocalizedText().getString()+"] + ["+Text.translatable("key.mouse.middle").getString()+"]";
+		}
+		return "Added friends: "+builder.toString();
+	}
+	
+	@Override
+	public String getName() {
+		return "Friends";
 	}
 	
 }

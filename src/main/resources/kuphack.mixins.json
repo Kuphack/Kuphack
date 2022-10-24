@@ -8,7 +8,8 @@
   ],
   "client": [
     events.BlockPlaceMixin,
-    events.BreakMixin,
+    events.BlockUpdateMixin,
+    events.BlockBreakMixin,
     events.ChatMixin,
     events.MinecraftEventMixin,
     events.ClientPlayerInteractionMixin,

@@ -339,6 +339,6 @@ public class MinehutServerListScreen extends Screen {
         sortedEntries.addAll(map.entrySet());
         return sortedEntries;
     }
-
+    
 }
 

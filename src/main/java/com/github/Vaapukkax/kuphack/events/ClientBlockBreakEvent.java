@@ -6,11 +6,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
 
-public class BlockBreakEvent extends Event {
+public class ClientBlockBreakEvent extends Event {
 
 	private final BlockPos pos;
 	
-	public BlockBreakEvent(BlockPos pos) {
+	public ClientBlockBreakEvent(BlockPos pos) {
 		this.pos = pos;
 	}
 	

@@ -3,7 +3,7 @@ package com.github.Vaapukkax.kuphack.flagclash.sheets;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import com.github.Vaapukkax.kuphack.flagclash.widgets.Widget;
 import com.google.common.collect.Maps;
@@ -202,7 +202,6 @@ public class SpreadsheetTab extends DrawableHelper {
         return this.type.isClickOnTab(screenX, screenY, this.index, mouseX, mouseY);
     }
 
-    @Nullable
     public static SpreadsheetTab create(MinecraftClient client, SpreadSheetScreen screen, boolean renderLines, int index, Widget root, Widget display) {
 
         for (SpreadsheetTabType advancementTabType : SpreadsheetTabType.values()) {
