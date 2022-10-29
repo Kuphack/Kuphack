@@ -28,7 +28,7 @@ public class FlagBreakTimeFeature extends Feature implements WorldRenderEvents.A
 	
 	public void show(BlockPos pos) {
 		location = new Vec3d(pos.getX() + 0.5, pos.getY() + 2, pos.getZ() + 0.5);
-		time = System.currentTimeMillis() + 20_000;
+		time = System.currentTimeMillis() + 25_000;
 	}
 
 	@Override
