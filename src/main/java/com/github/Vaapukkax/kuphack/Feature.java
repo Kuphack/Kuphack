@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 
 public abstract class Feature {
@@ -38,7 +39,8 @@ public abstract class Feature {
 	
 	public boolean isOnServer() {
 		Servers current = Kuphack.getServer();
-		if (current == null || MinecraftClient.getInstance().getCurrentServerEntry() == null) return false;
+		if (current == null || (!FabricLoader.getInstance().isDevelopmentEnvironment() && client.getCurrentServerEntry() == null))
+			return false;
 		
 		if (servers == null || servers.length == 0) return true;
 		for (Servers server : servers) {

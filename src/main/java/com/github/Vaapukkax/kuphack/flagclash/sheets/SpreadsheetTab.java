@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.github.Vaapukkax.kuphack.flagclash.widgets.Widget;
+import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -19,7 +19,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
-@Deprecated
 @Environment(value=EnvType.CLIENT)
 public class SpreadsheetTab extends DrawableHelper {
 
@@ -51,7 +50,7 @@ public class SpreadsheetTab extends DrawableHelper {
         this.display = display;
         this.icon = display.getIcon();
         this.title = display.getTitle();
-        this.rootWidget = new SpreadsheetWidget(this, client, root);
+        this.rootWidget = new SpreadsheetWidget(this, client, root, 0, 0);
         this.addWidget(this.rootWidget, root);
     }
 
@@ -125,14 +124,8 @@ public class SpreadsheetTab extends DrawableHelper {
             this.initialized = true;
         }
         matrices.push();
-        matrices.translate(0.0, 0.0, 950.0);
         RenderSystem.enableDepthTest();
-//        RenderSystem.colorMask(false, false, false, false);
-//        SpreadsheetTab.fill(matrices, 4680, 2260, -4680, -2260, new Color(0, 0, 0, 0).getRGB());
         RenderSystem.colorMask(true, true, true, true);
-        matrices.translate(0.0, 0.0, -950.0);
-        RenderSystem.depthFunc(518);
-        SpreadsheetTab.fill(matrices, 234, 113, 0, 0, -16777216);
         RenderSystem.depthFunc(515);
 
         int i = MathHelper.floor(this.originX);
@@ -226,8 +219,8 @@ public class SpreadsheetTab extends DrawableHelper {
 //        this.originX = MathHelper.clamp(this.originX, minPanX, maxPanX);
     }
 
-    public SpreadsheetWidget addWidget(Widget widget) {
-        SpreadsheetWidget spreadsheetWidget = new SpreadsheetWidget(this, this.client, widget);
+    public SpreadsheetWidget addWidget(Widget widget, int x, int y) {
+        SpreadsheetWidget spreadsheetWidget = new SpreadsheetWidget(this, this.client, widget, x, y);
         this.addWidget(spreadsheetWidget, widget);
         return spreadsheetWidget;
     }
@@ -242,9 +235,6 @@ public class SpreadsheetTab extends DrawableHelper {
         this.maxPanX = Math.max(this.maxPanX, j);
         this.minPanY = Math.min(this.minPanY, k);
         this.maxPanY = Math.max(this.maxPanY, l);
-        for (SpreadsheetWidget advancementWidget : this.widgets.values()) {
-            advancementWidget.addToTree();
-        }
     }
 
     @Nullable

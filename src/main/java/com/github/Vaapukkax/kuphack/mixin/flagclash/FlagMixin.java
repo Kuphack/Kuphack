@@ -1,6 +1,7 @@
 package com.github.Vaapukkax.kuphack.mixin.flagclash;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,9 +19,7 @@ import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
-import net.minecraft.util.collection.DefaultedList;
 
 @Mixin(HandledScreen.class)
 public class FlagMixin {
@@ -39,7 +38,7 @@ public class FlagMixin {
 		
 		if (title.getString().contains("Flag Menu")) {
 			if (!isHoldingFlag()) {
-				FlagClash.upgradePrice = getUpgradePrice();
+				FlagClash.setUpgradeCost(getUpgradePrice());
 				time = FlagClash.getUpgradeTime();
 			}
 			if (time == -1.0) return;
@@ -56,15 +55,15 @@ public class FlagMixin {
 	
 	private BigInteger getUpgradePrice() {
 		try {
-			MinecraftClient client = MinecraftClient.getInstance();
-			DefaultedList<Slot> slots = get().getScreenHandler().slots;
-			for (Slot slot : slots) {
-				List<Text> tooltip = slot.getStack().getTooltip(client.player, () -> false);
-				if (tooltip.size() < 3) continue;
-				
-				String line = tooltip.get(2).getString();
-				if (line.contains("Costs: ")) {
-					return FlagClash.toRealValue(line.substring(" Costs: ".length()));
+			for (ItemStack stack : get().getScreenHandler().slots.stream()
+					.map(slot -> slot.getStack())
+					.toList()) {
+				if (!Arrays.asList("Rebirth", "Level up").contains(stack.getName().getString()))
+					continue;
+				List<String> lore = Kuphack.getStripLore(stack);
+				for (String line : lore) {
+					if (!line.contains("Costs: ")) continue;
+					return FlagClash.toRealValue(line.substring("Costs: ".length()));
 				}
 			}
 		} catch (Exception e) {

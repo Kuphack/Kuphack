@@ -1,12 +1,9 @@
 package com.github.Vaapukkax.kuphack.flagclash.sheets;
 
-import java.awt.Color;
 import java.util.Map;
 
-import com.github.Vaapukkax.kuphack.flagclash.widgets.Charm;
-import com.github.Vaapukkax.kuphack.flagclash.widgets.GoldFountain;
-import com.github.Vaapukkax.kuphack.flagclash.widgets.Quest;
-import com.github.Vaapukkax.kuphack.flagclash.widgets.Widget;
+import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Tree;
+import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -15,14 +12,11 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(value = EnvType.CLIENT)
-@Deprecated
 public class SpreadSheetScreen extends Screen {
 	
 	private static final Identifier WINDOW_TEXTURE = new Identifier("textures/gui/advancements/window.png");
@@ -39,95 +33,61 @@ public class SpreadSheetScreen extends Screen {
 	
 	protected float alpha;
 	
-	private static final Text EMPTY_TEXT = Text.translatable("advancements.empty");
+	private static final Text EMPTY_TEXT = Text.literal("There is no spreadsheet! :(");
 	private final Map<Widget, SpreadsheetTab> tabs = Maps.newLinkedHashMap();
 	
 	private SpreadsheetTab selectedTab;
 	private boolean movingTab;
 	
 	public SpreadSheetScreen() {
-		super(NarratorManager.EMPTY);
+		super(Text.of("Spreadsheet"));
 	}
 
 	@Override
 	protected void init() {
-		this.tabs.clear();
-
+//      // Shop Layout
+//		ShopLayoutItem rootItem = LayoutTree.ROOT.getItem();
+//		SpreadsheetTab layoutTab = SpreadsheetTab.create(client, this, true, 0, rootItem, new DisplayWidget("Shop Layout", Items.TNT));
+//		this.generateWidgets(layoutTab, LayoutTree.ROOT, layoutTab.getRoot(), 0);
+//		this.tabs.put(rootItem, layoutTab);
+//		
 //		// Weapons
 //		Weapon rootWeapon = WeaponTree.ROOT.getItem();
 //		SpreadsheetTab weaponTab = SpreadsheetTab.create(client, this, true, 0, rootWeapon, new DisplayWidget("Weapons", Items.GOLDEN_SWORD));
 //		generateWeaponWidgets(weaponTab, WeaponTree.ROOT, weaponTab.getRoot());
 //		this.tabs.put(rootWeapon, weaponTab);
+
+//		// Charms
+//		Charm rootCharm = Charm.values()[0];
+//		SpreadsheetWidget lastWidget = null;
+//		SpreadsheetTab charmTab = SpreadsheetTab.create(client, this, false, 0, rootCharm, new DisplayWidget("Charms", Items.ENDER_EYE));
+//		for (Charm charm : Charm.values()) {
+//			SpreadsheetWidget widget = charm == rootCharm ? charmTab.getRoot() : charmTab.addWidget(charm);
+//			if (lastWidget != null) lastWidget.addChild(widget);
+//			lastWidget = widget;	
+//		}
+//		this.tabs.put(rootCharm, charmTab);
 //		
-//		// Gear
-//		Gear rootGear = GearTree.ROOT.getItem();
-//		SpreadsheetTab gearTab = SpreadsheetTab.create(client, this, true, 1, rootGear, new DisplayWidget("Gears", Items.IRON_PICKAXE));
-//		generateWeaponWidgets(gearTab, GearTree.ROOT, gearTab.getRoot());
-//		this.tabs.put(rootGear, gearTab);
-//
-		// Charms
-		Charm rootCharm = Charm.values()[0];
-		SpreadsheetWidget lastWidget = null;
-		SpreadsheetTab charmTab = SpreadsheetTab.create(client, this, false, 0, rootCharm, new DisplayWidget("Charms", Items.ENDER_EYE));
-		for (Charm charm : Charm.values()) {
-			SpreadsheetWidget widget = charm == rootCharm ? charmTab.getRoot() : charmTab.addWidget(charm);
-			if (lastWidget != null) lastWidget.addChild(widget);
-			lastWidget = widget;	
-		}
-		this.tabs.put(rootCharm, charmTab);
-		
-		// Quests
-		Quest rootQuest = Quest.values()[0];
-		lastWidget = null;
-		SpreadsheetTab questTab = SpreadsheetTab.create(client, this, true, 1, rootQuest, new DisplayWidget("Quests", Items.FILLED_MAP));
-		for (Quest quest : Quest.values()) {
-			SpreadsheetWidget widget = quest == rootQuest ? questTab.getRoot() : questTab.addWidget(quest);
-			if (lastWidget != null) lastWidget.addChild(widget);
-			lastWidget = widget;
-		}
-		this.tabs.put(rootQuest, questTab);
-		
-		// Gold Fountains
-		GoldFountain rootFountain = GoldFountain.values()[0];
-		lastWidget = null;
-		SpreadsheetTab fountainTab = SpreadsheetTab.create(client, this, true, 2, rootFountain, new DisplayWidget("Gold Fountains", Items.GOLD_BLOCK));
-		for (GoldFountain fountain : GoldFountain.values()) {
-			SpreadsheetWidget widget = fountain == rootFountain ? fountainTab.getRoot() : fountainTab.addWidget(fountain);
-			if (lastWidget != null) lastWidget.addChild(widget);
-			lastWidget = widget;
-		}
-		this.tabs.put(rootFountain, fountainTab);
-		
-		
-		selectedTab = this.tabs.values().iterator().next();
+//		selectedTab = this.tabs.values().iterator().next();
 	}
 	
-//	private void generateWeaponWidgets(SpreadsheetTab tab, Tree<?> tree, SpreadsheetWidget lastWidget) {
-//		for (Tree<?> path : tree.getPaths()) {
-//			SpreadsheetWidget widget = tab.addWidget(path.getItem());
-//			lastWidget.addChild(widget);
-//			generateWeaponWidgets(tab, path, widget);
-//		}
-// 	}
-
-	@Override
-	public void removed() {
-//        this.advancementHandler.setListener(null);
-//        ClientPlayNetworkHandler clientPlayNetworkHandler = this.client.getNetworkHandler();
-//        if (clientPlayNetworkHandler != null) {
-//            clientPlayNetworkHandler.sendPacket(AdvancementTabC2SPacket.close());
-//        }
-	}
+	protected <T extends Widget> void generateWidgets(SpreadsheetTab tab, Tree<T> root, SpreadsheetWidget lastWidget, int x) {
+		int y = 0;
+		for (Tree<T> path : root.getPaths()) {
+			SpreadsheetWidget widget = tab.addWidget(path.getItem(), x, y);
+			lastWidget.addChild(widget);
+			this.generateWidgets(tab, path, widget, x+1);
+			y++;
+		}
+ 	}
 
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (button == 0) {
-//			int i = (this.width - 252) / 2;
-//			int j = (this.height - 140) / 2;
+		if (button == 0 && this.tabs.size() > 1) {
 			for (SpreadsheetTab advancementTab : this.tabs.values()) {
 				if (!advancementTab.isClickOnTab(0, 0, mouseX, mouseY))
 					continue;
-                selectedTab = advancementTab;
+                this.selectedTab = advancementTab;
 				break;
 			}
 		}
@@ -181,19 +141,17 @@ public class SpreadSheetScreen extends Screen {
 	}
 
 	private void drawAdvancementTree(MatrixStack matrices, int mouseX, int mouseY, int x, int y) {
-		SpreadsheetTab spreadsheetTab = this.selectedTab;
-		if (spreadsheetTab == null) {
-			SpreadSheetScreen.fill(matrices, x + 9, y + 18, x + 9 + 234, y + 18 + 113, Color.WHITE.getRGB());
-			int i = x + 9 + 117;
-			SpreadSheetScreen.drawCenteredText(matrices, this.textRenderer, EMPTY_TEXT, i,
-					y + 18 + 56 - this.textRenderer.fontHeight / 2, -1);
+		if (selectedTab == null) {
+			SpreadSheetScreen.drawCenteredText(matrices, this.textRenderer, EMPTY_TEXT,
+				this.width / 2, this.height / 2, 0xFFFFFF
+			);
 			return;
 		}
 		MatrixStack matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
 		matrixStack.translate(x + 9, y + 18, 0.0);
 		RenderSystem.applyModelViewMatrix();
-		spreadsheetTab.render(matrices);
+		selectedTab.render(matrices);
 		matrixStack.pop();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.depthFunc(515);
@@ -240,7 +198,7 @@ public class SpreadSheetScreen extends Screen {
 		}
 		
 		float alphaDestination = bl ? 1f : 0f;
-		this.alpha += (alphaDestination-alpha)*0.2f;//(bl ? MathHelper.clamp(this.alpha + 0.04f, 0.0f, 0.5f) : MathHelper.clamp(this.alpha - 0.08f, 0.0f, 1.0f));
+		this.alpha += (alphaDestination - alpha) * 0.2f;
 	}
 
 	public SpreadsheetWidget getSpreadsheetWidget(Widget widget) {
@@ -252,12 +210,5 @@ public class SpreadSheetScreen extends Screen {
 		}
 		return null;
 	}
-
-//	private SpreadsheetTab getTab(SpreadsheetWidget widget) {
-//		while (widget.getParent() != null) {
-//			widget = widget.getParent();
-//		}
-//		return this.tabs.get(widget.getWidget());
-//	}
-
+	
 }

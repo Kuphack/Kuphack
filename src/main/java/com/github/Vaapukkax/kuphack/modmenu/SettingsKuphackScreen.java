@@ -14,6 +14,7 @@ import com.github.Vaapukkax.kuphack.Servers;
 import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
 import com.github.Vaapukkax.kuphack.finder.MinehutServerListScreen;
 import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.Vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.Vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.Vaapukkax.kuphack.updater.UpdateStatus;
 import com.google.gson.Gson;
@@ -22,7 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonListWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
@@ -35,7 +35,7 @@ public class SettingsKuphackScreen extends Screen {
 	
 	private boolean checkedForUpdate = false;
 	private final HashMap<ButtonWidget, String> tooltips = new HashMap<>();
-	private ButtonListWidget buttonList;
+	private ButtonList buttonList;
 
 	private final Screen parent;
 	private boolean initialized;
@@ -51,11 +51,11 @@ public class SettingsKuphackScreen extends Screen {
     		this.clearChildren();
     		tooltips.clear();
     	}
-    	this.buttonList = new ButtonListWidget(this.client, this.width, this.height, 32, this.height - 32, 25);
+    	this.buttonList = new ButtonList(this.client, this);
     	
         int x = this.width / 2 - 155;
         int xR = x + 160;
-        int y = this.height / 6 - 3;
+        int y = 40;
 
         this.load();
         
@@ -187,6 +187,7 @@ public class SettingsKuphackScreen extends Screen {
     	
     	JsonArray array = new JsonArray();
     	Kuphack.get().getFeatures().stream().filter(Feature::isDisabled)
+    		.filter(feature -> !feature.getClass().equals(StariteTracerFeature.class))
     		.forEach(feature -> array.add(feature.getClass().getSimpleName()));
     	object.add("disabled", array);
     	object.addProperty("mhButtonState", Kuphack.get().mhButtonState.name());

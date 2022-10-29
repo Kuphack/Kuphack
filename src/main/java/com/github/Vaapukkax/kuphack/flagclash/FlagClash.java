@@ -7,35 +7,72 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
+import com.github.Vaapukkax.kuphack.EventListener;
 import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.Servers;
+import com.github.Vaapukkax.kuphack.events.InventoryClickEvent;
 
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
+import net.minecraft.util.registry.Registry;
 
-public class FlagClash {
+public class FlagClash implements EventListener {
 
-	public static BigInteger upgradePrice = BigInteger.ZERO;
-	
-	private static final HashMap<String, String> statCache = new HashMap<>();
 	private static final String[] suffixes = {
 		"k", "m", "b", "t", "q", "p", "s", "e", "o", "n", "d", "u", "v", "h", "i", "j", "l", "r", "w", "x", "y", "z"
 	};
+	private static final String CURRENCY_REGEX = "[0-9]+(\\.[0-9]+)?("+String.join("|", suffixes)+")";
+	
+	public void onEvent(InventoryClickEvent e) {
+		if (e.has(Items.NETHER_STAR, "Reduce Flag Upgrade Cost",
+			line -> line.equals("Reduces your flag upgrade cost"),
+			line -> line.matches("From "+CURRENCY_REGEX+" Gold to "+CURRENCY_REGEX+" Gold")
+		)) {
+			List<String> lore = Kuphack.getStripLore(e.getStack());
+			if (getStarite().compareTo(BigInteger.valueOf(Long.valueOf(lore.get(3).split(" ")[0]))) >= 0) {
+				upgrade = toRealValue(lore.get(1).split(" ")[4]);
+			}
+		} else if ((Registry.ITEM.getId(e.getItem()).getPath().contains("banner") || e.getItem() == Items.NETHER_STAR) && 
+				Arrays.asList("Level Up", "Rebirth").contains(e.getStack().getName().getString())) {
+			for (String line : Kuphack.getStripLore(e.getStack())) {
+				if (!line.contains("Costs: ")) continue;
+				if (getGold().compareTo(toRealValue(line.split(" ")[1])) >= 0) {
+					unsureUpgrade = true;
+				}
+			}
+		}
+	}
+	
+	private static BigInteger upgrade = BigInteger.ZERO;
+	private static boolean unsureUpgrade = true;
+	
+	private static final HashMap<String, String> statCache = new HashMap<>();
 	
 	public static double getUpgradeTime() {
 		DecimalFormat df = new DecimalFormat("0.000");
 		df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 		BigInteger gps = FlagClash.getGPS();
 		BigInteger gold = FlagClash.getGold();
-		if (upgradePrice == null || upgradePrice.equals(BigInteger.ZERO)) return -1;
-		return Math.max(0, new BigDecimal((upgradePrice.subtract(gold)).divide(gps)).divide(FlagClash.getMultiplier(), MathContext.DECIMAL128).doubleValue());
+		if (upgrade == null || upgrade.equals(BigInteger.ZERO)) return -1;
+		return Math.max(0, new BigDecimal((upgrade.subtract(gold)).divide(gps)).divide(FlagClash.getMultiplier(), MathContext.DECIMAL128).doubleValue());
+	}
+	
+	public static void setUpgradeCost(BigInteger value) {
+		FlagClash.upgrade = value;
+		FlagClash.unsureUpgrade = false;
+	}
+	
+	public static boolean isUpgradeCostUnsure() {
+		return FlagClash.unsureUpgrade;
 	}
 	
 	public static String timeAsString(double time) {
-		if (time < 60) return Kuphack.round(time)+"s";
-		String text = Kuphack.round(time/60d%60d)+"m";
-		if (time > 3600) text = Kuphack.round(time/60/60)+"h";
+		if (time < 60) return Kuphack.round(time) + "s";
+		String text = Kuphack.round(time / 60.0 % 60.0) + "m";
+		if (time > 3600) text = Kuphack.round(time / 60 / 60) + "h";
 		return text;
 	}
 	
@@ -73,6 +110,17 @@ public class FlagClash {
 	public static BigInteger getGold() {
 		try {
 			return toRealValue(getStat("Gold").split("\\s")[0]);
+		} catch (Throwable e) {
+			Kuphack.error(e);
+			return BigInteger.ZERO;
+		}
+	}
+	
+	public static BigInteger getStarite() {
+		try {
+			return toRealValue(getStat("Starite"));
+		} catch (IllegalArgumentException e) {
+			return BigInteger.ZERO;
 		} catch (Throwable e) {
 			Kuphack.error(e);
 			return BigInteger.ZERO;

@@ -13,7 +13,6 @@ import com.github.Vaapukkax.kuphack.flagclash.sheets.SpreadSheetScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 
-@Deprecated
 @Mixin(KeyBinding.class)
 public class SpreadsheetKeybindMixin {
 

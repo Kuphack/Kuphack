@@ -26,7 +26,7 @@ import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
-public class RevokerArea extends Feature implements WorldRenderEvents.AfterEntities, EventListener {
+public class RevokerAreaFeature extends Feature implements WorldRenderEvents.AfterEntities, EventListener {
 
 	private static final Block REVOKER = Blocks.CHISELED_POLISHED_BLACKSTONE;
 	
@@ -34,7 +34,7 @@ public class RevokerArea extends Feature implements WorldRenderEvents.AfterEntit
 	private Vec3d prevLocation;
 	private boolean queUpdate;
 	
-	public RevokerArea() {
+	public RevokerAreaFeature() {
 		super("Shows you the areas of placed revokers", Servers.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
@@ -51,7 +51,7 @@ public class RevokerArea extends Feature implements WorldRenderEvents.AfterEntit
 	@Override
 	public void afterEntities(WorldRenderContext context) {
 		if (!isPlaying()) return;
-
+		
 		if (this.queUpdate || prevLocation == null || prevLocation.distanceTo(context.camera().getPos()) >= 8) {
 			this.update();
 			this.queUpdate = false;

@@ -43,7 +43,7 @@ public class FlagLocation extends Feature implements EventListener {
 	}
 	
 	public BlockPos getLocation() {
-		return location;
+		return this.location;
 	}
 	
 	private boolean isBanner(Block block) {
@@ -59,7 +59,7 @@ public class FlagLocation extends Feature implements EventListener {
 		this.location = null;
 		
 		if (isBanner(e.getState().getBlock())) {
-			Kuphack.get().getFeature(FlagBreakTime.class).show(e.getPos());
+			Kuphack.get().getFeature(FlagBreakTimeFeature.class).show(e.getPos());
 		}
 	}
 	

@@ -8,7 +8,7 @@ import net.minecraft.scoreboard.ScoreboardObjective;
 
 public enum Servers {
 
-	FUNGIFY, ARROWMANCE, BITZONE, FLAGCLASH,
+	FUNGIFY, ARROWMANCE, BITZONE, FLAGCLASH, FLATLIGHT,
 	
 	LOBBY(new Predicate<MinecraftClient>() {
 

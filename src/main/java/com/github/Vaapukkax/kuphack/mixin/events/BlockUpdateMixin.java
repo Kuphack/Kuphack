@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.Vaapukkax.kuphack.Event;
 import com.github.Vaapukkax.kuphack.events.BlockUpdateEvent;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
@@ -18,7 +17,7 @@ public class BlockUpdateMixin {
 
 	@Inject(at = @At(value = "HEAD"), method = "handleBlockUpdate")
 	public void handleBlockUpdate(BlockPos pos, BlockState state, int flags, CallbackInfo ci) {
-		if ((Block.FORCE_STATE & flags) != 0) Event.call(new BlockUpdateEvent(pos, state));
+		Event.call(new BlockUpdateEvent(pos, state));
 	}
 	
 }

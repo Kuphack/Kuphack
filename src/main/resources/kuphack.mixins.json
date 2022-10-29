@@ -13,8 +13,9 @@
     events.ChatMixin,
     events.MinecraftEventMixin,
     events.ClientPlayerInteractionMixin,
+    flagclash.SpreadsheetKeybindMixin,
     flagclash.FlagMixin,
-    flagclash.HUDMixin,
+    flagclash.HudMixin,
     flagclash.ScoreboardMixin,
     MultiplayerScreenMixin,
     VinueText

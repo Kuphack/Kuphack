@@ -2,6 +2,7 @@ package com.github.Vaapukkax.kuphack.events;
 
 import com.github.Vaapukkax.kuphack.Event;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 
@@ -26,6 +27,10 @@ public class BlockUpdateEvent extends Event {
 	
 	public BlockState getState() {
 		return this.state;
+	}
+
+	public Block getBlock() {
+		return this.state.getBlock();
 	}
 	
 }

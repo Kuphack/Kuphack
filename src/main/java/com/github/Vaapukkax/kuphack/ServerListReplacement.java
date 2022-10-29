@@ -12,9 +12,6 @@ public class ServerListReplacement extends Feature implements EventListener {
 		super("Makes you go to the custom server list when clicking on the official server list in the lobby", Servers.LOBBY);
 	}
 	
-	/**
-	 * ordinary event for clicking
-	 */
 	public void onEvent(InventoryClickEvent e) {
 		if (e.getStack().getItem() == Items.BOOK && isPlaying()) {
 			e.setCancelled(true);

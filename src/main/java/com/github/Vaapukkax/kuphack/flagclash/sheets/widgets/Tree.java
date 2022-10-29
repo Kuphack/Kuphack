@@ -1,9 +1,8 @@
-package com.github.Vaapukkax.kuphack.flagclash.widgets;
+package com.github.Vaapukkax.kuphack.flagclash.sheets.widgets;
 
 import java.util.Arrays;
 import java.util.Iterator;
 
-@Deprecated
 public abstract class Tree<T extends Widget> {
 	
 	private final T item;
@@ -34,7 +33,7 @@ public abstract class Tree<T extends Widget> {
 		return this.paths;
 	}
 	
-	protected int getPathsGoneThrough(Tree<T> root) {
+	public int getPathsGoneThrough(Tree<T> root) {
 		Tree<T> tree = this;
 		int i = 0;
 		while ((tree = tree.getParent(root)) != null) i++;
@@ -51,7 +50,7 @@ public abstract class Tree<T extends Widget> {
 		return null;
 	}
 
-	protected static <T extends Widget> Tree<T> find(T item, Tree<T> tree) {
+	public static <T extends Widget> Tree<T> find(T item, Tree<T> tree) {
 		if (tree.getItem() == item) return tree;
 		
 		for (Tree<T> path : tree.paths) {

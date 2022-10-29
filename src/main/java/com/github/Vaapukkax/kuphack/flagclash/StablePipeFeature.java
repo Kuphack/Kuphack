@@ -8,7 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
-public class FastPipe extends Feature implements ClientTickEvents.StartTick {
+public class StablePipeFeature extends Feature implements ClientTickEvents.StartTick {
 	
 	protected static final Vec3d PIPE = new Vec3d(-49.5, -59, -24.5);
 	public static final Box PIPE_BOX = new Box(
@@ -16,7 +16,7 @@ public class FastPipe extends Feature implements ClientTickEvents.StartTick {
 		PIPE.getX()+1, PIPE.getY()+25, PIPE.getZ()+1
 	);
 	
-	public FastPipe() {
+	public StablePipeFeature() {
 		super("Allows you to go up the lobby pipe more stably", Servers.FLAGCLASH);
 		ClientTickEvents.START_CLIENT_TICK.register(this);
 	}
@@ -28,7 +28,7 @@ public class FastPipe extends Feature implements ClientTickEvents.StartTick {
 		if (client.player.getBoundingBox().intersects(PIPE_BOX)) {
 			Vec3d velocity = client.player.getVelocity();
 			client.player.setVelocity(velocity.x,
-				client.player.isSneaking() ? velocity.y > 0.2 ? 0 : velocity.y : 0.3
+				client.player.isSneaking() ? velocity.y > 0.3 ? 0 : velocity.y : 0.425
 			, velocity.z);
 		}
 	}

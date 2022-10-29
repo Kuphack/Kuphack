@@ -3,7 +3,6 @@ package com.github.Vaapukkax.kuphack.flagclash;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,45 +35,59 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 	private PlayerEntity lastDamaged;
 	
 	public FriendFeature() {
-		super("Lets you not attack your friends", Servers.FLAGCLASH, Servers.BITZONE);
+		super("Lets you not attack your friends", Servers.FLAGCLASH);
 		HudRenderCallback.EVENT.register(this);
 		ClientLifecycleEvents.CLIENT_STOPPING.register(e -> save());
 		load();
 	}
+
 	
 	/**
-	 * Adds the specified player to the friends list and displays a message in chat to clarify such
+	 * Adds the specified player to the friend list and displays a message in chat to clarify such
 	 * @param player the player
 	 */
 	public void addFriend(PlayerEntity player) {
-		if (!friends.contains(player.getGameProfile().getId())) {
-			friends.add(player.getGameProfile().getId());
-			
-			MinecraftClient client = MinecraftClient.getInstance();
-			if (client.player != null) {
-				client.player.sendMessage(Text.of("§a"+player.getName().getString()+" is now a friend"), false);
-				client.player.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1, 1);
-			}
-			
-			save();
+		if (!this.addFriend(player.getUuid())) return;	
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.player != null) {
+			client.player.sendMessage(Text.of("§a"+player.getName().getString()+" is now a friend"), false);
+			client.player.playSound(SoundEvents.ENTITY_VILLAGER_CELEBRATE, 1, 1);
 		}
 	}
 	
 	/**
-	 * Removed the specified player from the friends list and displays a message in chat to clarify such
+	 * Adds the specified player to the friend list and displays a message in chat to clarify such
+	 * @param player the player
+	 */
+	public boolean addFriend(UUID uuid) {
+		if (uuid == null || this.friends.contains(uuid)) return false;
+		this.friends.add(uuid);
+		this.save();
+		return true;
+	}
+	
+	/**
+	 * Removes the specified player from the friend list and displays a message in chat to clarify such
 	 * @param player the player
 	 */
 	public void removeFriend(PlayerEntity player) {
-		if (friends.contains(player.getGameProfile().getId())) {
-			friends.remove(player.getGameProfile().getId());
-			
-			MinecraftClient client = MinecraftClient.getInstance();
-			if (client.player != null) {
-				client.player.sendMessage(Text.of("§2"+player.getName().getString()+" is no longer a friend"), false);
-				client.player.playSound(SoundEvents.ENTITY_VILLAGER_HURT, 1, 1);
-			}
-			save();
+		if (!this.removeFriend(player.getGameProfile().getId())) return;
+		MinecraftClient client = MinecraftClient.getInstance();
+		if (client.player != null) {
+			client.player.sendMessage(Text.of("§2"+player.getName().getString()+" is no longer a friend"), false);
+			client.player.playSound(SoundEvents.ENTITY_VILLAGER_HURT, 1, 1);
 		}
+	}
+	
+	/**
+	 * Removes the specified uuid from the friend list
+	 * @param uuid the id of the player
+	 */
+	public boolean removeFriend(UUID uuid) {
+		if (!friends.contains(uuid)) return false;
+		this.friends.remove(uuid);
+		this.save();
+		return true;
 	}
 	
 	/**
@@ -114,7 +127,7 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 	/**
 	 * Saves friends to the file without overwriting other settings
 	 */
-	protected void save() {
+	public void save() {
 		Gson gson = new Gson();
 		JsonObject object = null;
 		try {
@@ -187,27 +200,20 @@ public class FriendFeature extends Feature implements EventListener, HudRenderCa
 		}
 	}
 	
-	public List<String> getFriendNames() {
+	/**
+	 * Loads the name of the player from the tablist
+	 * @return the name, may be null
+	 */
+	public String getOnlinePlayerName(UUID uuid) {
 		ClientPlayNetworkHandler players = client.getNetworkHandler();
-		return this.friends.stream().map(uuid -> {
-			PlayerListEntry entry = players != null ? players.getPlayerListEntry(uuid) : null;
-			return entry != null ? entry.getProfile().getName() : uuid.toString();
-		}).sorted().toList();
+		PlayerListEntry entry = players != null ? players.getPlayerListEntry(uuid) : null;
+		return entry != null ? entry.getProfile().getName() : null;
 	}
 	
 	@Override
 	public String getDescription() {
-		StringBuilder builder = new StringBuilder();
-		Iterator<String> iterator = this.getFriendNames().iterator();
-		while (iterator.hasNext()) {
-			builder.append(iterator.next());
-			if (iterator.hasNext()) builder.append(", ");
-		}
-		if (builder.isEmpty()) {
-			GameOptions options = client.options;
-			return "Add friends with ["+options.sneakKey.getBoundKeyLocalizedText().getString()+"] + ["+Text.translatable("key.mouse.middle").getString()+"]";
-		}
-		return "Added friends: "+builder.toString();
+		GameOptions options = client.options;
+		return "Add friends with ["+options.sneakKey.getBoundKeyLocalizedText().getString()+"] + ["+Text.translatable("key.mouse.middle").getString()+"], you can also manage them by clicking this button";
 	}
 	
 	@Override

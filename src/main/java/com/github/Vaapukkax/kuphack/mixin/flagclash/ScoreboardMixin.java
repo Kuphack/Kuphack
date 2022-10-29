@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.scoreboard.Scoreboard;
@@ -50,22 +51,24 @@ public class ScoreboardMixin {
 	        collection = list.size() > 15 ? Lists.newArrayList(Iterables.skip(list, collection.size() - 15)) : list;
 	        ArrayList<MutableText> list2 = Lists.newArrayListWithCapacity(collection.size());
 	        Text text = objective.getDisplayName();
-	        int j = i = get().getTextRenderer().getWidth(text);
-	        int k = get().getTextRenderer().getWidth(SCOREBOARD_JOINER);
+	        int j = i = get().getWidth(text);
+	        int k = get().getWidth(SCOREBOARD_JOINER);
 	        
 	        if (Kuphack.get().getFeature(FlagLocation.class).isFlagPlaced()) {
 	        	double time = FlagClash.getUpgradeTime();
-	        	if (time != -1) list2.add(Text.literal(" \u00a7fUpgrade Time: "+FlagClash.timeAsString(time)));
+	        	if (time != -1) list2.add(Text.literal(
+	        		" \u00a7fUpgrade Time: " + (FlagClash.isUpgradeCostUnsure() ? "Unsure" : FlagClash.timeAsString(time))
+	        	));
 	        }
 	        for (ScoreboardPlayerScore scoreboardPlayerScore : collection) {
 	            Team team = scoreboard.getPlayerTeam(scoreboardPlayerScore.getPlayerName());
 	            MutableText text2 = Team.decorateName(team, Text.literal(scoreboardPlayerScore.getPlayerName()));
 
 	            list2.add(text2);
-	            j = Math.max(j, get().getTextRenderer().getWidth(text2) + k + get().getTextRenderer().getWidth(Integer.toString(scoreboardPlayerScore.getScore())));
+	            j = Math.max(j, get().getWidth(text2) + k + get().getWidth(Integer.toString(scoreboardPlayerScore.getScore())));
 	        }
 	        
-	        int l = list.size() * get().getTextRenderer().fontHeight;
+	        int l = list.size() * get().fontHeight;
 	        int m = this.scaledHeight / 2 + l / 3;
 
 	        int o = this.scaledWidth - j - 3;
@@ -74,21 +77,21 @@ public class ScoreboardMixin {
 	        int r = client.options.getTextBackgroundColor(0.4f);
 	        for (Text text3 : list2) {
 	            int s = o;
-	            int t = m - ++p * get().getTextRenderer().fontHeight;
+	            int t = m - ++p * get().fontHeight;
 	            int u = scaledWidth - 3 + 2;
-	            InGameHud.fill(matrices, s - 2, t, u, t + get().getTextRenderer().fontHeight, q);
-	            get().getTextRenderer().draw(matrices, text3, (float)s, (float)t, -1);
+	            InGameHud.fill(matrices, s - 2, t, u, t + get().fontHeight, q);
+	            get().draw(matrices, text3, (float)s, (float)t, -1);
 
 	            if (p != list2.size()) continue;
-	            InGameHud.fill(matrices, s - 2, t - get().getTextRenderer().fontHeight - 1, u, t - 1, r);
+	            InGameHud.fill(matrices, s - 2, t - get().fontHeight - 1, u, t - 1, r);
 	            InGameHud.fill(matrices, s - 2, t - 1, u, t, q);
-	            get().getTextRenderer().draw(matrices, text, (float)(s + j / 2 - i / 2), (float)(t - get().getTextRenderer().fontHeight), -1);
+	            get().draw(matrices, text, (float)(s + j / 2 - i / 2), (float)(t - get().fontHeight), -1);
 	        }
 		}
     }
 	
-	private InGameHud get() {
-		return (InGameHud)((Object)this);
+	private TextRenderer get() {
+		return ((InGameHud)((Object)this)).getTextRenderer();
 	}
 	
 }

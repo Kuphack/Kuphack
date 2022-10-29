@@ -16,12 +16,12 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class FlagBreakTime extends Feature implements WorldRenderEvents.AfterEntities {
+public class FlagBreakTimeFeature extends Feature implements WorldRenderEvents.AfterEntities {
 
 	public Vec3d location;
 	private long time = -1;
 	
-	public FlagBreakTime() {
+	public FlagBreakTimeFeature() {
 		super("Shows the flag break time above your flag", Servers.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -20,11 +21,14 @@ import org.slf4j.LoggerFactory;
 import com.github.Vaapukkax.kuphack.events.ChatEvent;
 import com.github.Vaapukkax.kuphack.events.ServerJoinEvent;
 import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
-import com.github.Vaapukkax.kuphack.flagclash.FastPipe;
-import com.github.Vaapukkax.kuphack.flagclash.FlagBreakTime;
+import com.github.Vaapukkax.kuphack.flagclash.FlagBreakTimeFeature;
+import com.github.Vaapukkax.kuphack.flagclash.FlagClash;
 import com.github.Vaapukkax.kuphack.flagclash.FlagLocation;
 import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
-import com.github.Vaapukkax.kuphack.flagclash.RevokerArea;
+import com.github.Vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
+import com.github.Vaapukkax.kuphack.flagclash.RevokerAreaFeature;
+import com.github.Vaapukkax.kuphack.flagclash.StablePipeFeature;
+import com.github.Vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.Vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.Vaapukkax.minehut.Minehut;
 import com.google.common.collect.Iterables;
@@ -49,6 +53,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
@@ -82,16 +89,20 @@ public class Kuphack implements ModInitializer, EventListener {
 		Event.register(this);
 		
 		// FLAGCLASH
-		features.add(new FlagBreakTime());
-		features.add(new FlagLocation());
 		features.add(new FriendFeature());
-		features.add(new RevokerArea());
-		features.add(new FastPipe());
+		features.add(new FlagBreakTimeFeature());
+		features.add(new FlagLocation());
+		features.add(new RevokerAreaFeature());
+		features.add(new StablePipeFeature());
+		features.add(new ItemEntityInfoFeature());
+		features.add(new StariteTracerFeature());
 		
 		// LOBBY
 		features.add(new AdBlockFeature());
 		features.add(new ServerListReplacement());
 
+		Event.register(new FlagClash());
+		
 		// Multiplayer Button Setting
 		Gson gson = new Gson();
 		JsonObject object = new JsonObject();
@@ -114,11 +125,11 @@ public class Kuphack implements ModInitializer, EventListener {
 				boolean debug = FabricLoader.getInstance().isDevelopmentEnvironment();
 				if (debug && getServer() != Servers.FLAGCLASH)
 					onEvent(new ServerJoinEvent(new ServerInfo("FlagClash", "flagclash.minehut.gg", false)));
-
+				
 				if (client.isInSingleplayer() && !debug) setServer(null);
 				
 				// TODO recode, there are better ways to do this
-				if (System.currentTimeMillis()-customCheckTimeout > 1500) {
+				if (System.currentTimeMillis() - customCheckTimeout > 1500) {
 					for (Servers server : Servers.values()) {
 						if (getServer() != server && server.test(client)) {
 							setServer(server);
@@ -155,7 +166,7 @@ public class Kuphack implements ModInitializer, EventListener {
 	
 	private void setServer(Servers server) {
 		if (this.server == server) return;
-		customCheckTimeout = System.currentTimeMillis();
+		this.customCheckTimeout = System.currentTimeMillis();
 		
 		for (Feature feature : features) {
 			if (feature.isOnServer() && !feature.isDisabled()) feature.onDeactivate();
@@ -179,14 +190,13 @@ public class Kuphack implements ModInitializer, EventListener {
 	
 	public Path getDataFile() {
 		Path path = FabricLoader.getInstance().getConfigDir().resolve("kuphack.json");
+		if (Files.exists(path)) return path;
 		
-		try {
-			if (!Files.exists(path)) {
-				Files.createFile(path);
-				Files.setAttribute(path, "dos:hidden", true);
-			}
+		try {	
+			Files.createFile(path);
+			Files.setAttribute(path, "dos:hidden", true);
 		} catch (IOException e) {
-			e.printStackTrace();
+			new IOException("Couldn't create Kuphack settings file", e).printStackTrace();
 		}
 		return path;
 	}
@@ -223,7 +233,7 @@ public class Kuphack implements ModInitializer, EventListener {
 		setServer(null);
 		
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-			minehut.close();
+			this.minehut.close();
 			UpdateChecker.continueDownload();
 		});
 	}
@@ -347,6 +357,10 @@ public class Kuphack implements ModInitializer, EventListener {
 		return COLOR_PATTERN.matcher(message).replaceAll("");
 	}
 	
+	public static String stripColor(Text message) {
+		return stripColor(message.getString());
+	}
+	
 	public static String translateColor(String message) {
 		if (message.isBlank()) return message;
 		return message.replaceAll("(?i)&(?=[0-9A-FK-ORX])", "§");
@@ -378,6 +392,35 @@ public class Kuphack implements ModInitializer, EventListener {
 			) + " (Printed to console)"
 		), true);
 		throwable.printStackTrace();
+	}
+	
+	/**
+	 * Gets the lore of an item and strips the whitespace from the sides and color
+	 * @param stack the stack
+	 */
+	public static List<String> getStripLore(ItemStack stack) {
+		return getLore(stack).stream().map(line -> stripColor(line).strip()).toList();
+	}
+	
+	/**
+	 * Gets the lore of an item and strips the whitespace from the sides and color
+	 * @param stack the stack
+	 */
+	public static List<Text> getLore(ItemStack stack) {
+		if (!stack.hasNbt() || !stack.getNbt().contains(ItemStack.DISPLAY_KEY, NbtElement.COMPOUND_TYPE))
+			return Collections.emptyList();
+		NbtCompound display = stack.getNbt().getCompound(ItemStack.DISPLAY_KEY);
+        if (display.getType(ItemStack.LORE_KEY) == NbtElement.LIST_TYPE) {
+        	List<Text> list = new ArrayList<>();
+        	NbtList lore = display.getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE);
+            for (int i = 0; i < lore.size(); i++) {
+                String nbt = lore.getString(i);
+                MutableText text = Text.Serializer.fromJson(nbt);
+                if (text == null) continue;
+                list.add(text);
+            }
+            return Collections.unmodifiableList(list);
+        } else return Collections.emptyList();
 	}
 	
 }

@@ -3,7 +3,7 @@ package com.github.Vaapukkax.kuphack.flagclash.sheets;
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.flagclash.widgets.Widget;
+import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,16 +20,6 @@ public class DisplayWidget implements Widget {
 		this.icon = icon;
 	}
 	
-	@Override
-	public int getX() {
-		return 0;
-	}
-
-	@Override
-	public int getY() {
-		return 0;
-	}
-
 	@Override
 	public ItemStack getIcon() {
 		ItemStack stack = new ItemStack(icon);

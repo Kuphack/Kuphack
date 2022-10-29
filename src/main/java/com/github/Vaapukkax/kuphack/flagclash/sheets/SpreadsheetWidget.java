@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.flagclash.widgets.Widget;
+import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -21,7 +21,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
-@Deprecated
 @Environment(value=EnvType.CLIENT)
 public class SpreadsheetWidget extends DrawableHelper {
     private static final Identifier WIDGETS_TEXTURE = new Identifier("textures/gui/advancements/widgets.png");
@@ -45,17 +44,18 @@ public class SpreadsheetWidget extends DrawableHelper {
     private final List<OrderedText> description;
     private final MinecraftClient client;
     private final List<SpreadsheetWidget> children = Lists.newArrayList();
-//    private final int x;
-//    private final int y;
+    private final int x, y;
     
     private SpreadsheetWidget parent;
 
-    public SpreadsheetWidget(SpreadsheetTab tab, MinecraftClient client, Widget widget) {
-//        ItemStack stack = widget.getIcon();
-    	
+    public SpreadsheetWidget(SpreadsheetTab tab, MinecraftClient client, Widget widget, int x, int y) {
     	this.tab = tab;
         this.widget = widget;
         this.client = client;
+
+        this.x = x * 28;
+        this.y = y * 27;
+        
         this.title = widget.getTitle().asOrderedText();//Language.getInstance().reorder(client.textRenderer.trimToWidth(widget.getTitle(), 163));
 //        int i = widget.getRequirementCount();
 //        int j = String.valueOf(i).length();
@@ -285,16 +285,12 @@ public class SpreadsheetWidget extends DrawableHelper {
         return mouseX >= i && mouseX <= j && mouseY >= k && mouseY <= l;
     }
 
-    public void addToTree() {
-
-    }
-
-    public int getY() {
-        return MathHelper.floor(widget.getY() * 27.0f);
-    }
-
     public int getX() {
-        return MathHelper.floor(widget.getX() * 28.0f);
+        return this.x;
+    }
+    
+    public int getY() {
+        return this.y;
     }
 
 	public List<SpreadsheetWidget> getChildren() {

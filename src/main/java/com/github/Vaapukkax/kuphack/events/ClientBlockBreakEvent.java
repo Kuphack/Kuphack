@@ -2,6 +2,7 @@ package com.github.Vaapukkax.kuphack.events;
 
 import com.github.Vaapukkax.kuphack.Event;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.BlockPos;
@@ -21,6 +22,10 @@ public class ClientBlockBreakEvent extends Event {
 	
 	public BlockPos getPos() {
 		return this.pos;
+	}
+
+	public Block getBlock() {
+		return getState().getBlock();
 	}
 	
 }

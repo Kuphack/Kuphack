@@ -161,7 +161,7 @@ public class UpdateChecker {
 	public static void sendCheckerStatus() {
 		MinecraftClient c = MinecraftClient.getInstance();
 		if (status != null && c.player != null) {
-			c.player.sendMessage(Text.of(" \n\u00a76[Kuphack.cc] \u00a7e| \u00a7f"+status.text()+"\n "), false);
+			c.player.sendMessage(Text.of(" \n§6[Kuphack.cc] §e| §f"+status.text()+"\n "), false);
 			if (status.runnable() != null) status.runnable().run();
 			status = null;
 		}
