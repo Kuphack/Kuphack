@@ -25,27 +25,26 @@ public class HudMixin {
 
 	@Inject(at = @At(value = "INVOKE", ordinal = 30), method = "renderStatusBars", cancellable = true)
 	private void renderStatusBars(MatrixStack matrices, CallbackInfo ci) {
-		if (Kuphack.getServer() == Servers.FLAGCLASH) {
-			ci.cancel();
+		if (Kuphack.getServer() != Servers.FLAGCLASH) return;
+		ci.cancel();
 
-			boolean renderBubbles = renderBubbles(matrices);
-			if (renderBubbles) matrices.translate(0, -10, 0);
+		boolean renderBubbles = renderBubbles(matrices);
+		if (renderBubbles) matrices.translate(0, -10, 0);
 
-			MinecraftClient c = MinecraftClient.getInstance();
-			FoodItem item = FoodItem.of(Kuphack.getHolding(c.player));
-			
-			int i = 0;
-			if (item != null) for (String effect : item.getEffects().keySet()) {
-				float x = (float) (c.getWindow().getScaledWidth() / 2 - c.textRenderer.getWidth(effect) / 2 + 48);
-				float y = (float) (c.getWindow().getScaledHeight() - 38) - i * 9;
-				c.textRenderer.drawWithShadow(matrices, effect, x, y, item.getEffects().get(effect).getRGB());
-				i++;
-			}
-			
-			if (renderBubbles) matrices.translate(0, 10, 0);
+		MinecraftClient c = MinecraftClient.getInstance();
+		FoodItem item = FoodItem.of(Kuphack.getHolding(c.player));
+		
+		int i = 0;
+		if (item != null) for (String effect : item.getEffects().keySet()) {
+			float x = (float) (c.getWindow().getScaledWidth() / 2 - c.textRenderer.getWidth(effect) / 2 + 48);
+			float y = (float) (c.getWindow().getScaledHeight() - 38) - i * 9;
+			c.textRenderer.drawWithShadow(matrices, effect, x, y, item.getEffects().get(effect).getRGB());
+			i++;
 		}
+		
+		if (renderBubbles) matrices.translate(0, 10, 0);
 	}
-
+	
 	private int getHeartCount2(LivingEntity entity) {
 		if (entity != null && entity.isLiving()) {
 			float f = entity.getMaxHealth();
@@ -53,7 +52,6 @@ public class HudMixin {
 			if (i > 30) {
 				i = 30;
 			}
-
 			return i;
 		} else {
 			return 0;
@@ -85,8 +83,8 @@ public class HudMixin {
 			}
 			b = true;
 		}
-		c.getProfiler().pop();
 		matrices.translate(0, -10, 0);
+		c.getProfiler().pop();
 		return b;
 	}
 

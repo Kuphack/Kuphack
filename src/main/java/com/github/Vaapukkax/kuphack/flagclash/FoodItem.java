@@ -11,11 +11,11 @@ import net.minecraft.item.ItemStack;
 
 public enum FoodItem {
 
-	BUDGET_SPAGHETTI(entry("Silver Boost", Color.DARK_GRAY), entry("Money Boost", Color.YELLOW)),
+	BUDGET_SPAGHETTI(entry("Silver Boost", new Color(172, 174, 176)), entry("Money Boost", Color.YELLOW)),
 	FRENCH_FRIES(entry("Money Boost", Color.YELLOW)),
 	
-	SUGAR_CAKE(entry("Silver Boost", Color.DARK_GRAY)),
-	BEANY_BEANS(entry("Double Silver", Color.GRAY)),
+	SUGAR_CAKE(entry("Silver Boost", new Color(172, 174, 176))),
+	BEANY_BEANS(entry("Double Silver", new Color(192, 192, 192))),
 	
 	STACKED_SALAD(entry("+100% XP-boost", Color.GREEN)),
 	CRABBY_CRAB(entry("+50% XP-boost", Color.GREEN)),

@@ -1,78 +1,54 @@
 package com.github.Vaapukkax.kuphack.flagclash;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
 import com.github.Vaapukkax.kuphack.Servers;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ItemEntity;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
 
-public class ItemEntityInfoFeature extends Feature implements WorldRenderEvents.AfterEntities {
+public class ItemEntityInfoFeature extends Feature {
 
+	private static final float scale = 0.014f;
 	private final Screen screen = new Screen(Text.empty()) {};
 	
 	public ItemEntityInfoFeature() {
 		super("Item Entity Info", Servers.FLAGCLASH);
-		WorldRenderEvents.AFTER_ENTITIES.register(this);
-		
+
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> 
 			this.screen.init(client, client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight())
 		);
 	}
-
-	@Override
-	public void afterEntities(WorldRenderContext context) {
+	
+	public void render(MatrixStack matrices, ItemStack stack) {
 		if (!isPlaying()) return;
+
+		List<Text> text = stack.getTooltip(client.player, () -> false);
 		
-		Vec3d camera = context.camera().getPos();
-		context.matrixStack().push();
-		context.matrixStack().translate(-camera.x, -camera.y, -camera.z);
+		matrices.push();
+		matrices.translate(0, 0.6 + text.size() * (client.textRenderer.fontHeight * scale), 0);
+		matrices.multiply(client.gameRenderer.getCamera().getRotation());
+		matrices.scale(-scale, -scale, scale);
+		TextRenderer textRenderer = client.textRenderer;
 		
-		final float scale = 0.014f;
-		for (Entity entity : context.world().getEntities()) {
-			if (!(entity instanceof ItemEntity)) continue;
-			
-			Vec3d pos = entity.getCameraPosVec(context.tickDelta());
-			ItemStack stack = ((ItemEntity)entity).getStack();
-			
-			List<Text> text = new ArrayList<>();
-	        text.add(stack.getName());
-			text.addAll(Kuphack.getLore(stack));
-			
-			context.matrixStack().push();
-			context.matrixStack().translate(pos.getX(), pos.getY() + text.size() * (client.textRenderer.fontHeight * scale) + 0.55, pos.getZ());
-			
-			context.matrixStack().multiply(client.gameRenderer.getCamera().getRotation());
-			context.matrixStack().scale(-scale, -scale, scale);
-			TextRenderer textRenderer = client.textRenderer;
-			
-			int longest = 0;
-			for (Text line : text) {
-				int width = textRenderer.getWidth(line);
-				if (width > longest) longest = width;
-			}
-			int offset = -(longest + 20) / 2;
-			
-			context.matrixStack().translate(0, 0, -400);
-			screen.renderTooltip(
-				context.matrixStack(), text, stack.getTooltipData(),
-				offset, 0
-			);
-			context.matrixStack().pop();
+		int longest = 0;
+		for (Text line : text) {
+			int width = textRenderer.getWidth(line);
+			if (width > longest) longest = width;
 		}
+		int offset = -(longest + 20) / 2;
 		
-		context.matrixStack().pop();
+		matrices.translate(0, 0, -400);
+		screen.renderTooltip(
+			matrices, text, stack.getTooltipData(),
+			offset, 0
+		);
+		matrices.pop();
 	}
 	
 	@Override
