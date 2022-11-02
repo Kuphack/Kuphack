@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.modmenu;
+package com.github.vaapukkax.kuphack.modmenu;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 

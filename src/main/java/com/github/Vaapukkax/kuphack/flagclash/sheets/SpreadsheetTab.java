@@ -1,11 +1,11 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets;
+package com.github.vaapukkax.kuphack.flagclash.sheets;
 
 import java.util.Collection;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 

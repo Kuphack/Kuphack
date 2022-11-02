@@ -1,12 +1,12 @@
-package com.github.Vaapukkax.kuphack.modmenu;
+package com.github.vaapukkax.kuphack.modmenu;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 
 import net.minecraft.client.gui.screen.MessageScreen;
 import net.minecraft.client.gui.screen.Screen;

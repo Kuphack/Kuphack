@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.finder;
+package com.github.vaapukkax.kuphack.finder;
 
 public enum MinehutButtonState {
 	

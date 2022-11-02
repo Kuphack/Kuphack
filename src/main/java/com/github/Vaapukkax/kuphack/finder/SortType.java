@@ -1,14 +1,14 @@
-package com.github.Vaapukkax.kuphack.finder;
+package com.github.vaapukkax.kuphack.finder;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 
-import com.github.Vaapukkax.kuphack.finder.comparators.ServerActivityComparator;
-import com.github.Vaapukkax.kuphack.finder.comparators.ServerTrendingComparator;
-import com.github.Vaapukkax.kuphack.finder.comparators.ServerUptimeComparator;
-import com.github.Vaapukkax.minehut.Server;
+import com.github.vaapukkax.kuphack.finder.comparators.ServerActivityComparator;
+import com.github.vaapukkax.kuphack.finder.comparators.ServerTrendingComparator;
+import com.github.vaapukkax.kuphack.finder.comparators.ServerUptimeComparator;
+import com.github.vaapukkax.minehut.Server;
 
 public enum SortType {
 

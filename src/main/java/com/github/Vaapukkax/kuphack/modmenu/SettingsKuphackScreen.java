@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.modmenu;
+package com.github.vaapukkax.kuphack.modmenu;
 
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -8,15 +8,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
-import com.github.Vaapukkax.kuphack.finder.MinehutServerListScreen;
-import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
-import com.github.Vaapukkax.kuphack.flagclash.StariteTracerFeature;
-import com.github.Vaapukkax.kuphack.updater.UpdateChecker;
-import com.github.Vaapukkax.kuphack.updater.UpdateStatus;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.finder.MinehutButtonState;
+import com.github.vaapukkax.kuphack.finder.MinehutServerListScreen;
+import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
+import com.github.vaapukkax.kuphack.updater.UpdateChecker;
+import com.github.vaapukkax.kuphack.updater.UpdateStatus;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -141,7 +141,7 @@ public class SettingsKuphackScreen extends Screen {
     	Text connected = Text.of(server != null ? "Connected to " + server
     		: Kuphack.isOnMinehut() ? "No extra features on this server"
     	: "");
-    	
+    
         this.renderBackground(matrices);
         this.buttonList.render(matrices, mouseX, mouseY, delta);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);

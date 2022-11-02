@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack;
+package com.github.vaapukkax.kuphack;
 
 import java.util.Iterator;
 import java.util.function.Predicate;

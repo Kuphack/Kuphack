@@ -1,7 +1,7 @@
 /*
  * Decompiled with CFR 0.1.1 (FabricMC 57d88659).
  */
-package com.github.Vaapukkax.kuphack.finder;
+package com.github.vaapukkax.kuphack.finder;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.github.Vaapukkax.minehut.Category;
+import com.github.vaapukkax.minehut.Category;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

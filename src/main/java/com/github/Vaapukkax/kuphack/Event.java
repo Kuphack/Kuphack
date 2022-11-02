@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack;
+package com.github.vaapukkax.kuphack;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -9,7 +9,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 
 public abstract class Event {
 
-	private static final ArrayList<EventListener> listeners = new ArrayList<>();
+	private static final ArrayList<EventHolder> listeners = new ArrayList<>();
 	
 	private boolean cancelled;
 	
@@ -26,17 +26,17 @@ public abstract class Event {
 		return client.player;
 	}
 	
-	public static void register(EventListener listener) {
+	public static void register(EventHolder listener) {
 		if (!listeners.contains(listener)) listeners.add(listener);
 	}
 	
-	public static void unregister(EventListener listener) {
+	public static void unregister(EventHolder listener) {
 		if (listeners.contains(listener)) listeners.remove(listener);
 	}
 	
 	public static void call(Event event) {
 		long start = System.currentTimeMillis();
-		for (EventListener listener : new ArrayList<>(listeners)) {
+		for (EventHolder listener : new ArrayList<>(listeners)) {
 			for (Method method : listener.getClass().getDeclaredMethods()) {
 				if (method.getName().equalsIgnoreCase("onEvent")) {
 					Parameter[] parameters = method.getParameters();

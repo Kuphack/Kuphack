@@ -1,10 +1,10 @@
-package com.github.Vaapukkax.kuphack.events;
+package com.github.vaapukkax.kuphack.events;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.github.Vaapukkax.kuphack.Event;
-import com.github.Vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Event;
+import com.github.vaapukkax.kuphack.Kuphack;
 
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.item.Item;

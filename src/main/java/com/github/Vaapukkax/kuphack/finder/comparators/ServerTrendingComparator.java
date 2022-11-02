@@ -1,14 +1,14 @@
-package com.github.Vaapukkax.kuphack.finder.comparators;
+package com.github.vaapukkax.kuphack.finder.comparators;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.finder.MinehutServerListScreen;
-import com.github.Vaapukkax.kuphack.finder.SortType;
-import com.github.Vaapukkax.minehut.Server;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.finder.MinehutServerListScreen;
+import com.github.vaapukkax.kuphack.finder.SortType;
+import com.github.vaapukkax.minehut.Server;
 
 public class ServerTrendingComparator implements Comparator<Server> {
 	

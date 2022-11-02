@@ -1,6 +1,6 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets.widgets;
+package com.github.vaapukkax.kuphack.flagclash.sheets.widgets;
 
-import static com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.ShopLayoutItem.*;
+import static com.github.vaapukkax.kuphack.flagclash.sheets.widgets.ShopLayoutItem.*;
 
 public class LayoutTree extends Tree<ShopLayoutItem> {
 

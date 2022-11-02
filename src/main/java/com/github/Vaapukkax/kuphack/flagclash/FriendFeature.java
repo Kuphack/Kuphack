@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -6,12 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.github.Vaapukkax.kuphack.EventListener;
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.events.DamageEvent;
-import com.github.Vaapukkax.kuphack.modmenu.SettingsKuphackScreen;
+import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.events.DamageEvent;
+import com.github.vaapukkax.kuphack.modmenu.SettingsKuphackScreen;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -27,7 +27,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
-public class FriendFeature extends Feature implements EventListener, HudRenderCallback {
+public class FriendFeature extends Feature implements EventHolder, HudRenderCallback {
 	
 	private final ArrayList<UUID> friends = new ArrayList<>();
 	

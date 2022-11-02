@@ -1,6 +1,6 @@
-package com.github.Vaapukkax.kuphack.events;
+package com.github.vaapukkax.kuphack.events;
 
-import com.github.Vaapukkax.kuphack.Event;
+import com.github.vaapukkax.kuphack.Event;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

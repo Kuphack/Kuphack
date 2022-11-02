@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.mixin.flagclash;
+package com.github.vaapukkax.kuphack.mixin.flagclash;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.flagclash.FlagClash;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.flagclash.FlagClash;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;

@@ -1,10 +1,10 @@
-package com.github.Vaapukkax.kuphack;
+package com.github.vaapukkax.kuphack;
 
-import com.github.Vaapukkax.kuphack.events.ChatEvent;
+import com.github.vaapukkax.kuphack.events.ChatEvent;
 
 import net.minecraft.text.Text;
 
-public class AdBlockFeature extends Feature implements EventListener {
+public class AdBlockFeature extends Feature implements EventHolder {
 
 	private int total;
 	

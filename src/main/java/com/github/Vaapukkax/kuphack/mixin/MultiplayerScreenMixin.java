@@ -1,13 +1,13 @@
-package com.github.Vaapukkax.kuphack.mixin;
+package com.github.vaapukkax.kuphack.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
-import com.github.Vaapukkax.kuphack.finder.MinehutServerListScreen;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.finder.MinehutButtonState;
+import com.github.vaapukkax.kuphack.finder.MinehutServerListScreen;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;

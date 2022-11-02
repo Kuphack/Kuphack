@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets;
+package com.github.vaapukkax.kuphack.flagclash.sheets;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

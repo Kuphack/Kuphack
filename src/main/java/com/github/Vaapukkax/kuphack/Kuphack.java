@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack;
+package com.github.vaapukkax.kuphack;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -18,19 +18,19 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.Vaapukkax.kuphack.events.ChatEvent;
-import com.github.Vaapukkax.kuphack.events.ServerJoinEvent;
-import com.github.Vaapukkax.kuphack.finder.MinehutButtonState;
-import com.github.Vaapukkax.kuphack.flagclash.FlagBreakTimeFeature;
-import com.github.Vaapukkax.kuphack.flagclash.FlagClash;
-import com.github.Vaapukkax.kuphack.flagclash.FlagLocation;
-import com.github.Vaapukkax.kuphack.flagclash.FriendFeature;
-import com.github.Vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
-import com.github.Vaapukkax.kuphack.flagclash.RevokerAreaFeature;
-import com.github.Vaapukkax.kuphack.flagclash.StablePipeFeature;
-import com.github.Vaapukkax.kuphack.flagclash.StariteTracerFeature;
-import com.github.Vaapukkax.kuphack.updater.UpdateChecker;
-import com.github.Vaapukkax.minehut.Minehut;
+import com.github.vaapukkax.kuphack.events.ChatEvent;
+import com.github.vaapukkax.kuphack.events.ServerJoinEvent;
+import com.github.vaapukkax.kuphack.finder.MinehutButtonState;
+import com.github.vaapukkax.kuphack.flagclash.FlagBreakTimeFeature;
+import com.github.vaapukkax.kuphack.flagclash.FlagClash;
+import com.github.vaapukkax.kuphack.flagclash.FlagLocation;
+import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
+import com.github.vaapukkax.kuphack.flagclash.RevokerAreaFeature;
+import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
+import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
+import com.github.vaapukkax.kuphack.updater.UpdateChecker;
+import com.github.vaapukkax.minehut.Minehut;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
@@ -66,7 +66,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
-public class Kuphack implements ModInitializer, EventListener {
+public class Kuphack implements ModInitializer, EventHolder {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("kuphack");
 	private static Kuphack instance;
@@ -239,19 +239,18 @@ public class Kuphack implements ModInitializer, EventListener {
 	}
 	
 	public void onEvent(ChatEvent e) {
-		if (isOnMinehut()) {
-			if (e.getMessage().getString().equals("§3Sending you to the lobby!")) {
-				setServer(Servers.LOBBY);
-			} else if (getServer() == Servers.LOBBY) {
-				String message = e.getMessage().getString();
-				if (message.startsWith("Sending you to ") && message.endsWith("!")) {
-					String name = e.getMessage().getString().substring(15, e.getMessage().getString().length()-1);
-					try {
-						setServer(Servers.valueOf(name.toUpperCase()));
-					} catch (IllegalArgumentException exc) {
-						LOGGER.info("Kuphack.cc doesn't support: "+name.toUpperCase());
-						setServer(null);
-					}
+		if (!isOnMinehut()) return;
+		if (e.getMessage().getString().equals("§3Sending you to the lobby!")) {
+			setServer(Servers.LOBBY);
+		} else if (getServer() == Servers.LOBBY) {
+			String message = e.getMessage().getString();
+			if (message.startsWith("Sending you to ") && message.endsWith("!")) {
+				String name = e.getMessage().getString().substring(15, e.getMessage().getString().length()-1);
+				try {
+					setServer(Servers.valueOf(name.toUpperCase()));
+				} catch (IllegalArgumentException exc) {
+					LOGGER.info("Kuphack.cc doesn't support: "+name.toUpperCase());
+					setServer(null);
 				}
 			}
 		}

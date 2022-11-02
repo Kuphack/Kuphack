@@ -1,9 +1,9 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets;
+package com.github.vaapukkax.kuphack.flagclash.sheets;
 
 import java.util.Map;
 
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Tree;
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.Tree;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 

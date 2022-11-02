@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.finder;
+package com.github.vaapukkax.kuphack.finder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,12 +14,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.minehut.Category;
-import com.github.Vaapukkax.minehut.Minehut;
-import com.github.Vaapukkax.minehut.NetworkStatistics;
-import com.github.Vaapukkax.minehut.Server;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.minehut.Category;
+import com.github.vaapukkax.minehut.Minehut;
+import com.github.vaapukkax.minehut.NetworkStatistics;
+import com.github.vaapukkax.minehut.Server;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

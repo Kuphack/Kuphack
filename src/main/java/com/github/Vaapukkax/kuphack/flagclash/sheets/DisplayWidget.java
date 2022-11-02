@@ -1,9 +1,9 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets;
+package com.github.vaapukkax.kuphack.flagclash.sheets;
 
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

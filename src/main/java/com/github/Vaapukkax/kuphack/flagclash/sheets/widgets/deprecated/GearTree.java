@@ -1,6 +1,6 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.deprecated;
+package com.github.vaapukkax.kuphack.flagclash.sheets.widgets.deprecated;
 
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Tree;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.Tree;
 
 @Deprecated
 public class GearTree extends Tree<Gear> {

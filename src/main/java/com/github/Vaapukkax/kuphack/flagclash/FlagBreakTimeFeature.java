@@ -1,12 +1,12 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;

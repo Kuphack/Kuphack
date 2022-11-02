@@ -1,12 +1,12 @@
-package com.github.Vaapukkax.kuphack.mixin.events;
+package com.github.vaapukkax.kuphack.mixin.events;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.github.Vaapukkax.kuphack.Event;
-import com.github.Vaapukkax.kuphack.events.ClientBlockBreakEvent;
+import com.github.vaapukkax.kuphack.Event;
+import com.github.vaapukkax.kuphack.events.ClientBlockBreakEvent;
 
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.util.math.BlockPos;

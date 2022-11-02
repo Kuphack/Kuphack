@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets.widgets;
+package com.github.vaapukkax.kuphack.flagclash.sheets.widgets;
 
 public class ItemModifier {
 

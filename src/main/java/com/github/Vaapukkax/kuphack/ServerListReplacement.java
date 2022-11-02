@@ -1,12 +1,12 @@
-package com.github.Vaapukkax.kuphack;
+package com.github.vaapukkax.kuphack;
 
-import com.github.Vaapukkax.kuphack.events.InventoryClickEvent;
-import com.github.Vaapukkax.kuphack.finder.MinehutServerListScreen;
+import com.github.vaapukkax.kuphack.events.InventoryClickEvent;
+import com.github.vaapukkax.kuphack.finder.MinehutServerListScreen;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Items;
 
-public class ServerListReplacement extends Feature implements EventListener {
+public class ServerListReplacement extends Feature implements EventHolder {
 
 	public ServerListReplacement() {
 		super("Makes you go to the custom server list when clicking on the official server list in the lobby", Servers.LOBBY);

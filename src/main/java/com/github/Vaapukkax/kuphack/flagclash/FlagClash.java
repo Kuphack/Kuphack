@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,16 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import com.github.Vaapukkax.kuphack.EventListener;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.events.InventoryClickEvent;
+import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.events.InventoryClickEvent;
 
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.registry.Registry;
 
-public class FlagClash implements EventListener {
+public class FlagClash implements EventHolder {
 
 	private static final String[] suffixes = {
 		"k", "m", "b", "t", "q", "p", "s", "e", "o", "n", "d", "u", "v", "h", "i", "j", "l", "r", "w", "x", "y", "z"

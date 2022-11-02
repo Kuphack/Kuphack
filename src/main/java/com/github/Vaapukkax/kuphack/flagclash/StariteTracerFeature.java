@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -6,12 +6,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.EventListener;
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.events.BlockUpdateEvent;
-import com.github.Vaapukkax.kuphack.events.ClientBlockBreakEvent;
+import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.events.BlockUpdateEvent;
+import com.github.vaapukkax.kuphack.events.ClientBlockBreakEvent;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -28,7 +28,7 @@ import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
-public class StariteTracerFeature extends Feature implements EventListener, WorldRenderEvents.AfterEntities {
+public class StariteTracerFeature extends Feature implements EventHolder, WorldRenderEvents.AfterEntities {
 
 	private static final List<Block> STARITES = Arrays.asList(Blocks.LAPIS_BLOCK, Blocks.LAPIS_ORE, Blocks.DEEPSLATE_LAPIS_ORE);
 	private final HashMap<BlockPos, Long> tracers = new HashMap<>();

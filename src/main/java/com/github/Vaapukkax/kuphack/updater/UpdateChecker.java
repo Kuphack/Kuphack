@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.updater;
+package com.github.vaapukkax.kuphack.updater;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.modmenu.SettingsKuphackScreen;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.modmenu.SettingsKuphackScreen;
 import com.google.gson.JsonParser;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -83,7 +83,7 @@ public class UpdateChecker {
 		}
 		
 		if (Kuphack.isFeather()) {
-			Kuphack.LOGGER.info("[Kuphack.cc] can't download on feather");
+			Kuphack.LOGGER.info("[Kuphack.cc] Can't download on Feather");
 			status = new UpdateStatus("Can't auto update on Feather, please download it automatically", () -> open(url));
 			return;
 		}

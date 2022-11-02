@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.modmenu;
+package com.github.vaapukkax.kuphack.modmenu;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;

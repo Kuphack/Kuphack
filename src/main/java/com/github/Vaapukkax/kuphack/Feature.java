@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack;
+package com.github.vaapukkax.kuphack;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -30,11 +30,11 @@ public abstract class Feature {
 	}
 	
 	protected void onActivate() {
-		if (this instanceof EventListener) Event.register((EventListener)this);
+		if (this instanceof EventHolder) Event.register((EventHolder)this);
 	}
 	
 	protected void onDeactivate() {
-		if (this instanceof EventListener) Event.unregister((EventListener)this);
+		if (this instanceof EventHolder) Event.unregister((EventHolder)this);
 	}
 	
 	public boolean isOnServer() {

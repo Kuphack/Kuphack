@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.mixin;
+package com.github.vaapukkax.kuphack.mixin;
 
 import java.util.UUID;
 

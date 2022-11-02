@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.mixin.flagclash;
+package com.github.vaapukkax.kuphack.mixin.flagclash;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,10 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.flagclash.FlagClash;
-import com.github.Vaapukkax.kuphack.flagclash.FlagLocation;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.flagclash.FlagClash;
+import com.github.vaapukkax.kuphack.flagclash.FlagLocation;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 

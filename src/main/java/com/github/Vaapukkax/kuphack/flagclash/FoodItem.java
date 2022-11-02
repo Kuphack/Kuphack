@@ -1,20 +1,20 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
 import static java.util.Map.entry;
 
 import java.awt.Color;
 import java.util.Map;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Kuphack;
 
 import net.minecraft.item.ItemStack;
 
 public enum FoodItem {
 
-	BUDGET_SPAGHETTI(entry("Silver Boost", new Color(172, 174, 176)), entry("Money Boost", Color.YELLOW)),
-	FRENCH_FRIES(entry("Money Boost", Color.YELLOW)),
+	BUDGET_SPAGHETTI(entry("Silver Boost", new Color(172, 174, 176)), entry("Gold Boost", Color.YELLOW)),
+	FRENCH_FRIES(entry("Gold Boost", Color.YELLOW)),
 	
-	SUGAR_CAKE(entry("Silver Boost", new Color(172, 174, 176))),
+	SUGARCAKE(entry("Silver Boost", new Color(172, 174, 176))),
 	BEANY_BEANS(entry("Double Silver", new Color(192, 192, 192))),
 	
 	STACKED_SALAD(entry("+100% XP-boost", Color.GREEN)),

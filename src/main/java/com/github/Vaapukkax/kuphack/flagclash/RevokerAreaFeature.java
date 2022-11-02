@@ -1,15 +1,15 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.github.Vaapukkax.kuphack.EventListener;
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.events.BlockUpdateEvent;
-import com.github.Vaapukkax.kuphack.events.ClientBlockPlaceEvent;
+import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.events.BlockUpdateEvent;
+import com.github.vaapukkax.kuphack.events.ClientBlockPlaceEvent;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -26,7 +26,7 @@ import net.minecraft.util.math.Matrix3f;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
-public class RevokerAreaFeature extends Feature implements WorldRenderEvents.AfterEntities, EventListener {
+public class RevokerAreaFeature extends Feature implements WorldRenderEvents.AfterEntities, EventHolder {
 
 	private static final Block REVOKER = Blocks.CHISELED_POLISHED_BLACKSTONE;
 	

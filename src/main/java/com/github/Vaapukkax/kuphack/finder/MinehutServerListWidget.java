@@ -1,4 +1,4 @@
-package com.github.Vaapukkax.kuphack.finder;
+package com.github.vaapukkax.kuphack.finder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,10 +10,9 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.finder.MinehutServerListWidget.Entry;
-import com.github.Vaapukkax.minehut.Category;
-import com.github.Vaapukkax.minehut.Server;
+import com.github.vaapukkax.minehut.Category;
+import com.github.vaapukkax.minehut.Server;
+import com.github.vaapukkax.kuphack.Kuphack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -41,14 +40,14 @@ import net.minecraft.util.Util;
 import net.minecraft.util.registry.Registry;
 
 @Environment(value=EnvType.CLIENT)
-public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Entry> {
+public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<MinehutServerListWidget.Entry> {
 	
     private static final Identifier UNKNOWN_SERVER_TEXTURE = new Identifier("textures/misc/unknown_server.png");
     private static final Identifier SERVER_SELECTION_TEXTURE = new Identifier("textures/gui/server_selection.png");
     
     private final MinehutServerListScreen screen;
     private final List<ServerEntry> servers = new ArrayList<>();
-
+    
     public MinehutServerListWidget(MinehutServerListScreen screen, MinecraftClient client, int width, int height, int top, int bottom, int entryHeight) {
         super(client, width, height, top, bottom, entryHeight);
         this.screen = screen;

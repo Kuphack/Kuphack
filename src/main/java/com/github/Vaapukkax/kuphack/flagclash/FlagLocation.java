@@ -1,12 +1,12 @@
-package com.github.Vaapukkax.kuphack.flagclash;
+package com.github.vaapukkax.kuphack.flagclash;
 
-import com.github.Vaapukkax.kuphack.EventListener;
-import com.github.Vaapukkax.kuphack.Feature;
-import com.github.Vaapukkax.kuphack.Kuphack;
-import com.github.Vaapukkax.kuphack.Servers;
-import com.github.Vaapukkax.kuphack.events.BlockUpdateEvent;
-import com.github.Vaapukkax.kuphack.events.ClientBlockBreakEvent;
-import com.github.Vaapukkax.kuphack.events.ClientBlockPlaceEvent;
+import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Feature;
+import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.events.BlockUpdateEvent;
+import com.github.vaapukkax.kuphack.events.ClientBlockBreakEvent;
+import com.github.vaapukkax.kuphack.events.ClientBlockPlaceEvent;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -19,7 +19,7 @@ import net.minecraft.util.registry.Registry;
  * This feature is used by other features to determine where the flag is.
  * Can't do anything about a feature based system.
  */
-public class FlagLocation extends Feature implements EventListener {
+public class FlagLocation extends Feature implements EventHolder {
 
 	private BlockPos location;
 	

@@ -1,9 +1,9 @@
-package com.github.Vaapukkax.kuphack.modmenu;
+package com.github.vaapukkax.kuphack.modmenu;
 
 import java.util.Arrays;
 import java.util.List;
 
-import com.github.Vaapukkax.kuphack.modmenu.ButtonList.ButtonEntry;
+import com.github.vaapukkax.kuphack.modmenu.ButtonList.ButtonEntry;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

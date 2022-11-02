@@ -1,12 +1,12 @@
-package com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.deprecated;
+package com.github.vaapukkax.kuphack.flagclash.sheets.widgets.deprecated;
 
 import java.math.BigInteger;
 
 import org.apache.commons.lang3.text.WordUtils;
 
-import com.github.Vaapukkax.kuphack.flagclash.FlagClash;
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.ItemModifier;
-import com.github.Vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
+import com.github.vaapukkax.kuphack.flagclash.FlagClash;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.ItemModifier;
+import com.github.vaapukkax.kuphack.flagclash.sheets.widgets.Widget;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

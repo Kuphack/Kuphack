@@ -1,8 +1,7 @@
-package com.github.Vaapukkax.kuphack.finder.comparators;
+package com.github.vaapukkax.kuphack.finder.comparators;
 
 import java.util.Comparator;
-
-import com.github.Vaapukkax.minehut.Server;
+import com.github.vaapukkax.minehut.Server;
 
 public class ServerUptimeComparator implements Comparator<Server> {
 	
