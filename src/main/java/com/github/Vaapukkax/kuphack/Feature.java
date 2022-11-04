@@ -1,5 +1,6 @@
 package com.github.vaapukkax.kuphack;
 
+import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

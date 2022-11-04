@@ -1,5 +1,7 @@
 package com.github.vaapukkax.kuphack;
 
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.events.InventoryClickEvent;
 import com.github.vaapukkax.kuphack.finder.MinehutServerListScreen;
 
@@ -12,6 +14,7 @@ public class ServerListReplacement extends Feature implements EventHolder {
 		super("Makes you go to the custom server list when clicking on the official server list in the lobby", Servers.LOBBY);
 	}
 	
+	@EventMention
 	public void onEvent(InventoryClickEvent e) {
 		if (e.getStack().getItem() == Items.BOOK && isPlaying()) {
 			e.setCancelled(true);

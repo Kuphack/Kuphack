@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.github.Vaapukkax.kuphack.mixin",
+  "package": "com.github.vaapukkax.kuphack.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     
@@ -9,9 +9,7 @@
   "client": [
     events.BlockPlaceMixin,
     events.BlockUpdateMixin,
-    events.BlockBreakMixin,
     events.ChatMixin,
-    events.MinecraftEventMixin,
     events.ClientPlayerInteractionMixin,
     flagclash.SpreadsheetKeybindMixin,
     flagclash.ItemEntityRendererMixin,

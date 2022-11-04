@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.Servers;
@@ -146,9 +147,7 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 		return array;
 	}
 	
-	/**
-	 * Ordinary damage event that handles blocking hits
-	 */
+	@EventMention
 	public void onEvent(DamageEvent e) {
 		if (e.getTarget() instanceof PlayerEntity) {
 			if (isFriend((PlayerEntity)e.getTarget())) {

@@ -1,5 +1,7 @@
 package com.github.vaapukkax.kuphack;
 
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.events.ChatEvent;
 
 import net.minecraft.text.Text;
@@ -12,6 +14,7 @@ public class AdBlockFeature extends Feature implements EventHolder {
 		super("Makes advertisements disappear in the lobby", Servers.LOBBY);
 	}
 	
+	@EventMention
 	public void onEvent(ChatEvent e) {
 		if (!isPlaying()) return;
 		

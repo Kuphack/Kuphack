@@ -1,6 +1,7 @@
 package com.github.vaapukkax.kuphack.flagclash;
 
-import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.Servers;
@@ -17,7 +18,7 @@ import net.minecraft.util.registry.Registry;
 
 /**
  * This feature is used by other features to determine where the flag is.
- * Can't do anything about a feature based system.
+ * Can't do anything about a feature based system. All of this technically could be moved to {@link FlagClash}
  */
 public class FlagLocation extends Feature implements EventHolder {
 
@@ -28,14 +29,16 @@ public class FlagLocation extends Feature implements EventHolder {
 	}
 	
 	/**
-	 * Whether the client thinks the flag is still placed. Can't determine if the chunk isn't loaded, so it returns true then
+	 * Whether the client thinks the flag is still placed.
+	 * Can't determine if the chunk isn't loaded, so it returns true then.
 	 */
-	public boolean isFlagPlaced() {
+	public boolean isFlagDown() {
 		if (location == null) return false;
 		
 		MinecraftClient client = MinecraftClient.getInstance();
 		BlockState state = client.world.getBlockState(location);
-		boolean loaded = client.world.getChunkManager().isChunkLoaded(ChunkSectionPos.getSectionCoord(location.getX()), ChunkSectionPos.getSectionCoord(location.getZ()));
+		boolean loaded = client.world.getChunkManager().isChunkLoaded(ChunkSectionPos.getSectionCoord(location.getX()), ChunkSectionPos.getSectionCoord(location.getZ()))
+			&& client.player.squaredDistanceTo(this.location.getX(), this.location.getY(), this.location.getZ()) < 600;
 		if (this.location != null && (!loaded || isBanner(state.getBlock())))
 			return true;
 		this.location = null;
@@ -51,9 +54,7 @@ public class FlagLocation extends Feature implements EventHolder {
 		return Registry.BLOCK.getId(block).toString().toLowerCase().contains("banner");
 	}
 	
-	/**
-	 * an ordinary event, kind of odd how this references the FlagBreakTime feature instead of the other way around.
-	 */
+	@EventMention
 	public void onEvent(ClientBlockBreakEvent e) {
 		if (!e.getPos().equals(this.location)) return;
 		this.location = null;
@@ -63,16 +64,15 @@ public class FlagLocation extends Feature implements EventHolder {
 		}
 	}
 	
+	@EventMention
 	public void onEvent(BlockUpdateEvent e) {
 		if (e.getPos().equals(this.location) && e.getState().isAir()) this.location = null;
 	}
 
-	/**
-	 * an ordinary event
-	 */
+	@EventMention
 	public void onEvent(ClientBlockPlaceEvent e) {
 		if (isBanner(e.getBlock())) {
-			if (!isFlagPlaced()) this.location = e.getPos();
+			if (!isFlagDown()) this.location = e.getPos();
 		}
 	}
 	

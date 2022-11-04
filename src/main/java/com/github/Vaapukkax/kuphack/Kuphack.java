@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.events.ChatEvent;
 import com.github.vaapukkax.kuphack.events.ServerJoinEvent;
 import com.github.vaapukkax.kuphack.finder.MinehutButtonState;
@@ -25,28 +27,29 @@ import com.github.vaapukkax.kuphack.flagclash.FlagBreakTimeFeature;
 import com.github.vaapukkax.kuphack.flagclash.FlagClash;
 import com.github.vaapukkax.kuphack.flagclash.FlagLocation;
 import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
+import com.github.vaapukkax.kuphack.flagclash.HookshotHelperFeature;
 import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
 import com.github.vaapukkax.kuphack.flagclash.RevokerAreaFeature;
 import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
 import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
+import com.github.vaapukkax.kuphack.flagclash.UltraSignalProgressFeature;
 import com.github.vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.vaapukkax.minehut.Minehut;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.DecimalFormatSymbols;
-import com.mojang.datafixers.util.Pair;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.StartTick;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -63,6 +66,7 @@ import net.minecraft.scoreboard.Team;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
@@ -95,6 +99,8 @@ public class Kuphack implements ModInitializer, EventHolder {
 		features.add(new RevokerAreaFeature());
 		features.add(new StablePipeFeature());
 		features.add(new ItemEntityInfoFeature());
+		features.add(new HookshotHelperFeature());
+		features.add(new UltraSignalProgressFeature());
 		features.add(new StariteTracerFeature());
 		
 		// LOBBY
@@ -116,28 +122,30 @@ public class Kuphack implements ModInitializer, EventHolder {
 				autoUpdate = object.get("auto-update").getAsBoolean();
 		}
 		
+		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+			this.minehut.close();
+			UpdateChecker.continueDownload();
+		});
+		
 		ClientTickEvents.START_CLIENT_TICK.register(new StartTick() {
-
-			ServerInfo info = null;
 			
-			@Override
+			private ServerInfo info;
+			
 			public void onStartTick(MinecraftClient client) {
 				boolean debug = FabricLoader.getInstance().isDevelopmentEnvironment();
 				if (debug && getServer() != Servers.FLAGCLASH)
-					onEvent(new ServerJoinEvent(new ServerInfo("FlagClash", "flagclash.minehut.gg", false)));
-				
-				if (client.isInSingleplayer() && !debug) setServer(null);
-				
+					Event.call(new ServerJoinEvent(new ServerInfo("FlagClash", "flagclash.minehut.gg", false)));
+				if (client.isIntegratedServerRunning() && !debug) setServer(null);
+	
 				// TODO recode, there are better ways to do this
 				if (System.currentTimeMillis() - customCheckTimeout > 1500) {
 					for (Servers server : Servers.values()) {
-						if (getServer() != server && server.test(client)) {
-							setServer(server);
-							break;
-						}
+						if (getServer() == server || !server.test(client)) continue;
+						setServer(server);
+						break;
 					}
 				}
-
+				
 				ServerInfo info = client.getCurrentServerEntry();
 				if (this.info != info) {
 					if (info != null) {
@@ -146,11 +154,25 @@ public class Kuphack implements ModInitializer, EventHolder {
 					}
 					this.info = info;
 				}
-				
 				UpdateChecker.sendCheckerStatus();
 			}
-			
 		});
+		if (isFeather()) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			HudRenderCallback.EVENT.register((matrices, delta) -> {
+				if (client.player == null || getServer() != Servers.FLAGCLASH) return;
+				boolean flag = this.getFeature(FlagLocation.class).isFlagDown();
+				if (!flag && FlagClash.isUpgradeCostUnsure()) return;
+				
+				Text text = Text.literal(flag ?
+					"Upgrade Time: "  + FlagClash.timeAsString(FlagClash.getUpgradeTime())
+					: "Upgrade Cost: "+ FlagClash.toVisualValue(FlagClash.getUpgradeCost()));
+				client.textRenderer.drawWithShadow(matrices, text,
+					client.getWindow().getScaledWidth() - client.textRenderer.getWidth(text) - 5,
+					client.getWindow().getScaledHeight() - 30 + client.textRenderer.fontHeight
+				, Formatting.GOLD.getColorValue());
+			});
+		}
 		new Thread(() -> {
 			try {
 				if (autoUpdate) UpdateChecker.checkAndDownload();
@@ -217,27 +239,26 @@ public class Kuphack implements ModInitializer, EventHolder {
 			.collect(Collectors.toUnmodifiableList());
 	}
 	
+	@EventMention
 	public void onEvent(ServerJoinEvent e) {
 		if (e.getInfo().address.toLowerCase().endsWith(".minehut.gg")) {
 			String address = e.getInfo().address.toUpperCase();
 			String name = address.substring(0, address.indexOf("."));
 			
+			Servers server = null;
 			try {
-				setServer(Servers.valueOf(name));
-				return;
+				server = Servers.valueOf(name);
 			} catch (IllegalArgumentException ex) {}
+			setServer(server);
+			if (server != null) return;
 		} else if (e.getInfo().address.toLowerCase().startsWith("minehut.com")) {
 			setServer(Servers.LOBBY);
 			return;
 		}
 		setServer(null);
-		
-		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-			this.minehut.close();
-			UpdateChecker.continueDownload();
-		});
 	}
 	
+	@EventMention
 	public void onEvent(ChatEvent e) {
 		if (!isOnMinehut()) return;
 		if (e.getMessage().getString().equals("§3Sending you to the lobby!")) {
@@ -289,46 +310,78 @@ public class Kuphack implements ModInitializer, EventHolder {
 		return inv.getStack(inv.selectedSlot);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	public static List<Text> getScoreboard() {
 		ArrayList<Text> texts = new ArrayList<>();
 		MinecraftClient m = MinecraftClient.getInstance();
 		Scoreboard scoreboard = m.world.getScoreboard();
 		if (scoreboard == null) return texts;
-		
+
 		Iterator<ScoreboardObjective> os = scoreboard.getObjectives().iterator();
 		if (!os.hasNext()) return texts;
+		
 		ScoreboardObjective objective = os.next();
+		Collection<ScoreboardPlayerScore> collectionf = scoreboard.getAllPlayerScores(objective);
+		List<ScoreboardPlayerScore> list = (List<ScoreboardPlayerScore>) collectionf.stream().filter((score) -> {
+			return score.getPlayerName() != null && !score.getPlayerName().startsWith("#");
+		}).collect(Collectors.toList());
 
-	      Collection<ScoreboardPlayerScore> collectionf = scoreboard.getAllPlayerScores(objective);
-	      List<ScoreboardPlayerScore> list = (List<ScoreboardPlayerScore>)collectionf.stream().filter((score) -> {
-	         return score.getPlayerName() != null && !score.getPlayerName().startsWith("#");
-	      }).collect(Collectors.toList());
-	      Object collection;
-	      if (list.size() > 15) {
-	         collection = Lists.newArrayList(Iterables.skip(list, collectionf.size() - 15));
-	      } else {
-	         collection = list;
-	      }
+		for (Iterator var11 = list.iterator(); var11.hasNext();) {
+			ScoreboardPlayerScore score = (ScoreboardPlayerScore) var11.next();
+			Team team = scoreboard.getPlayerTeam(score.getPlayerName());
+			texts.add(Team.decorateName(team, Text.literal(score.getPlayerName())));
+		}
+		return texts;
+	}
+	
+	protected static List<Text> getModifiedSidebar() {
+		List<Text> lines = Kuphack.getScoreboard();
+		if (getServer() == Servers.FLAGCLASH) {
+	        if (Kuphack.get().getFeature(FlagLocation.class).isFlagDown()) {
+	        	double time = FlagClash.getUpgradeTime();
+	        	if (time != -1) lines.add(0, Text.literal(
+	        		FlagClash.isMushroomArc() ?
+	        			(FlagClash.isUpgradeCostUnsure() ? " §k" : " §f") + FlagClash.timeAsString(time)
+	        		: " §fUpgrade Time: §a§l" + (FlagClash.isUpgradeCostUnsure() ? "Unsure" : FlagClash.timeAsString(time))
+	        	));
+	        } else if (!FlagClash.isUpgradeCostUnsure()) lines.add(0, (FlagClash.isMushroomArc() ? Text.literal(" ") : Text.literal(" Upgrade Cost: §a§l")).append(
+	        	Text.literal(FlagClash.toVisualValue(FlagClash.getUpgradeCost()))
+	        ));
+		}
+		return lines;
+	}
+	
+    public static void renderSidebar(MatrixStack matrices, ScoreboardObjective objective) {
+    	MinecraftClient client = MinecraftClient.getInstance();
+    	TextRenderer textRenderer = client.textRenderer;
+		int scaledWidth = client.getWindow().getScaledWidth(),
+			scaledHeight= client.getWindow().getScaledHeight();
+    	List<Text> lines = Kuphack.getModifiedSidebar();
 
-	      List<Pair<ScoreboardPlayerScore, Text>> list2 = Lists.newArrayListWithCapacity(((Collection)collection).size());
+        Text title = objective.getDisplayName();
+        final int titleWidth = textRenderer.getWidth(title);
+        int width = titleWidth;
 
-	      ScoreboardPlayerScore scoreboardPlayerScore;
-	      MutableText text2;
-	      for(Iterator var11 = ((Collection)collection).iterator(); var11.hasNext();) {
-	         scoreboardPlayerScore = (ScoreboardPlayerScore)var11.next();
-	         Team team = scoreboard.getPlayerTeam(scoreboardPlayerScore.getPlayerName());
-	         text2 = Team.decorateName(team, Text.literal(scoreboardPlayerScore.getPlayerName()));
-	         list2.add(Pair.of(scoreboardPlayerScore, text2));
-	      }
-	      Iterator var18 = list2.iterator();
+        for (Text line : lines) width = Math.max(width, textRenderer.getWidth(line));
 
-	      while(var18.hasNext()) {
-	         Pair<ScoreboardPlayerScore, Text> pair = (Pair)var18.next();
-	         Text text3 = (Text)pair.getSecond();
-	         texts.add(text3);
-	      }
-	      return texts;
+        int footerHeight = lines.size() * textRenderer.fontHeight;
+        int bottom = scaledHeight / 2 + footerHeight / 3;
+
+        int textX = scaledWidth - width - 1;
+        int footerAlpha = client.options.getTextBackgroundColor(0.3f),
+        	tabAlpha = client.options.getTextBackgroundColor(0.4f);
+        int i = 0;
+        for (Text line : lines) {
+            int y = bottom - ++i * textRenderer.fontHeight;
+            int right = scaledWidth - 1;
+            InGameHud.fill(matrices, textX - 2, y, right, y + textRenderer.fontHeight, footerAlpha);
+            textRenderer.draw(matrices, line, (float) textX, (float)y, -1);
+
+            if (i != lines.size()) continue;
+            InGameHud.fill(matrices, textX - 2, y - textRenderer.fontHeight - 1, right, y - 1, tabAlpha);
+            InGameHud.fill(matrices, textX - 2, y - 1, right, y, footerAlpha);
+            textRenderer.draw(matrices, title, (float)(textX + width / 2 - titleWidth / 2), (float)(y - textRenderer.fontHeight), -1);
+        }
 	}
 	
 	public static void renderText(Text text, MatrixStack matrix, VertexConsumerProvider consumer) {
@@ -378,7 +431,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 	}
 
 	public static String formatTime(double seconds) {
-		return (int)(seconds/60/60)+"h "+(int)(seconds/60%60)+"m "+(int)(seconds%60d)+"s";
+		return (int)(seconds/60/60)+"h "+(int)(seconds/60%60)+"min "+(int)(seconds%60d)+"s";
 	}
 
 	public static void error(Throwable throwable) {
@@ -386,7 +439,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		Servers server = Kuphack.getServer();
 		if (c.player != null) c.player.sendMessage(Text.of(
 			"§c[Kuphack] Error occured " + (
-			server != null ? " maybe relating to " + server
+			server != null ? "maybe relating to " + server
 			: "outside of any server"
 			) + " (Printed to console)"
 		), true);

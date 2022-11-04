@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.Servers;
@@ -39,10 +40,12 @@ public class RevokerAreaFeature extends Feature implements WorldRenderEvents.Aft
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
 
+	@EventMention
 	public void onEvent(ClientBlockPlaceEvent event) {
 		if (event.getBlock() == REVOKER) this.queUpdate = true;
 	}
 	
+	@EventMention
 	public void onEvent(BlockUpdateEvent event) {
 		if (event.getState().isAir() && this.blocks.containsKey(event.getPos())) queUpdate = true;
 		if (event.getState().getBlock().equals(REVOKER)) queUpdate = true;

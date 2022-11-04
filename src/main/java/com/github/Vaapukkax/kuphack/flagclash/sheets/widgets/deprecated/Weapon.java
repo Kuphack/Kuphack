@@ -255,10 +255,4 @@ public enum Weapon {//implements Widget {
 //		return stack;
 //	}
 //
-//	@Override
-//	public List<Text> getDescription() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-	
 }

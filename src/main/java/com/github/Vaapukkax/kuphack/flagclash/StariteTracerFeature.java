@@ -6,7 +6,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import com.github.vaapukkax.kuphack.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventHolder;
+import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.Servers;
@@ -59,10 +60,12 @@ public class StariteTracerFeature extends Feature implements EventHolder, WorldR
 		context.matrixStack().pop();
 	}
 	
+	@EventMention
 	public void onEvent(ClientBlockBreakEvent e) {
 		if (STARITES.contains(e.getBlock())) tracers.remove(e.getPos());
 	}
 	
+	@EventMention
 	public void onEvent(BlockUpdateEvent e) {
 		if (STARITES.contains(e.getBlock())) tracers.put(e.getPos(), System.currentTimeMillis());
 		else tracers.remove(e.getPos());

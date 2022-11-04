@@ -6,10 +6,15 @@ import net.minecraft.client.network.ServerInfo;
 
 public class ServerJoinEvent extends Event {
 
-	private ServerInfo info;
+	private final ServerInfo info;
 	
 	public ServerJoinEvent(ServerInfo info) {
 		this.info = info;
+	}
+	
+	@Override
+	public void setCancelled(boolean value) {
+		throw new UnsupportedOperationException();
 	}
 	
 	public ServerInfo getInfo() {
