@@ -49,8 +49,10 @@ public class StariteTracerFeature extends Feature implements EventHolder, WorldR
 		
 		ArrayList<BlockPos> queue = new ArrayList<>();
 		this.tracers.forEach((pos, time) -> {
-			if (System.currentTimeMillis()-time > 60 * 1000) queue.add(pos);
-			drawLine(context.matrixStack(), pos, context.camera(), new Color(64, 64, 255));
+			if (System.currentTimeMillis()-time > 60 * 1000) 
+				queue.add(pos);
+			if (pos.isWithinDistance(context.camera().getPos(), 600))
+				drawLine(context.matrixStack(), pos, context.camera(), new Color(64, 64, 255));
 		});
 		for (BlockPos pos : queue) {
 			if (!STARITES.contains(context.world().getBlockState(pos).getBlock()))

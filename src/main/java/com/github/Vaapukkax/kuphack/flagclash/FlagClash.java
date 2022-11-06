@@ -79,8 +79,8 @@ public class FlagClash implements EventHolder {
 	
 	public static String timeAsString(double time) {
 		if (time < 60) return (int) time + "s";
-		String text = Kuphack.round(time / 60.0 % 60.0) + "min";
-		if (time > 3600) text = Kuphack.round(time / 60 / 60) + "h";
+		String text = time / 60 % 60 + "min";
+		if (time > 3600) text = Kuphack.round(time / 60.0 / 60.0) + "h";
 		return text;
 	}
 	
@@ -110,7 +110,7 @@ public class FlagClash implements EventHolder {
 				statCache.put("Gps", gps.toString());
 				return gps;
 			}
-			BigInteger integer = toRealValue(getStat("Gps").split("\\s")[0]);
+			BigInteger integer = toRealValue(getStat("Gps").split("\\s+")[0]);
 			if (integer.equals(BigInteger.ZERO)) return BigInteger.ONE;
 			return integer;
 		} catch (Exception e) {
@@ -177,7 +177,7 @@ public class FlagClash implements EventHolder {
 	    int index = (length-4)/3; // index of the suffix in the array
 	    
 	    double d = Math.pow(1000, index+1);
-	    DecimalFormat df = new DecimalFormat("0.000");
+	    DecimalFormat df = new DecimalFormat("0.00");
 	    df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 	    return df.format(new BigDecimal(value).divide(BigDecimal.valueOf(d))) + suffixes[index];
 	}
