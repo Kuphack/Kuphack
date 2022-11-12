@@ -23,13 +23,14 @@ import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.events.ChatEvent;
 import com.github.vaapukkax.kuphack.events.ServerJoinEvent;
 import com.github.vaapukkax.kuphack.finder.MinehutButtonState;
+import com.github.vaapukkax.kuphack.flagclash.BlockRadiusFeature;
 import com.github.vaapukkax.kuphack.flagclash.FlagBreakTimeFeature;
 import com.github.vaapukkax.kuphack.flagclash.FlagClash;
 import com.github.vaapukkax.kuphack.flagclash.FlagLocation;
 import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 import com.github.vaapukkax.kuphack.flagclash.HookshotHelperFeature;
 import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
-import com.github.vaapukkax.kuphack.flagclash.BlockRadiusFeature;
+import com.github.vaapukkax.kuphack.flagclash.NokenTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
 import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.UltraSignalProgressFeature;
@@ -102,6 +103,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		features.add(new HookshotHelperFeature());
 		features.add(new UltraSignalProgressFeature());
 		features.add(new StariteTracerFeature());
+		features.add(new NokenTracerFeature());
 		
 		// LOBBY
 		features.add(new AdBlockFeature());
