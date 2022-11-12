@@ -79,7 +79,7 @@ public class FlagClash implements EventHolder {
 	
 	public static String timeAsString(double time) {
 		if (time < 60) return (int) time + "s";
-		String text = time / 60 % 60 + "min";
+		String text = (int)(time / 60 % 60) + "min";
 		if (time > 3600) text = Kuphack.round(time / 60.0 / 60.0) + "h";
 		return text;
 	}

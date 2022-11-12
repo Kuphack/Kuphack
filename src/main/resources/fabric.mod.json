@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "kuphack",
-  "version": "7.4.0",
+  "version": "7.5.0",
 
   "name": "Kuphack",
   "description": "Modification for the Minecraft server Minehut adding utility features such as a custom server list for browsing servers outside of Minehut, adblock for the lobby and some special ones for special servers. More information about features and such are shown on the site",

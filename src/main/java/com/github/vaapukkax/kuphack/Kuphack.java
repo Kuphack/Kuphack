@@ -29,7 +29,7 @@ import com.github.vaapukkax.kuphack.flagclash.FlagLocation;
 import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 import com.github.vaapukkax.kuphack.flagclash.HookshotHelperFeature;
 import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
-import com.github.vaapukkax.kuphack.flagclash.RevokerAreaFeature;
+import com.github.vaapukkax.kuphack.flagclash.BlockRadiusFeature;
 import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
 import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.UltraSignalProgressFeature;
@@ -96,7 +96,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		features.add(new FriendFeature());
 		features.add(new FlagBreakTimeFeature());
 		features.add(new FlagLocation());
-		features.add(new RevokerAreaFeature());
+		features.add(new BlockRadiusFeature());
 		features.add(new StablePipeFeature());
 		features.add(new ItemEntityInfoFeature());
 		features.add(new HookshotHelperFeature());
@@ -261,12 +261,12 @@ public class Kuphack implements ModInitializer, EventHolder {
 	@EventMention
 	public void onEvent(ChatEvent e) {
 		if (!isOnMinehut()) return;
-		if (e.getMessage().getString().equals("§3Sending you to the lobby!")) {
+		if (e.getText().getString().equals("§3Sending you to the lobby!")) {
 			setServer(Servers.LOBBY);
 		} else if (getServer() == Servers.LOBBY) {
-			String message = e.getMessage().getString();
+			String message = e.getText().getString();
 			if (message.startsWith("Sending you to ") && message.endsWith("!")) {
-				String name = e.getMessage().getString().substring(15, e.getMessage().getString().length()-1);
+				String name = e.getText().getString().substring(15, e.getText().getString().length()-1);
 				try {
 					setServer(Servers.valueOf(name.toUpperCase()));
 				} catch (IllegalArgumentException exc) {
@@ -344,8 +344,9 @@ public class Kuphack implements ModInitializer, EventHolder {
 	        			(FlagClash.isUpgradeCostUnsure() ? " §k" : " §f") + FlagClash.timeAsString(time)
 	        		: " §fUpgrade Time: §a§l" + (FlagClash.isUpgradeCostUnsure() ? "Unsure" : FlagClash.timeAsString(time))
 	        	));
-	        } else if (!FlagClash.isUpgradeCostUnsure()) lines.add(0, (FlagClash.isMushroomArc() ? Text.literal(" ") : Text.literal(" Upgrade Cost: §a§l")).append(
+	        } else if (!FlagClash.isUpgradeCostUnsure()) lines.add(0, (FlagClash.isMushroomArc() ? Text.literal(" ") : Text.literal(" Upgrade Cost: ")).append(
 	        	Text.literal(FlagClash.toVisualValue(FlagClash.getUpgradeCost()))
+	        		.styled(style -> style.withColor(Formatting.GREEN).withBold(true))
 	        ));
 		}
 		return lines;

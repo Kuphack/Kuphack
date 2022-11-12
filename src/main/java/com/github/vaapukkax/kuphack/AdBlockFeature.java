@@ -18,7 +18,7 @@ public class AdBlockFeature extends Feature implements EventHolder {
 	public void onEvent(ChatEvent e) {
 		if (!isPlaying()) return;
 		
-		String string = getString(e.getMessage(), new StringBuilder());
+		String string = getString(e.getText(), new StringBuilder());
 		if (string.startsWith("\u00a7d[AD]") || string.startsWith("[AD]")) {
 			this.total++;
 			e.getClientPlayer().sendMessage(Text.of("\u00a7cBlocked "+total+" ad"+(total == 1 ? "" : "s")), true);
