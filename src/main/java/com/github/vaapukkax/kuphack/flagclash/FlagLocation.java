@@ -4,7 +4,7 @@ import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.BlockUpdateEvent;
 import com.github.vaapukkax.kuphack.events.ClientBlockBreakEvent;
 import com.github.vaapukkax.kuphack.events.ClientBlockPlaceEvent;
@@ -25,7 +25,7 @@ public class FlagLocation extends Feature implements EventHolder {
 	private BlockPos location;
 	
 	public FlagLocation() {
-		super(null, Servers.FLAGCLASH);
+		super(null, SupportedServer.FLAGCLASH);
 	}
 	
 	/**

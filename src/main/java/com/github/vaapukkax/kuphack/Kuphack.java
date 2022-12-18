@@ -15,6 +15,8 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,6 @@ import com.github.vaapukkax.kuphack.flagclash.FlagLocation;
 import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 import com.github.vaapukkax.kuphack.flagclash.HookshotHelperFeature;
 import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
-import com.github.vaapukkax.kuphack.flagclash.NokenTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
 import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.UltraSignalProgressFeature;
@@ -38,6 +39,7 @@ import com.github.vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.vaapukkax.minehut.Minehut;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.DecimalFormatSymbols;
 
@@ -53,6 +55,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.toast.SystemToast;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -76,22 +79,27 @@ public class Kuphack implements ModInitializer, EventHolder {
 	public static final Logger LOGGER = LoggerFactory.getLogger("kuphack");
 	private static Kuphack instance;
 	
+	private CloseableHttpClient httpClient;
 	private Minehut minehut;
 	private final ArrayList<Feature> features = new ArrayList<>();
 	
-	public MinehutButtonState mhButtonState = isFeather() ? MinehutButtonState.LEFT_CORNER : MinehutButtonState.RIGHT_CORNER;
+	public MinehutButtonState serverListButton = isFeather() ? MinehutButtonState.LEFT_CORNER : MinehutButtonState.RIGHT_CORNER;
 	public boolean autoUpdate = !isFeather();
 	
-	private Servers server;
+	private SupportedServer server;
 	private long customCheckTimeout = -1;
 	
 	@Override
 	public void onInitialize() {
 		Kuphack.instance = this;
 		minehut = new Minehut();
-		minehut.setHttpDriver(new ApacheHttpDriver());
+		minehut.setHttpDriver(new ApacheHttpDriver(httpClient = HttpClients.createDefault()));
 		
 		Event.register(this);
+
+		// LOBBY
+		features.add(new AdBlockFeature());
+		features.add(new ServerListReplacement());
 		
 		// FLAGCLASH
 		features.add(new FriendFeature());
@@ -99,33 +107,24 @@ public class Kuphack implements ModInitializer, EventHolder {
 		features.add(new FlagLocation());
 		features.add(new BlockRadiusFeature());
 		features.add(new StablePipeFeature());
-		features.add(new ItemEntityInfoFeature());
 		features.add(new HookshotHelperFeature());
 		features.add(new UltraSignalProgressFeature());
 		features.add(new StariteTracerFeature());
-		features.add(new NokenTracerFeature());
-		
-		// LOBBY
-		features.add(new AdBlockFeature());
-		features.add(new ServerListReplacement());
 
+		// FLAGCLASH & OVERCOOKED
+		features.add(new ItemEntityInfoFeature());
+		
 		Event.register(new FlagClash());
 		
 		// Multiplayer Button Setting
-		Gson gson = new Gson();
-		JsonObject object = new JsonObject();
-		try {
-			object = gson.fromJson(readDataFile(), JsonObject.class);
-		} catch (Exception e) {}
-		if (object != null) {
-			if (object.has("mhButtonState"))
-				mhButtonState = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
-			if (object.has("auto-update"))
-				autoUpdate = object.get("auto-update").getAsBoolean();
-		}
+		JsonObject object = this.readDataFile();
+		if (object.has("mhButtonState"))
+			this.serverListButton = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
+		if (object.has("auto-update"))
+			this.autoUpdate = object.get("auto-update").getAsBoolean();
 		
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
-			this.minehut.close();
+			this.minehut.close(); // closes httpClient
 			UpdateChecker.continueDownload();
 		});
 		
@@ -135,13 +134,13 @@ public class Kuphack implements ModInitializer, EventHolder {
 			
 			public void onStartTick(MinecraftClient client) {
 				boolean debug = FabricLoader.getInstance().isDevelopmentEnvironment();
-				if (debug && getServer() != Servers.FLAGCLASH)
+				if (debug && getServer() != SupportedServer.FLAGCLASH)
 					Event.call(new ServerJoinEvent(new ServerInfo("FlagClash", "flagclash.minehut.gg", false)));
 				if (client.isIntegratedServerRunning() && !debug) setServer(null);
-	
-				// TODO recode, there are better ways to do this
+
+				// TODO recode since there are better ways to do this
 				if (System.currentTimeMillis() - customCheckTimeout > 1500) {
-					for (Servers server : Servers.values()) {
+					for (SupportedServer server : SupportedServer.values()) {
 						if (getServer() == server || !server.test(client)) continue;
 						setServer(server);
 						break;
@@ -150,19 +149,17 @@ public class Kuphack implements ModInitializer, EventHolder {
 				
 				ServerInfo info = client.getCurrentServerEntry();
 				if (this.info != info) {
-					if (info != null) {
-						ServerJoinEvent event = new ServerJoinEvent(info);
-						Event.call(event);
-					}
+					if (info != null)
+						Event.call(new ServerJoinEvent(info));
 					this.info = info;
 				}
 				UpdateChecker.sendCheckerStatus();
 			}
 		});
-		if (isFeather()) {
+		if (isFeather()) { // replacement for the extra info on the FlagClash side bar
 			MinecraftClient client = MinecraftClient.getInstance();
 			HudRenderCallback.EVENT.register((matrices, delta) -> {
-				if (client.player == null || getServer() != Servers.FLAGCLASH) return;
+				if (client.player == null || getServer() != SupportedServer.FLAGCLASH) return;
 				boolean flag = this.getFeature(FlagLocation.class).isFlagDown();
 				if (!flag && FlagClash.isUpgradeCostUnsure()) return;
 				
@@ -188,7 +185,11 @@ public class Kuphack implements ModInitializer, EventHolder {
 		return this.minehut;
 	}
 	
-	private void setServer(Servers server) {
+	public CloseableHttpClient getHttpClient() {
+		return this.httpClient;
+	}
+	
+	private void setServer(SupportedServer server) {
 		if (this.server == server) return;
 		this.customCheckTimeout = System.currentTimeMillis();
 		
@@ -203,13 +204,13 @@ public class Kuphack implements ModInitializer, EventHolder {
 		}
 	}
 
-	public String readDataFile() {
+	public JsonObject readDataFile() {
 		try (BufferedReader reader = Files.newBufferedReader(getDataFile(), Charset.defaultCharset())) {
-			return reader.lines().collect(Collectors.joining("\n"));
-		} catch (IOException e) {
+			return new Gson().fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class);
+		} catch (IOException | JsonParseException e) {
 			e.printStackTrace();
 		}
-		return "";
+		return new JsonObject();
 	}
 	
 	public Path getDataFile() {
@@ -218,7 +219,6 @@ public class Kuphack implements ModInitializer, EventHolder {
 		
 		try {	
 			Files.createFile(path);
-			Files.setAttribute(path, "dos:hidden", true);
 		} catch (IOException e) {
 			new IOException("Couldn't create Kuphack settings file", e).printStackTrace();
 		}
@@ -247,14 +247,14 @@ public class Kuphack implements ModInitializer, EventHolder {
 			String address = e.getInfo().address.toUpperCase();
 			String name = address.substring(0, address.indexOf("."));
 			
-			Servers server = null;
+			SupportedServer server = null;
 			try {
-				server = Servers.valueOf(name);
+				server = SupportedServer.valueOf(name);
 			} catch (IllegalArgumentException ex) {}
 			setServer(server);
 			if (server != null) return;
 		} else if (e.getInfo().address.toLowerCase().startsWith("minehut.com")) {
-			setServer(Servers.LOBBY);
+			setServer(SupportedServer.LOBBY);
 			return;
 		}
 		setServer(null);
@@ -264,13 +264,13 @@ public class Kuphack implements ModInitializer, EventHolder {
 	public void onEvent(ChatEvent e) {
 		if (!isOnMinehut()) return;
 		if (e.getText().getString().equals("§3Sending you to the lobby!")) {
-			setServer(Servers.LOBBY);
-		} else if (getServer() == Servers.LOBBY) {
+			setServer(SupportedServer.LOBBY);
+		} else if (getServer() == SupportedServer.LOBBY) {
 			String message = e.getText().getString();
 			if (message.startsWith("Sending you to ") && message.endsWith("!")) {
 				String name = e.getText().getString().substring(15, e.getText().getString().length()-1);
 				try {
-					setServer(Servers.valueOf(name.toUpperCase()));
+					setServer(SupportedServer.valueOf(name.toUpperCase()));
 				} catch (IllegalArgumentException exc) {
 					LOGGER.info("Kuphack.cc doesn't support: "+name.toUpperCase());
 					setServer(null);
@@ -302,7 +302,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		return df.format(value);
 	}
 	
-	public static Servers getServer() {
+	public static SupportedServer getServer() {
 		if (get() == null) return null;
 		return get().server;
 	}
@@ -338,7 +338,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 	
 	protected static List<Text> getModifiedSidebar() {
 		List<Text> lines = Kuphack.getScoreboard();
-		if (getServer() == Servers.FLAGCLASH) {
+		if (getServer() == SupportedServer.FLAGCLASH) {
 	        if (Kuphack.get().getFeature(FlagLocation.class).isFlagDown()) {
 	        	double time = FlagClash.getUpgradeTime();
 	        	if (time != -1) lines.add(0, Text.literal(
@@ -439,7 +439,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 
 	public static void error(Throwable throwable) {
 		MinecraftClient c = MinecraftClient.getInstance();
-		Servers server = Kuphack.getServer();
+		SupportedServer server = Kuphack.getServer();
 		if (c.player != null) c.player.sendMessage(Text.of(
 			"§c[Kuphack] Error occured " + (
 			server != null ? "maybe relating to " + server
@@ -447,6 +447,17 @@ public class Kuphack implements ModInitializer, EventHolder {
 			) + " (Printed to console)"
 		), true);
 		throwable.printStackTrace();
+	}
+	
+	public static void addToast(String title, String description) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		MutableText titleText = Text.literal("Kuphack");
+		if (title != null) titleText.append(" | " + title);
+		
+		SystemToast toast = SystemToast.create(client, SystemToast.Type.PERIODIC_NOTIFICATION,
+			Text.of(title), Text.of(description.replace('\n', ' '))
+		);
+		client.getToastManager().add(toast);
 	}
 	
 	/**

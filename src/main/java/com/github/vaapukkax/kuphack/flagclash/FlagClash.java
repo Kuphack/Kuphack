@@ -13,7 +13,7 @@ import java.util.Locale;
 import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.InventoryClickEvent;
 
 import net.minecraft.item.Items;
@@ -183,7 +183,7 @@ public class FlagClash implements EventHolder {
 	}
 		
 	protected static String getStat(String stat) throws Exception {
-		if (Kuphack.getServer() != Servers.FLAGCLASH)
+		if (Kuphack.getServer() != SupportedServer.FLAGCLASH)
 			return statCache.getOrDefault(stat, "0");
 		for (Text line : Kuphack.getScoreboard()) {
 			String cutLine = line.getString().strip();

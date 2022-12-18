@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.github.vaapukkax.minehut.Category;
+import com.github.vaapukkax.minehut.PredefinedCategory;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -26,10 +26,10 @@ import net.minecraft.text.Text;
 @Environment(EnvType.CLIENT)
 public class CategoryDropdownWidget extends ClickableWidget {
 
-	private static final List<Category> categories = Collections.unmodifiableList(Arrays.asList(Category.values()));
+	private static final List<PredefinedCategory> categories = Collections.unmodifiableList(Arrays.asList(PredefinedCategory.values()));
 	private final MinehutServerListScreen screen;
 	private final TextRenderer textRenderer;	
-	private final AtomicReference<Category> category;
+	private final AtomicReference<PredefinedCategory> category;
 	
     public CategoryDropdownWidget(MinehutServerListScreen screen, TextRenderer textRenderer, int x, int y, int width) {
         super(x, y, width, 20, Text.of("Categories"));
@@ -38,7 +38,7 @@ public class CategoryDropdownWidget extends ClickableWidget {
         this.category = screen.category;
     }
     
-    public Category getCategory() {
+    public PredefinedCategory getCategory() {
     	return this.category.get();
     }
 
@@ -46,7 +46,7 @@ public class CategoryDropdownWidget extends ClickableWidget {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean bl = isMouseOver(mouseX, mouseY);
         if (this.isFocused() && bl && button == 0) {
-        	for (Category category : categories) {
+        	for (PredefinedCategory category : categories) {
         		Rectangle bounds = getBounds(category);
         		if (bounds.intersects(new Rectangle2D.Double(mouseX, mouseY, 1, 1))) {
         			if (this.getCategory() != category)
@@ -94,7 +94,7 @@ public class CategoryDropdownWidget extends ClickableWidget {
 		
 		if (this.isFocused()) {
 			int i = 0;
-			for (Category category : categories) {
+			for (PredefinedCategory category : categories) {
 				Rectangle rectangle = getBounds(category);
 
 				if (category == this.getCategory() || rectangle.intersects(new Rectangle(mouseX, mouseY, 1, 1)))
@@ -108,7 +108,7 @@ public class CategoryDropdownWidget extends ClickableWidget {
 		);
     }
     
-    private Rectangle getBounds(Category category) {
+    private Rectangle getBounds(PredefinedCategory category) {
 		int y = this.y + (this.height - 8) / 2 - categories.indexOf(category) * (this.height / 2) + 3;
 		Rectangle rectangle = new Rectangle(this.x + 2, y, this.width - 4, 10);
 		return rectangle;

@@ -8,7 +8,7 @@ import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.BlockUpdateEvent;
 import com.github.vaapukkax.kuphack.events.ClientBlockPlaceEvent;
 
@@ -38,7 +38,7 @@ public class BlockRadiusFeature extends Feature implements WorldRenderEvents.Aft
 	private boolean queUpdate;
 	
 	public BlockRadiusFeature() {
-		super("Shows you the radius of placed Revokers and Disruptors", Servers.FLAGCLASH);
+		super("Shows you the radius of placed Revokers and Disruptors", SupportedServer.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
 
@@ -144,11 +144,12 @@ public class BlockRadiusFeature extends Feature implements WorldRenderEvents.Aft
 		public BlockData(Map.Entry<Color, Float> entry) {
 			this.color = entry.getKey();
 			this.defSize = entry.getValue();
-			this.size = entry.getValue();
+			this.size = 0.0f;
 		}
 		
 		public void tick(float delta) {
-			this.size += (((this.removing ? 0 : this.defSize) - this.size) * 0.2) * delta;
+			float dest = this.removing ? 0 : this.defSize;
+			this.size += ((dest - this.size) * 0.25f) * delta;
 		}
 		
 	}

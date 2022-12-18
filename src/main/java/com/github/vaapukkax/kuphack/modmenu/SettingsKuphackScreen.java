@@ -8,9 +8,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import com.github.vaapukkax.kuphack.AdBlockFeature;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.finder.MinehutButtonState;
 import com.github.vaapukkax.kuphack.finder.MinehutServerListScreen;
 import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
@@ -22,17 +23,18 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
 
 public class SettingsKuphackScreen extends Screen {
 
-	private boolean autoUpdate = false;
-	
 	private boolean checkedForUpdate = false;
 	private final HashMap<ButtonWidget, String> tooltips = new HashMap<>();
 	private ButtonList buttonList;
@@ -61,32 +63,32 @@ public class SettingsKuphackScreen extends Screen {
         
         tooltips.put(this.addDrawableChild(new ButtonWidget(
         	x, y, 150, 20, // top-left
-        	Text.of("MH List Button: "+Kuphack.get().mhButtonState),
-        	button -> {
+        	Text.of("MH List Button: "+Kuphack.get().serverListButton), button -> {
         		List<MinehutButtonState> list = Arrays.asList(MinehutButtonState.values());
-        		int i = list.indexOf(Kuphack.get().mhButtonState)+1;
+        		int i = list.indexOf(Kuphack.get().serverListButton)+1;
         		if (i >= list.size()) i = 0;
+        		 
+        		Kuphack.get().serverListButton = list.get(i);
         		
-        		Kuphack.get().mhButtonState = list.get(i);
-        		
-        		button.setMessage(Text.of("MH List Button: "+Kuphack.get().mhButtonState));
+        		button.setMessage(Text.of("MH List Button: "+Kuphack.get().serverListButton));
         	}
-        )), "Affects the location of the Minehut server list button in the Multiplayer menu");
+        )), "Affects the location of the Minehut server list button in the multiplayer menu");
         
         tooltips.put(this.addDrawableChild(new ButtonWidget(
     		xR, y, 150, 20, // top-right
     		Text.of("Server List..."),
     		button -> client.setScreen(new MinehutServerListScreen(this))
-        )), "Opens the Minehut server list which can also be accessed in multiplayer menu");
+        )), "Opens the Minehut server list which can also be accessed in the multiplayer menu");
         
+        String updaterName = Kuphack.isFeather() ? "Update Notifier" : "Auto Update";
         tooltips.put(this.addDrawableChild(new ButtonWidget(
     		x, y += 24, 150, 20, // mid-left
-    		Text.of("Auto Update: "+autoUpdate),
-    		button -> {
-        		autoUpdate = !autoUpdate;
-        		button.setMessage(Text.of("Auto Update: "+autoUpdate));
+    		Text.of(updaterName + ": "+Kuphack.get().autoUpdate), button -> {
+    			Kuphack.get().autoUpdate = !Kuphack.get().autoUpdate;
+        		button.setMessage(Text.of(updaterName + ": "+Kuphack.get().autoUpdate));
     		}
-        )), "Toggles automatic updating and downloading (unless on Feather) of Kuphack.");
+        )), Kuphack.isFeather() ? "Notifies you in chat when there is a new Kuphack release"
+        	: "Toggles automatic notifying, downloading and updating of Kuphack when a new release is found.");
         
         tooltips.put(this.addDrawableChild(new ButtonWidget(
     		xR, y, 150, 20, // mid-right
@@ -105,39 +107,50 @@ public class SettingsKuphackScreen extends Screen {
     }
     
     private void checkForUpdates(ButtonWidget button) {
-		if (!checkedForUpdate) {
-			tooltips.put(button, "Checking for update status...");
-			new Thread(() -> {
-				synchronized (button) { // Can't remember why its synchronized
-					button.active = false;
-				}
+		if (checkedForUpdate) return;
+		new Thread(() -> {
+			button.active = false;
+			boolean updateReceived = false;
+			try {
+				UpdateChecker.checkAndDownload();
 				
-				boolean updateReceived = false;
-				try {
-					UpdateChecker.checkAndDownload();
-					
-					UpdateStatus status = UpdateChecker.takeCheckerStatus();
-					if (status != null) {
-    					tooltips.put(button, "Update status received:\n"+status.text());
-    					if (status.runnable() != null)
-    						client.executeSync(status.runnable());
-    					updateReceived = true;
-					} else tooltips.put(button, "Couldn't find an update");
-					checkedForUpdate = true;
-				} catch (Exception e) {
-					tooltips.put(button, "Could not retrieve status!\nRatelimit reached?");
-					e.printStackTrace();
-				}
-				synchronized (button) {
-					if (!updateReceived) button.active = true;
-				}
-			}).start();
-		}
+				UpdateStatus status = UpdateChecker.takeCheckerStatus();
+				if (status != null) {
+					Kuphack.addToast("Update Status", status.additional());
+					if (status.open())
+						client.executeSync(() -> open(status.release().getURL()));
+					updateReceived = true;
+				} else Kuphack.addToast("Update Status", "Couldn't find an update...");
+				checkedForUpdate = true;
+			} catch (Exception e) {
+				Kuphack.addToast("Update Status", "Could not retrieve status!\nRatelimit reached?");
+				e.printStackTrace();
+			}
+			if (!updateReceived) button.active = true;
+		}).start();
     }
+    
+	/**
+	 * Open a pop-up to ask confirmation for opening a link
+	 * @param url the link
+	 */
+	private void open(String url) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		try {
+			client.setScreen(new ConfirmLinkScreen((confirmed) -> {
+				if (confirmed)
+	            	Util.getOperatingSystem().open(url);
+	            client.setScreen(this);
+	        }, url, true));
+		} catch (Throwable e) {
+			e.printStackTrace();
+			Util.getOperatingSystem().open(url);
+		}
+	}
 
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-    	Servers server = Kuphack.getServer();
+    	SupportedServer server = Kuphack.getServer();
     	Text connected = Text.of(server != null ? "Connected to " + server
     		: Kuphack.isOnMinehut() ? "No extra features on this server"
     	: "");
@@ -158,7 +171,7 @@ public class SettingsKuphackScreen extends Screen {
     
     @Override
     public void removed() {
-    	save();
+    	this.save();
     	super.removed();
     }
     
@@ -168,11 +181,9 @@ public class SettingsKuphackScreen extends Screen {
     }
     
     private void load() {
-		JsonObject object = new Gson().fromJson(Kuphack.get().readDataFile(), JsonObject.class);
-		if (object == null) return;
-		
+		JsonObject object = Kuphack.get().readDataFile();
     	if (object.has("mhButtonState"))
-    		Kuphack.get().mhButtonState = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
+    		Kuphack.get().serverListButton = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
     	if (object.has("auto-update"))
     		Kuphack.get().autoUpdate = object.get("auto-update").getAsBoolean();
     }
@@ -190,7 +201,8 @@ public class SettingsKuphackScreen extends Screen {
     		.filter(feature -> !feature.getClass().equals(StariteTracerFeature.class))
     		.forEach(feature -> array.add(feature.getClass().getSimpleName()));
     	object.add("disabled", array);
-    	object.addProperty("mhButtonState", Kuphack.get().mhButtonState.name());
+    	object.addProperty("ad-block-strict", Kuphack.get().getFeature(AdBlockFeature.class).strict);
+    	object.addProperty("mhButtonState", Kuphack.get().serverListButton.name());
     	object.addProperty("auto-update", Kuphack.get().autoUpdate);
     	
     	write(gson.toJson(object));

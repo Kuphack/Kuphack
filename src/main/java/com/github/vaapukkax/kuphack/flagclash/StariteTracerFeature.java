@@ -10,7 +10,7 @@ import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.BlockUpdateEvent;
 import com.github.vaapukkax.kuphack.events.ClientBlockBreakEvent;
 
@@ -35,7 +35,7 @@ public class StariteTracerFeature extends Feature implements EventHolder, WorldR
 	private final HashMap<BlockPos, Long> tracers = new HashMap<>();
 	
 	public StariteTracerFeature() {
-		super("When a source of starite spawns, a tracer appears", Servers.FLAGCLASH);
+		super("When a source of starite spawns, a tracer appears", SupportedServer.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 		this.toggle();
 	}

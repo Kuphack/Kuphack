@@ -23,7 +23,7 @@ public class MultiplayerScreenMixin extends Screen {
 
 	@Inject(method = "init", at = @At(value = "HEAD"))
 	protected void init(CallbackInfo ci) {
-		MinehutButtonState state = Kuphack.get().mhButtonState;
+		MinehutButtonState state = Kuphack.get().serverListButton;
 		
 		if (state != MinehutButtonState.HIDDEN) {
 			int x =

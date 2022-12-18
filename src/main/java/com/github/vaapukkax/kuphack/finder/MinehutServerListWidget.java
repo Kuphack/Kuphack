@@ -10,9 +10,9 @@ import java.util.Objects;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import com.github.vaapukkax.minehut.Category;
-import com.github.vaapukkax.minehut.Server;
 import com.github.vaapukkax.kuphack.Kuphack;
+import com.github.vaapukkax.minehut.PredefinedCategory;
+import com.github.vaapukkax.minehut.Server;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -72,7 +72,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
 		        	ArrayList<Text> lines = new ArrayList<>();
 		        	// Category Text
 		        	StringBuilder builder = new StringBuilder();
-		        	Iterator<Category> categories = server.getCategories().iterator();
+		        	Iterator<PredefinedCategory> categories = server.getPredefinedCategories().iterator();
 		        	while (categories.hasNext()) {
 		        		builder.append(categories.next().toString());
 		        		if (categories.hasNext()) builder.append(", ");

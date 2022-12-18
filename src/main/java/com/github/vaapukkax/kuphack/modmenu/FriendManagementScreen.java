@@ -94,9 +94,9 @@ public class FriendManagementScreen extends Screen {
         this.addSelectableChild(this.buttonList);
         
         this.addDrawableChild(new ButtonWidget(this.width / 2 - 100, this.height - 28, 150, 20, ScreenTexts.BACK, button -> this.close()));
-        this.addDrawableChild(new ButtonWidget(this.width / 2 + 50, this.height - 28, 50, 20, Text.of("["+feature.getDisableState()+"]"), button -> {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 + 50, this.height - 28, 50, 20, Text.of("["+feature.getTextState()+"]"), button -> {
         	this.feature.toggle();
-        	button.setMessage(Text.of("["+this.feature.getDisableState()+"]"));
+        	button.setMessage(Text.of("["+this.feature.getTextState()+"]"));
         	this.init();
         }));
         this.initialized = true;

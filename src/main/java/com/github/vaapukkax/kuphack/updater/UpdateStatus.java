@@ -1,3 +1,3 @@
 package com.github.vaapukkax.kuphack.updater;
 
-public record UpdateStatus(String text, Runnable runnable) {}
+public record UpdateStatus(GithubRelease release, String additional, boolean open) {}

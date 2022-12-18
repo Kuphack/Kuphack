@@ -6,7 +6,7 @@ import java.util.List;
 import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.BlockInteractEvent;
 import com.github.vaapukkax.kuphack.events.InteractEvent;
 
@@ -25,7 +25,7 @@ public class HookshotHelperFeature extends Feature implements HudRenderCallback,
 	private static final List<Block> BLOCKS = Arrays.asList(Blocks.HAY_BLOCK, Blocks.TARGET);
 	
 	public HookshotHelperFeature() {
-		super("Has an indicator on the crosshair when you are capable of hooking into a hook. Also disallows shooting when not looking at one.", Servers.FLAGCLASH);
+		super("Has an indicator on the crosshair when you are capable of hooking into a hook. Also disallows shooting when not looking at one.", SupportedServer.FLAGCLASH);
 		HudRenderCallback.EVENT.register(this);
 	}
 	

@@ -38,17 +38,17 @@ public class FeatureManagementScreen extends Screen {
         for (Feature feature : Kuphack.get().getFeatures()) {
         	ButtonWidget widget = new ButtonWidget(
 	        	this.width / 2 - 150 / 2, y, 150, 20,
-	        	Text.of(feature.getName() + (feature instanceof FriendFeature ? "..." : " ["+feature.getDisableState()+"]")), button -> {
-	        		if (feature instanceof FriendFeature) {
+	        	Text.of(feature.getName() + (feature instanceof FriendFeature ? "..." : " ["+feature.getTextState()+"]")), button -> {
+	        		if (feature instanceof FriendFeature friendFeature) {
 	        			boolean loaded = true;
-	        			for (UUID uuid : ((FriendFeature)feature).getFriends()) {
+	        			for (UUID uuid : friendFeature.getFriends()) {
 	        				if (!FriendManagementScreen.names.containsKey(uuid)) loaded = false;
 	        			}
 	        			if (!loaded) client.setScreenAndRender(new MessageScreen(Text.of("Loading friends...")));
 	        			client.setScreen(new FriendManagementScreen(this));
 	        		} else {
 	        			feature.toggle();
-	        			button.setMessage(Text.of(feature.getName() + " ["+feature.getDisableState()+"]"));
+	        			button.setMessage(Text.of(feature.getName() + " ["+feature.getTextState()+"]"));
 	        		}
 	        	}
 	        );

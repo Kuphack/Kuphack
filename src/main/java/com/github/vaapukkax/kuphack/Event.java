@@ -57,7 +57,7 @@ public abstract class Event {
 				try {
 					method.invoke(holder, event);
 				} catch (Throwable e) {
-					Kuphack.error(e);
+					Kuphack.error(new Exception("Error appeared while invoking '" + event.getClass().getSimpleName() + "'", e));
 				}
 			}
 		});

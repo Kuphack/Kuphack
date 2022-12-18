@@ -15,10 +15,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.lwjgl.glfw.GLFW;
 
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
-import com.github.vaapukkax.minehut.Category;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.minehut.Minehut;
 import com.github.vaapukkax.minehut.NetworkStatistics;
+import com.github.vaapukkax.minehut.PredefinedCategory;
 import com.github.vaapukkax.minehut.Server;
 
 import net.fabricmc.api.EnvType;
@@ -48,7 +48,7 @@ public class MinehutServerListScreen extends Screen {
     private boolean initialized;
     private String error;
     
-    final AtomicReference<Category> category = new AtomicReference<>();
+    final AtomicReference<PredefinedCategory> category = new AtomicReference<>();
     private final TreeMap<String, Integer> trending = new TreeMap<>();
     private SortType sortType = SortType.ACTIVITY;
     private int playerCount, serverCount;
@@ -184,7 +184,7 @@ public class MinehutServerListScreen extends Screen {
 				error = e.toString();
 				StackTraceElement[] traces = e.getStackTrace();
 				if (traces.length > 0) {
-					error += "\nClass["+traces[0].getClassName()+"] Line["+traces[0].getLineNumber()+"]";
+					error += "\nClass[" + traces[0].getClassName() + "] Line[" + traces[0].getLineNumber() + "]";
 				}
 				
 				entries = new ArrayList<>();
@@ -206,7 +206,7 @@ public class MinehutServerListScreen extends Screen {
     
     public boolean isShown(Server entry) {
     	if (isInvalid(entry)) return false;
-    	if (category.get() != null && !entry.getCategories().contains(category.get())) return false;
+    	if (category.get() != null && !entry.getPredefinedCategories().contains(category.get())) return false;
     	
     	String search = textField.getText().toLowerCase();
     	if (search.isBlank()) return true;
@@ -292,7 +292,7 @@ public class MinehutServerListScreen extends Screen {
         if (entry instanceof MinehutServerListWidget.ServerEntry) {
         	Server serverEntry = ((MinehutServerListWidget.ServerEntry)entry).getServer();
 
-	    	if (Kuphack.getServer() == Servers.LOBBY && client.player != null) {
+	    	if (Kuphack.getServer() == SupportedServer.LOBBY && client.player != null) {
 	    		client.player.sendCommand("join "+serverEntry.getName());
 	    	} else {
 	    		if (client.world != null) {

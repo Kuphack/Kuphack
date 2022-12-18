@@ -1,7 +1,7 @@
 package com.github.vaapukkax.kuphack.flagclash;
 
 import com.github.vaapukkax.kuphack.Feature;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
@@ -17,7 +17,7 @@ public class StablePipeFeature extends Feature implements ClientTickEvents.Start
 	);
 	
 	public StablePipeFeature() {
-		super("Allows you to go up the lobby pipe more stably", Servers.FLAGCLASH);
+		super("Allows you to go up the lobby pipe more stably", SupportedServer.FLAGCLASH);
 		ClientTickEvents.START_CLIENT_TICK.register(this);
 	}
 

@@ -10,7 +10,7 @@ import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.DamageEvent;
 import com.github.vaapukkax.kuphack.modmenu.SettingsKuphackScreen;
 import com.google.gson.Gson;
@@ -36,7 +36,7 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 	private PlayerEntity lastDamaged;
 	
 	public FriendFeature() {
-		super("Lets you not attack your friends", Servers.FLAGCLASH);
+		super("Lets you not attack your friends", SupportedServer.FLAGCLASH);
 		HudRenderCallback.EVENT.register(this);
 		ClientLifecycleEvents.CLIENT_STOPPING.register(e -> save());
 		load();
@@ -111,18 +111,12 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 	 * Loads the friends from the config/save file
 	 */
 	public void load() {
-		Gson gson = new Gson();
-		JsonObject object = new JsonObject();
-		try {
-			object = gson.fromJson(Kuphack.get().readDataFile(), JsonObject.class);
-		} catch (Exception e) {}
+		JsonObject object = Kuphack.get().readDataFile();
 		
-		friends.clear();
-		if (object != null && object.has("friends")) {
-			object.get("friends").getAsJsonArray().forEach(uuid -> {
-				this.friends.add(UUID.fromString(uuid.getAsString()));
-			});
-		}
+		this.friends.clear();
+		if (object.has("friends")) object.get("friends").getAsJsonArray().forEach(uuid -> 
+			this.friends.add(UUID.fromString(uuid.getAsString()))
+		);
 	}
 	
 	/**
@@ -130,14 +124,8 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 	 */
 	public void save() {
 		Gson gson = new Gson();
-		JsonObject object = null;
-		try {
-			object = gson.fromJson(Kuphack.get().readDataFile(), JsonObject.class);
-		} catch (Exception e) {}
-		if (object == null) object = new JsonObject();
-		
+		JsonObject object = Kuphack.get().readDataFile();
 		object.add("friends", toJsonArray());
-		
 		SettingsKuphackScreen.write(gson.toJson(object));
 	}
 	

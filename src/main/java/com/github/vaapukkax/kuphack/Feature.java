@@ -1,7 +1,6 @@
 package com.github.vaapukkax.kuphack;
 
 import com.github.vaapukkax.kuphack.Event.EventHolder;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -12,19 +11,19 @@ public abstract class Feature {
 
 	protected final MinecraftClient client = MinecraftClient.getInstance();
 	
-	public final Servers[] servers;
+	public final SupportedServer[] servers;
 	private boolean disabled;
 	
 	private final String description;
 	
-	public Feature(String description, Servers... servers) {
+	public Feature(String description, SupportedServer... servers) {
 		this.description = description;
 		this.servers = servers;
 		this.disabled = doesOccurInDisabled();
 	}
 	
 	private boolean doesOccurInDisabled() {
-		JsonObject object = new Gson().fromJson(Kuphack.get().readDataFile(), JsonObject.class);
+		JsonObject object = Kuphack.get().readDataFile();
 		if (object == null || !object.has("disabled")) return false;
 		return object.get("disabled").getAsJsonArray()
 			.contains(new JsonPrimitive(this.getClass().getSimpleName()));
@@ -39,12 +38,12 @@ public abstract class Feature {
 	}
 	
 	public boolean isOnServer() {
-		Servers current = Kuphack.getServer();
+		SupportedServer current = Kuphack.getServer();
 		if (current == null || (!FabricLoader.getInstance().isDevelopmentEnvironment() && client.getCurrentServerEntry() == null))
 			return false;
 		
 		if (servers == null || servers.length == 0) return true;
-		for (Servers server : servers) {
+		for (SupportedServer server : servers) {
 			if (current == server) return true;
 		}
 		return false;
@@ -58,7 +57,7 @@ public abstract class Feature {
 		return this.disabled;
 	}
 	
-	public String getDisableState() {
+	public String getTextState() {
 		return disabled ? "OFF" : "ON";
 	}
 	

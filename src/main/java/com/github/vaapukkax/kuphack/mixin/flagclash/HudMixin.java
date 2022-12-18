@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.flagclash.FoodItem;
 
 import net.minecraft.client.MinecraftClient;
@@ -25,7 +25,7 @@ public class HudMixin {
 
 	@Inject(at = @At(value = "INVOKE", ordinal = 30), method = "renderStatusBars", cancellable = true)
 	private void renderStatusBars(MatrixStack matrices, CallbackInfo ci) {
-		if (Kuphack.getServer() != Servers.FLAGCLASH) return;
+		if (Kuphack.getServer() != SupportedServer.FLAGCLASH) return;
 		ci.cancel();
 
 		boolean renderBubbles = renderBubbles(matrices);

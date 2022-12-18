@@ -1,7 +1,7 @@
 package com.github.vaapukkax.kuphack.flagclash;
 
 import com.github.vaapukkax.kuphack.Feature;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.sound.SoundInstance;
@@ -17,7 +17,7 @@ public class UltraSignalProgressFeature extends Feature implements HudRenderCall
 	private double progress;
 	
 	public UltraSignalProgressFeature() {
-		super("Makes text appear on screen when near an Ultra Signal to see how far it has progressed", Servers.FLAGCLASH);
+		super("Makes text appear on screen when near an Ultra Signal to see how far it has progressed", SupportedServer.FLAGCLASH);
 		HudRenderCallback.EVENT.register(this);
 	}
 

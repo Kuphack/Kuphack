@@ -11,7 +11,7 @@ import net.minecraft.item.Items;
 public class ServerListReplacement extends Feature implements EventHolder {
 
 	public ServerListReplacement() {
-		super("Makes you go to the custom server list when clicking on the official server list in the lobby", Servers.LOBBY);
+		super("Makes you go to the custom server list when clicking on the official server list in the lobby", SupportedServer.LOBBY);
 	}
 	
 	@EventMention

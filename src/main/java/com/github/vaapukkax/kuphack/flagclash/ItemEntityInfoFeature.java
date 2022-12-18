@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.font.TextRenderer;
@@ -21,7 +21,7 @@ public class ItemEntityInfoFeature extends Feature {
 	private final Screen screen = new Screen(Text.empty()) {};
 	
 	public ItemEntityInfoFeature() {
-		super("Item Entity Info", Servers.FLAGCLASH);
+		super("Item Entity Info", SupportedServer.FLAGCLASH, SupportedServer.OVERCOOKED);
 
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> 
 			this.screen.init(client, client.getWindow().getScaledWidth(), client.getWindow().getScaledHeight())

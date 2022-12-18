@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.flagclash.FlagClash;
 
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +32,7 @@ public class FlagMixin {
 	
 	@Inject(at = @At(value = "INVOKE"), method = "drawForeground", cancellable = true)
 	protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY, CallbackInfo ci) {
-		if (get() == null || Kuphack.getServer() != Servers.FLAGCLASH) return;
+		if (get() == null || Kuphack.getServer() != SupportedServer.FLAGCLASH) return;
 		MinecraftClient m = MinecraftClient.getInstance();
 		Text title = get().getTitle();
 		

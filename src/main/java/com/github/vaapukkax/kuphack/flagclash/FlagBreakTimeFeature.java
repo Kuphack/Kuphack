@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.Kuphack;
-import com.github.vaapukkax.kuphack.Servers;
+import com.github.vaapukkax.kuphack.SupportedServer;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -22,7 +22,7 @@ public class FlagBreakTimeFeature extends Feature implements WorldRenderEvents.A
 	private long time = -1;
 	
 	public FlagBreakTimeFeature() {
-		super("Shows the flag break time above your flag", Servers.FLAGCLASH);
+		super("Shows the flag break time above your flag", SupportedServer.FLAGCLASH);
 		WorldRenderEvents.AFTER_ENTITIES.register(this);
 	}
 	
