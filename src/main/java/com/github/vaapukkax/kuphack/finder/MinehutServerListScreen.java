@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -18,6 +18,7 @@ import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.minehut.Minehut;
 import com.github.vaapukkax.minehut.NetworkStatistics;
+import com.github.vaapukkax.minehut.NetworkStatistics.NetworkStat;
 import com.github.vaapukkax.minehut.PredefinedCategory;
 import com.github.vaapukkax.minehut.Server;
 
@@ -25,6 +26,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ServerAddress;
@@ -37,18 +39,17 @@ import net.minecraft.text.Text;
 public class MinehutServerListScreen extends Screen {
 
 	private ArrayList<Server> entries = new ArrayList<>();
-	
-	protected List<Text> tooltipQueue;
+
 	protected CategoryDropdownWidget categoryWidget;
     protected MinehutServerListWidget serverListWidget;
-    private ButtonWidget buttonJoin, refreshButton, sortButton;
+    private ButtonWidget buttonJoin, refreshButton;
     private TextFieldWidget textField;
     
     private final Screen parent;
     private boolean initialized;
     private String error;
     
-    final AtomicReference<PredefinedCategory> category = new AtomicReference<>();
+    final ArrayList<PredefinedCategory> categories = new ArrayList<>();
     private final TreeMap<String, Integer> trending = new TreeMap<>();
     private SortType sortType = SortType.ACTIVITY;
     private int playerCount, serverCount;
@@ -60,9 +61,6 @@ public class MinehutServerListScreen extends Screen {
 
     @Override
     protected void init() {
-        super.init();
-        this.client.keyboard.setRepeatEvents(true);
-        
         boolean wasInitialized = this.initialized;
         if (this.initialized) {
             this.serverListWidget.updateSize(this.width, this.height, 32, this.height - 64);
@@ -72,28 +70,34 @@ public class MinehutServerListScreen extends Screen {
         }
         
         this.addSelectableChild(this.serverListWidget);
-        
-        this.addDrawableChild(this.sortButton = new ButtonWidget( // Sort
-    		this.width / 2 - 154, this.height - 52, 100, 20,
-    		Text.of("Sort: "+this.sortType),
-    		button -> {
-    			this.sortType = sortType.next();
-    			sort(entries);
-    			button.setMessage(Text.of("Sort: "+sortType));
-    			serverListWidget.updateServers();
-    			serverListWidget.setScrollAmount(0);
-    		}
-    	));
-        
-        this.buttonJoin = this.addDrawableChild( // Join
-        	new ButtonWidget(this.width / 2 - 154, this.height - 28, 100, 20, Text.translatable("selectServer.select"), button -> this.connect())
+
+        Supplier<Tooltip> supplier = () -> Tooltip.of(Text.of(sortType.getDescription()));
+        this.addDrawableChild(ButtonWidget.builder(Text.of("Sort: "+this.sortType), button -> {
+    		this.sortType = sortType.next();
+    		this.sort(entries);
+    		button.setMessage(Text.of("Sort: "+sortType));
+    		button.setTooltip(supplier.get());
+    		serverListWidget.updateServers();
+    		serverListWidget.setScrollAmount(0);
+    	}).position(this.width / 2 - 154, this.height - 52)
+          .width(100)
+        .tooltip(supplier.get()).build());
+
+        // Join
+        this.buttonJoin = this.addDrawableChild(ButtonWidget.builder(Text.translatable("selectServer.select"), button -> this.connect())
+        	.position(this.width / 2 - 154, this.height - 28)
+        	.width(100).build()
         );
         
-        this.refreshButton = this.addDrawableChild( // Refresh
-        	new ButtonWidget(this.width / 2 - 50, this.height - 28, 100, 20, Text.translatable("selectServer.refresh"), button -> this.refresh())
+        // Refresh
+        this.refreshButton = this.addDrawableChild(ButtonWidget.builder(Text.translatable("selectServer.refresh"), button -> this.refresh())
+        	.position(this.width / 2 - 50, this.height - 28)
+        	.width(100).build()
         );
-        this.addDrawableChild( // Back
-        	new ButtonWidget(this.width / 2 + 4 + 50, this.height - 28, 100, 20, ScreenTexts.BACK, button -> this.client.setScreen(this.parent))
+        // Back
+        this.addDrawableChild(ButtonWidget.builder(ScreenTexts.BACK, button -> this.client.setScreen(this.parent))
+        	.position(this.width / 2 + 4 + 50, this.height - 28)
+        	.width(100).build()
         );
 
         this.categoryWidget = new CategoryDropdownWidget(
@@ -142,7 +146,7 @@ public class MinehutServerListScreen extends Screen {
 		return Collections.unmodifiableList(list);
 	}
     
-    public void refresh() {    	
+    public void refresh() {
     	this.error = null;
     	this.refreshButton.active = false;
     	
@@ -152,10 +156,10 @@ public class MinehutServerListScreen extends Screen {
 	        try {
 				long start = System.currentTimeMillis();
 				Minehut minehut = Kuphack.get().getMinehut();
-				List<Server> servers = minehut.getOnlineServers(category.get());
-				Kuphack.LOGGER.info("Minehut servers loaded in "+(System.currentTimeMillis()-start)+"ms");
+				List<Server> servers = minehut.getOnlineServers();
+				Kuphack.LOGGER.info("Minehut servers loaded in " + (System.currentTimeMillis()-start) + "ms");
 
-				NetworkStatistics stats = minehut.getStatistics();
+				NetworkStatistics stats = minehut.getStatistics(NetworkStat.SIMPLE);
                 this.playerCount = stats.getPlayerCount();
                 this.serverCount = stats.getServerCount();
 
@@ -175,18 +179,13 @@ public class MinehutServerListScreen extends Screen {
                 for (Map.Entry<String, Integer> entry : entriesSortedByValues(trending)) {
                 	this.trending.put(entry.getKey(), entry.getValue());
                 }
-                
+
                 this.sort(entries);
-	        } catch (Exception e) {
-				if (!(e instanceof IllegalStateException || e.getMessage().equals("Socket closed")))
-					e.printStackTrace();
-				
-				error = e.toString();
+	        } catch (Throwable e) {
+				this.error = e.toString();
 				StackTraceElement[] traces = e.getStackTrace();
-				if (traces.length > 0) {
+				if (traces.length > 0)
 					error += "\nClass[" + traces[0].getClassName() + "] Line[" + traces[0].getLineNumber() + "]";
-				}
-				
 				entries = new ArrayList<>();
 			}
 	
@@ -199,37 +198,38 @@ public class MinehutServerListScreen extends Screen {
     }
     
     public void sort(List<Server> entries) {
-    	if (sortType == SortType.SHUFFLE) {
+    	if (this.sortType == SortType.SHUFFLE) {
     		Collections.shuffle(entries);
     	} else Collections.sort(entries, sortType.getComparator(this));
     }
     
+    /**
+	 * Showing an entry depends on:
+	 * <p>- If it isn't a lobby or a sub-server.
+	 * <br>- Offline servers shouldn't be found on the list but those also aren't included.
+	 * <br>- The server has to have the categories which have been selected on the Screen.
+	 * <br>- The name or the MOTD has to contain the search, ignoring the case.
+     */
     public boolean isShown(Server entry) {
     	if (isInvalid(entry)) return false;
-    	if (category.get() != null && !entry.getPredefinedCategories().contains(category.get())) return false;
+    	if (!entry.getPredefinedCategories().containsAll(this.categories)) return false;
     	
-    	String search = textField.getText().toLowerCase();
+    	String search = this.textField.getText().toLowerCase();
     	if (search.isBlank()) return true;
  
     	String motd = Kuphack.stripColor(entry.getMOTD().toLowerCase()).replaceAll("\n", " ");
+    	if (entry.getName().toLowerCase().contains(search)) return true;
     	
-    	int motdi = 0;
     	for (String word : search.split("\\s")) {
-    		if (motd.contains(word)) motdi++;
+    		if (!motd.contains(word)) return false;
     	}
-    	
-    	return entry.getName().toLowerCase().contains(search) || motdi == search.split("\\s").length;
+    	return true;
     }
 
     @Override
     public void tick() {
         this.textField.tick();
         super.tick();
-    }
-    
-    @Override
-    public void removed() {
-        this.client.keyboard.setRepeatEvents(false);
     }
     
     @Override
@@ -275,14 +275,7 @@ public class MinehutServerListScreen extends Screen {
         
         this.categoryWidget.render(matrices, mouseX, mouseY, delta);
         this.textField.render(matrices, mouseX, mouseY, delta);
-        
-        if (this.sortButton.isHovered()) this.renderTooltip(matrices, split(sortType.getDescription()), mouseX, mouseY);
-        
-        if (this.tooltipQueue != null) {
-        	this.renderTooltip(matrices, this.tooltipQueue, mouseX, mouseY);
-        	this.tooltipQueue = null;
-        }
-        
+
         super.render(matrices, mouseX, mouseY, delta);
     }
     
@@ -293,7 +286,7 @@ public class MinehutServerListScreen extends Screen {
         	Server serverEntry = ((MinehutServerListWidget.ServerEntry)entry).getServer();
 
 	    	if (Kuphack.getServer() == SupportedServer.LOBBY && client.player != null) {
-	    		client.player.sendCommand("join "+serverEntry.getName());
+	    		client.player.networkHandler.sendChatCommand("join " + serverEntry.getName());
 	    	} else {
 	    		if (client.world != null) {
 	    			client.world.disconnect();

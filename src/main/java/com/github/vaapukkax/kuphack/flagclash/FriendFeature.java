@@ -13,7 +13,6 @@ import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.DamageEvent;
 import com.github.vaapukkax.kuphack.modmenu.SettingsKuphackScreen;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -123,10 +122,9 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 	 * Saves friends to the file without overwriting other settings
 	 */
 	public void save() {
-		Gson gson = new Gson();
 		JsonObject object = Kuphack.get().readDataFile();
 		object.add("friends", toJsonArray());
-		SettingsKuphackScreen.write(gson.toJson(object));
+		SettingsKuphackScreen.write(object);
 	}
 	
 	public JsonArray toJsonArray() {

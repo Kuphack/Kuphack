@@ -12,11 +12,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.joml.Matrix4f;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +37,7 @@ import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
 import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
 import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.UltraSignalProgressFeature;
+import com.github.vaapukkax.kuphack.updater.CheckOption;
 import com.github.vaapukkax.kuphack.updater.UpdateChecker;
 import com.github.vaapukkax.minehut.Minehut;
 import com.google.gson.Gson;
@@ -71,7 +74,6 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
 public class Kuphack implements ModInitializer, EventHolder {
@@ -84,7 +86,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 	private final ArrayList<Feature> features = new ArrayList<>();
 	
 	public MinehutButtonState serverListButton = isFeather() ? MinehutButtonState.LEFT_CORNER : MinehutButtonState.RIGHT_CORNER;
-	public boolean autoUpdate = !isFeather();
+	public CheckOption updateOption = CheckOption.LOOKUP;
 	
 	private SupportedServer server;
 	private long customCheckTimeout = -1;
@@ -92,8 +94,11 @@ public class Kuphack implements ModInitializer, EventHolder {
 	@Override
 	public void onInitialize() {
 		Kuphack.instance = this;
-		minehut = new Minehut();
-		minehut.setHttpDriver(new ApacheHttpDriver(httpClient = HttpClients.createDefault()));
+	
+		this.httpClient = HttpClients.createDefault();
+		this.minehut = new Minehut.Builder()
+			.driver(new ApacheHttpDriver(this.httpClient))
+			.build();
 		
 		Event.register(this);
 
@@ -118,10 +123,10 @@ public class Kuphack implements ModInitializer, EventHolder {
 		
 		// Multiplayer Button Setting
 		JsonObject object = this.readDataFile();
-		if (object.has("mhButtonState"))
+		if (object.has("mhButtonState")) 
 			this.serverListButton = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
 		if (object.has("auto-update"))
-			this.autoUpdate = object.get("auto-update").getAsBoolean();
+			this.updateOption = CheckOption.of(object.get("auto-update"));
 		
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
 			this.minehut.close(); // closes httpClient
@@ -156,7 +161,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 				UpdateChecker.sendCheckerStatus();
 			}
 		});
-		if (isFeather()) { // replacement for the extra info on the FlagClash side bar
+		if (isFeather()) { // replacement for the extra info on the FlagClash sidebar
 			MinecraftClient client = MinecraftClient.getInstance();
 			HudRenderCallback.EVENT.register((matrices, delta) -> {
 				if (client.player == null || getServer() != SupportedServer.FLAGCLASH) return;
@@ -174,7 +179,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		}
 		new Thread(() -> {
 			try {
-				if (autoUpdate) UpdateChecker.checkAndDownload();
+				if (updateOption != CheckOption.OFF) UpdateChecker.checkAndDownload();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -206,7 +211,10 @@ public class Kuphack implements ModInitializer, EventHolder {
 
 	public JsonObject readDataFile() {
 		try (BufferedReader reader = Files.newBufferedReader(getDataFile(), Charset.defaultCharset())) {
-			return new Gson().fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class);
+			return Objects.requireNonNullElseGet(
+				new Gson().fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class),
+				JsonObject::new
+			);
 		} catch (IOException | JsonParseException e) {
 			e.printStackTrace();
 		}

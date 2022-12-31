@@ -12,9 +12,9 @@ import com.github.vaapukkax.kuphack.events.ClientBlockPlaceEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.util.registry.Registry;
 
 /**
  * This feature is used by other features to determine where the flag is.
@@ -51,7 +51,7 @@ public class FlagLocation extends Feature implements EventHolder {
 	
 	private boolean isBanner(Block block) {
 		if (block == null) return false;
-		return Registry.BLOCK.getId(block).toString().toLowerCase().contains("banner");
+		return Registries.BLOCK.getId(block).toString().toLowerCase().contains("banner");
 	}
 	
 	@EventMention

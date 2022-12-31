@@ -152,7 +152,7 @@ public class SpreadsheetWidget extends DrawableHelper {
     }
 
     public void renderWidgets(MatrixStack matrices, int x, int y) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, WIDGETS_TEXTURE);
 
         AdvancementFrame frame = AdvancementFrame.TASK;
@@ -199,7 +199,7 @@ public class SpreadsheetWidget extends DrawableHelper {
 //            advancementObtainedStatus3 = AdvancementObtainedStatus.UNOBTAINED;
         }
         int k = this.width - j;
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
         RenderSystem.setShaderTexture(0, WIDGETS_TEXTURE);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
         RenderSystem.enableBlend();

@@ -35,7 +35,7 @@ public class UltraSignalProgressFeature extends Feature implements HudRenderCall
 	
 	@Override
 	public void onSoundPlayed(SoundInstance sound, WeightedSoundSet soundSet) {
-		if (!sound.getId().equals(SoundEvents.BLOCK_NOTE_BLOCK_BIT.getId())) return;
+		if (!SoundEvents.BLOCK_NOTE_BLOCK_BIT.matchesId(sound.getId())) return;
 		this.progress = sound.getPitch() - 1;
 		this.show = System.currentTimeMillis();
 	}

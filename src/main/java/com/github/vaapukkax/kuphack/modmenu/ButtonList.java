@@ -53,7 +53,7 @@ public class ButtonList extends ElementListWidget<ButtonEntry> {
 
         @Override
         public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float delta) {
-            widget.y = y;
+            widget.setY(y);
             widget.render(matrices, mouseX, mouseY, delta);
         }
 

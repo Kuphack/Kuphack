@@ -2,10 +2,8 @@ package com.github.vaapukkax.kuphack.finder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -20,7 +18,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.GameRenderer;
@@ -31,13 +28,14 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import net.minecraft.util.registry.Registry;
 
 @Environment(value=EnvType.CLIENT)
 public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<MinehutServerListWidget.Entry> {
@@ -65,41 +63,38 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
     	if (screen.categoryWidget.isMouseOver(mouseX, mouseY)) return;
     	
     	try {
-	    	for (ServerEntry entry : servers) {
-	    		if (Objects.equals(getEntryAtPosition(mouseX, mouseY), entry) && this.isMouseOver(mouseX, mouseY) && !this.client.options.getTouchscreen().getValue()) {
-		        	final Server server = entry.getServer();
-
-		        	ArrayList<Text> lines = new ArrayList<>();
-		        	// Category Text
-		        	StringBuilder builder = new StringBuilder();
-		        	Iterator<PredefinedCategory> categories = server.getPredefinedCategories().iterator();
-		        	while (categories.hasNext()) {
-		        		builder.append(categories.next().toString());
-		        		if (categories.hasNext()) builder.append(", ");
-		        	}
-		        	if (builder.isEmpty()) builder.append("[None Assigned]");
-		        	lines.add(Text.of("§2Categories: "+builder));
-		        	
-		        	// Rank Text
-		        	lines.add(Text.of("§aRank: #"+(screen.getEntries().indexOf(server)+1)));
-		        	
-		        	// Plan Text
-		        	lines.add(Text.of("§6Plan: "+server.getPlan()));
-		        	
-		        	// Up time text
-		        	double uptime = (System.currentTimeMillis()-server.getLastOnline())/1000d;
-		        	lines.add(Text.of("§eUptime: "+Kuphack.formatTime(uptime)));
-		        	
-		        	// Inactivity Text
-		        	if (server.getInactivityTime() != 0 && server.getPlayerCount() == 0) {
-		        		lines.add(Text.of("§cInactivity: "+Kuphack.formatTime((System.currentTimeMillis()-server.getInactivityTime())/1000d)));
-		        	}
-		        	
-		        	screen.tooltipQueue = lines;
-		        }
-	    	}
+    		if (this.client.options.getTouchscreen().getValue() || !this.isMouseOver(mouseX, mouseY))
+    			return;
+    		ServerEntry entry = (ServerEntry) (this.getFocused() != null ? this.getFocused()
+    			: getEntryAtPosition(mouseX, mouseY));
+    		if (entry == null) return;
+        	
+    		final Server server = entry.getServer();
+        	ArrayList<Text> lines = new ArrayList<>();
+        	// Category Text
+        	StringBuilder builder = new StringBuilder();
+        	Iterator<PredefinedCategory> categories = server.getPredefinedCategories().iterator();
+        	while (categories.hasNext()) {
+        		builder.append(categories.next().toString());
+        		if (categories.hasNext()) builder.append(", ");
+        	}
+        	if (builder.isEmpty()) builder.append("[None]");
+        	lines.add(Text.of("§2Categories: "+builder));
+        	// Rank Text
+        	lines.add(Text.of("§aRank: #"+(screen.getEntries().indexOf(server)+1)));
+        	// Plan Text
+        	lines.add(Text.of("§6Plan: "+server.getPlan()));        	
+        	// Up time text
+        	double uptime = (System.currentTimeMillis()-server.getLastOnline())/1000d;
+        	lines.add(Text.of("§eUptime: "+Kuphack.formatTime(uptime)));
+        	// Inactivity Text
+        	if (server.getInactivityTime() != 0 && server.getPlayerCount() == 0) {
+        		lines.add(Text.of("§cInactivity: "+Kuphack.formatTime((System.currentTimeMillis()-server.getInactivityTime())/1000d)));
+        	}
+        	
+        	screen.setTooltip(lines.stream().map(Text::asOrderedText).toList());
     	} catch (Exception e) {
-    		screen.tooltipQueue = Arrays.asList(Text.of("§cError rendering tooltip"));
+    		screen.setTooltip(Arrays.asList(Text.of("§cError rendering tooltip").asOrderedText()));
     		e.printStackTrace();
     	}
     }
@@ -112,7 +107,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
     }
 
     @Override
-    public void setSelected(@Nullable Entry entry) {
+    public void setSelected(@Nullable MinehutServerListWidget.Entry entry) {
         super.setSelected(entry);
         this.screen.updateJoinButtonState();
     }
@@ -132,7 +127,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
 	        	}).start();
     		}
     	}
-        Entry entry = (Entry)this.getSelectedOrNull();
+        MinehutServerListWidget.Entry entry = (MinehutServerListWidget.Entry) this.getSelectedOrNull();
         return entry != null && entry.keyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
     }
 
@@ -154,18 +149,13 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
     }
     
     public int getPlayerCount() {
-    	try {
-	    	int i = 0;
-	    	synchronized (this.servers) {
-		    	for (ServerEntry serverEntry : this.servers) {
-		    		if (serverEntry != null) i += serverEntry.server.getPlayerCount();
-		    	}
-	    	}
-	    	return i;
-    	} catch (ConcurrentModificationException e) {
-    		e.printStackTrace();
-    		return 0;
-    	}
+	    int i = 0;
+	    synchronized (this.servers) {
+		   	for (ServerEntry serverEntry : this.servers) {
+		   		if (serverEntry != null) i += serverEntry.server.getPlayerCount();
+		   	}
+	    }
+	    return i;
     }
 
     @Override
@@ -183,10 +173,10 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
         return this.screen.getFocused() == this;
     }
 
-    @Environment(value=EnvType.CLIENT) protected static abstract class Entry extends AlwaysSelectedEntryListWidget.Entry<Entry> {}
+    @Environment(value=EnvType.CLIENT) protected static abstract class Entry extends AlwaysSelectedEntryListWidget.Entry<MinehutServerListWidget.Entry> {}
 
     @Environment(value=EnvType.CLIENT)
-    public class ServerEntry extends Entry {
+    public class ServerEntry extends MinehutServerListWidget.Entry {
 
         private final MinehutServerListScreen screen;
         private final MinecraftClient client;
@@ -201,8 +191,9 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             this.server = server;
             this.client = MinecraftClient.getInstance();
             
-            Item item = Registry.ITEM.get(new Identifier("minecraft:"+server.getItemIcon().toLowerCase()));
+            Item item = Registries.ITEM.get(new Identifier("minecraft", server.getItemIcon().toLowerCase()));
             this.icon = new ItemStack(item);
+            if (server.isUsingCosmetics()) this.icon.addEnchantment(Enchantments.UNBREAKING, 1);
         }
         
         @Override
@@ -222,7 +213,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             int width = this.client.textRenderer.getWidth(playerCountText);
             this.client.textRenderer.draw(matrices, playerCountText, (float)(x + entryWidth - width - 15 - 2), (float)(y + 1), 0x808080);
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             RenderSystem.setShaderTexture(0, DrawableHelper.GUI_ICONS_TEXTURE);
             DrawableHelper.drawTexture(matrices, x + entryWidth - 15, y, 0, 176, 10, 8, 256, 256);
@@ -243,7 +234,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             if (this.client.options.getTouchscreen().getValue() || hovered) {
                 RenderSystem.setShaderTexture(0, SERVER_SELECTION_TEXTURE);
                 DrawableHelper.fill(matrices, x, y, x + 32, y + 32, -1601138544);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
                 RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
                 int mx = mouseX - x;
 //                int my = mouseY - y;
@@ -308,11 +299,6 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
 
         @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (Screen.hasShiftDown()) {
-                MinehutServerListWidget multiplayerServerListWidget = this.screen.serverListWidget;
-                int i = multiplayerServerListWidget.children().indexOf(this);
-                if (i == -1) return true;
-            }
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
 
@@ -320,18 +306,16 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
         	if (screen.categoryWidget.isMouseOver(mouseX, mouseY)) return false;
             double mx = mouseX - (double)MinehutServerListWidget.this.getRowLeft();
-//            double my = mouseY - (double)MinehutMultiplayerServerListWidget.this.getRowTop(MinehutMultiplayerServerListWidget.this.children().indexOf(this));
-            if (mx <= 32.0) {
-                if (mx < 32.0 && mx > 16.0 && this.canConnect()) {
-                    this.screen.select(this);
-                    this.screen.connect();
-                    return true;
-                }
+//          double my = mouseY - (double)getRowTop(children().indexOf(this));
+            if (mx < 32.0 && mx > 16.0 && this.canConnect()) {
+            	setSelected(this);
+            	this.screen.connect();
+            	return true;
             }
-            this.screen.select(this);
-            if (Util.getMeasuringTimeMs() - this.time < 250L) {
+            setSelected(this);
+            
+            if (Util.getMeasuringTimeMs() - this.time < 250L)
                 this.screen.connect();
-            }
             this.time = Util.getMeasuringTimeMs();
             return false;
         }

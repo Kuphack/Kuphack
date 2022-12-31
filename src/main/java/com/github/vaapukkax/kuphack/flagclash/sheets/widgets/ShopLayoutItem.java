@@ -11,8 +11,8 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.nbt.StringNbtReader;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
-import net.minecraft.util.registry.Registry;
 
 public enum ShopLayoutItem implements Widget {
 
@@ -98,7 +98,7 @@ public enum ShopLayoutItem implements Widget {
 	
 	private static ItemStack card(Item item, int tokens) {
 		ItemStack stack = new ItemStack(item);
-		stack.setCustomName(Text.literal(Registry.ITEM.getId(item).getNamespace()));
+		stack.setCustomName(Text.literal(Registries.ITEM.getId(item).getNamespace()));
 		setLore(stack, Arrays.asList("§3Token: "+tokens));
 		return stack;
 	}

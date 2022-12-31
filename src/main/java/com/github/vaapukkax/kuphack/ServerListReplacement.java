@@ -24,5 +24,10 @@ public class ServerListReplacement extends Feature implements EventHolder {
 			client.setScreen(new MinehutServerListScreen(client.currentScreen));
 		}
 	}
+
+	@Override
+	public String getName() {
+		return "List Replacement";
+	}
 	
 }

@@ -6,15 +6,14 @@ import net.minecraft.client.MinecraftClient;
 
 public enum SupportedServer {
 
-	FLAGCLASH, OVERCOOKED,
-	FUNGIFY, ARROWMANCE, BITZONE, FLATLIGHT,
-	
 	LOBBY(client -> {
 		if (!Kuphack.isOnMinehut() || client.world == null || client.world.getScoreboard() == null)
 			return false;
 		return client.world.getScoreboard().getObjectives().stream()
 			.anyMatch(a -> a.getDisplayName().getString().equals("MINEHUT"));
-	});
+	}),
+	
+	FLAGCLASH, OVERCOOKED;
 	
 	private final Predicate<MinecraftClient> predicate;
 	

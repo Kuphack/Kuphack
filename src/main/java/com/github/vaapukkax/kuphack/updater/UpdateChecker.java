@@ -18,17 +18,22 @@ public class UpdateChecker {
 	private static UpdateStatus status;
 	private static Runnable download;
 	
-	public static void checkAndDownload() throws Exception {
+	private static boolean notified;
+	
+	public static UpdateStatus checkAndDownload() throws Exception {
+		UpdateStatus status = null;
 		GithubRelease latestRelease = GithubRelease.retrieveLatest();
 		if (!getModVersion().equalsIgnoreCase(latestRelease.getVersion())) {
 			@SuppressWarnings("resource")
 			boolean settingsScreen = MinecraftClient.getInstance().currentScreen instanceof SettingsKuphackScreen;
-			if (Kuphack.get().autoUpdate)
+			if (Kuphack.get().updateOption == CheckOption.CHECK_AND_DOWNLOAD)
 				download(latestRelease);
 			else if (settingsScreen)
 				status = new UpdateStatus(latestRelease, "New release was found", true);
 			else status = new UpdateStatus(latestRelease, null, false);
+			notified = false;
 		}
+		return UpdateChecker.status = status;
 	}
 
 	public static String getModVersion() {
@@ -41,9 +46,9 @@ public class UpdateChecker {
 	 * If the project is in a development environment the method won't even try downloading and instead it'll only inform you of the versions
 	 * @param url the link to download from
 	 */
-	public static void download(GithubRelease release) throws IOException {
+	protected static void download(GithubRelease release) throws IOException {
 		if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-			status = new UpdateStatus(release, "Development Environment", true);
+			status = new UpdateStatus(release, "Development Environment (" + getModVersion() + ")", true);
 			return;
 		}
 		if (Kuphack.isFeather()) {
@@ -91,28 +96,24 @@ public class UpdateChecker {
 		download.run();
 		download = null;
 	}
-	
-	public static UpdateStatus takeCheckerStatus() {
-		UpdateStatus saved = status;
-		status = null;
-		return saved;
-	}
-	
+
 	public static void sendCheckerStatus() {
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (status != null && client.world != null) {
-			MutableText text = Text.literal("§6[Kuphack.cc] §e| §fnew Kuphack release! " + getModVersion() + " -> " + status.release().getVersion());
-			text.append(" (").append(Text.literal("Open Release").styled(style -> style
-				.withUnderline(true)
-				.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("Click Here!")))
-				.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, status.release().getURL()))))
-			.append(")");
-			text.append("\n" + status.release().getBody().replace("\r", ""));
-			if (status.additional() != null) text.append("\n§6[Kuphack.cc] §e| §f" + status.additional());
-			
-			client.inGameHud.getChatHud().addMessage(text);
-			status = null;
-		}
+		if (client.world == null) // whether the player is in a world and the message can be sent
+			return;
+		if (status == null || notified) // whether the player can be notified
+			return;
+		MutableText text = Text.literal("§6[Kuphack.cc] §e| §fnew Kuphack release! " + getModVersion() + " -> " + status.release().getVersion());
+		text.append(" (").append(Text.literal("Open Release").styled(style -> style
+			.withUnderline(true)
+			.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("Click Here!")))
+			.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, status.release().getURL()))))
+		.append(")");
+		text.append("\n" + status.release().getBody().replace("\r", ""));
+		if (status.additional() != null) text.append("\n§6[Kuphack.cc] §e| §f" + status.additional());
+		
+		client.inGameHud.getChatHud().addMessage(text);
+		notified = true;
 	}
 
 }

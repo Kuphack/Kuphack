@@ -15,10 +15,11 @@ import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.events.InventoryClickEvent;
+import com.github.vaapukkax.kuphack.modmenu.FeatureManagementScreen;
 
 import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
-import net.minecraft.util.registry.Registry;
 
 /**
  * Pretty much everything relating to the server FlagClash which aren't specific features for it. {@link FlagLocation} kind of is a feature but it isn't even listed as one in {@link FeatureManagementScreen}, and is only used in code
@@ -45,7 +46,7 @@ public class FlagClash implements EventHolder {
 			if (getStarite().compareTo(BigInteger.valueOf(Long.valueOf(lore.get(3).split(" ")[0]))) >= 0) {
 				upgradeCost = toRealValue(lore.get(1).split(" ")[4]);
 			}
-		} else if ((Registry.ITEM.getId(e.getItem()).getPath().contains("banner") || e.getItem() == Items.NETHER_STAR) && 
+		} else if ((Registries.ITEM.getId(e.getItem()).getPath().contains("banner") || e.getItem() == Items.NETHER_STAR) && 
 				Arrays.asList("Level Up", "Rebirth").contains(e.getStack().getName().getString())) {
 			for (String line : Kuphack.getStripLore(e.getStack())) {
 				if (!line.contains("Costs: ")) continue;

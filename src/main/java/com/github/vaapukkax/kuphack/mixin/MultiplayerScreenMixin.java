@@ -34,11 +34,9 @@ public class MultiplayerScreenMixin extends Screen {
 			
 			int y = state == MinehutButtonState.NEXT_TO_JOIN ? this.height - 52 : this.height - 28;
 			
-			this.addDrawableChild(new ButtonWidget(
-				x, y, 20, 20,
-				Text.of("MH"),
+			this.addDrawableChild(ButtonWidget.builder(Text.of("MH"),
 				button -> client.setScreen(new MinehutServerListScreen(client.currentScreen))
-			));
+			).position(x, y).size(20, 20).build());
 		}
 	}
 	

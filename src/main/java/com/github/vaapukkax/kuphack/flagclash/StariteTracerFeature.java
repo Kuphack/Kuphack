@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+
 import com.github.vaapukkax.kuphack.Event.EventHolder;
 import com.github.vaapukkax.kuphack.Event.EventMention;
 import com.github.vaapukkax.kuphack.Feature;
@@ -25,8 +28,6 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider.Immediate;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Matrix3f;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.Vec3d;
 
 public class StariteTracerFeature extends Feature implements EventHolder, WorldRenderEvents.AfterEntities {

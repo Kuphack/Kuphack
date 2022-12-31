@@ -1,6 +1,7 @@
 package com.github.vaapukkax.kuphack;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,34 +33,38 @@ public class ApacheHttpDriver implements HttpDriver {
 	}
 	
 	@Override
-	public String get(String path) throws Exception {
+	public String get(String path) throws IOException {
 		HttpGet request = new HttpGet(path);
-		headers.forEach((key, value) -> request.addHeader(key, value));
+		this.headers.forEach((key, value) -> request.addHeader(key, value));
 		
 		try (CloseableHttpResponse response = connection.execute(request)) {
 			HttpEntity entity = response.getEntity();
-			if (entity != null) {
+			if (entity != null)
 				return EntityUtils.toString(entity);
-			}
-			return "{error:\""+response.getStatusLine().getReasonPhrase()+"\"}";
+			return "{error:\"" + response.getStatusLine().getReasonPhrase() + "\"}";
 		}
 	}
 
 	@Override
-	public String post(String path, Map<String, String> body) throws Exception {
+	public String post(String path, Map<String, String> body) throws IOException {
 		HttpPost request = new HttpPost(path);
-		headers.forEach((key, value) -> request.addHeader(key, value));
+		this.headers.forEach((key, value) -> request.addHeader(key, value));
+		
 		ArrayList<NameValuePair> parameters = new ArrayList<>();
 		body.forEach((key, value) -> parameters.add(new BasicNameValuePair(key, value)));
 		request.setEntity(new UrlEncodedFormEntity(parameters));
 		
 		try (CloseableHttpResponse response = connection.execute(request)) {
 			HttpEntity entity = response.getEntity();
-			if (entity != null) {
+			if (entity != null)
 				return EntityUtils.toString(entity);
-			}
 			return "{error:\""+response.getStatusLine().getReasonPhrase()+"\"}";
 		}
+	}
+	
+	@Override
+	public InputStream openStream(String url) throws IOException {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
