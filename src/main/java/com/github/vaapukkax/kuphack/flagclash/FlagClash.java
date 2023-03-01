@@ -38,6 +38,8 @@ public class FlagClash implements EventHolder {
 	
 	@EventMention
 	public void onEvent(InventoryClickEvent e) {
+		if (Kuphack.getServer() != SupportedServer.FLAGCLASH)
+			return;
 		if (e.has(Items.NETHER_STAR, "Reduce Flag Upgrade Cost",
 			line -> line.equals("Reduces your flag upgrade cost"),
 			line -> line.matches("From "+CURRENCY_REGEX+" Gold to "+CURRENCY_REGEX+" Gold")

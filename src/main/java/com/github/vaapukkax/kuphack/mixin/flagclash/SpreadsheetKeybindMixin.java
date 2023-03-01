@@ -23,17 +23,17 @@ public class SpreadsheetKeybindMixin {
     public void wasPressed(CallbackInfoReturnable<Boolean> ci) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (((Object)this) == client.options.advancementsKey) {
-			if (Kuphack.getServer() == SupportedServer.FLAGCLASH) {
-				ci.cancel();
-				
-		        if (this.timesPressed == 0) {
-		            ci.setReturnValue(false);
-		            return;
-		        }
-		        --this.timesPressed;
-				client.setScreen(new SpreadSheetScreen());
-				ci.setReturnValue(false);
-			}
+			if (Kuphack.getServer() != SupportedServer.FLAGCLASH)
+				return;
+			ci.cancel();
+			
+	        if (this.timesPressed == 0) {
+	            ci.setReturnValue(false);
+	            return;
+	        }
+	        --this.timesPressed;
+			client.setScreen(new SpreadSheetScreen());
+			ci.setReturnValue(false);
 		}
     }
 	

@@ -12,7 +12,7 @@ import net.minecraft.text.Text;
 
 public class AdBlockFeature extends Feature implements EventHolder {
 
-	private static final Pattern STRICT = Pattern.compile("(?i)(\\s|/)join(\\s|$)");
+	private static final Pattern STRICT = Pattern.compile("(?i)((\\s|/)(join|msg)|/play\\s+\\w{3,12})");
 	
 	public boolean strict = true;
 	private int total;
@@ -53,7 +53,7 @@ public class AdBlockFeature extends Feature implements EventHolder {
 	@Override
 	public String getDescription() {
 		if (this.isDisabled()) return super.getDescription();
-		String state = "(" + this.getTextState() +": " + (this.strict ? "Blocks all messages including \"join\"" : "Blocks the messages sent with /ad") + ")";
+		String state = "(" + this.getTextState() +": " + (this.strict ? "Blocks all messages including §njoin§r, §n/play§r and §nmsg§r" : "Blocks the messages sent with /ad") + ")";
 		return super.getDescription() + "\n" + state;
 	}
 	

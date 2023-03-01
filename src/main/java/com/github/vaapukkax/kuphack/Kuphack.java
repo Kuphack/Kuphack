@@ -53,6 +53,9 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.StartT
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.loader.api.FabricLoader;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.ParsingException;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -94,14 +97,12 @@ public class Kuphack implements ModInitializer, EventHolder {
 	@Override
 	public void onInitialize() {
 		Kuphack.instance = this;
-	
 		this.httpClient = HttpClients.createDefault();
 		this.minehut = new Minehut.Builder()
 			.driver(new ApacheHttpDriver(this.httpClient))
 			.build();
-		
 		Event.register(this);
-
+		
 		// LOBBY
 		features.add(new AdBlockFeature());
 		features.add(new ServerListReplacement());
@@ -424,9 +425,17 @@ public class Kuphack implements ModInitializer, EventHolder {
 		return stripColor(message.getString());
 	}
 	
-	public static String translateColor(String message) {
-		if (message.isBlank()) return message;
-		return message.replaceAll("(?i)&(?=[0-9A-FK-ORX])", "§");
+	public static Text translateColor(String message) {
+		if (message.isBlank())
+			return Text.empty();
+		try {
+			return Text.of(LegacyComponentSerializer.legacy('§').serialize(
+				MiniMessage.miniMessage().deserialize(message.replace('§', '&'))
+			));
+		} catch (ParsingException e) {
+			LOGGER.warn(e.getMessage());
+			return Text.empty();
+		}
 	}
 	
 	public static <T extends MutableText> T color(T text, Color color) {

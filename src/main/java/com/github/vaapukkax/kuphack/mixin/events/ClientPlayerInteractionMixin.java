@@ -64,13 +64,13 @@ public class ClientPlayerInteractionMixin {
 	@Inject(at = @At(value = "INVOKE"), method = "clickSlot", cancellable = true)
 	public void clickSlot(int syncId, int slotId, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
 		MinecraftClient c = MinecraftClient.getInstance();
-		if (!(c.currentScreen instanceof GenericContainerScreen)) return;
-		
+		if (!(c.currentScreen instanceof GenericContainerScreen))
+			return;
 		ScreenHandler screenHandler = player.currentScreenHandler;
 		if (slotId >= 0 && actionType == SlotActionType.PICKUP) {
 			ItemStack stack = screenHandler.getSlot(slotId).getStack();
 			if (stack != null && stack.getItem() != Items.AIR) {
-				InventoryClickEvent event = new InventoryClickEvent((GenericContainerScreen)c.currentScreen, stack);
+				InventoryClickEvent event = new InventoryClickEvent((GenericContainerScreen) c.currentScreen, stack);
 				Event.call(event);
 				if (event.isCancelled()) ci.cancel();
 			}

@@ -118,12 +118,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
     		ServerEntry entry = (ServerEntry) this.getHoveredEntry();
     		if (!entry.updating) {
 	    		new Thread(() -> {
-	        		try {
-	        			entry.updating = true;
-	        			entry.server.update();
-	        		} finally {
-	        			entry.updating = false;
-	        		}
+	        		entry.refresh();
 	        	}).start();
     		}
     	}
@@ -181,7 +176,8 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
         private final MinehutServerListScreen screen;
         private final MinecraftClient client;
         private final Server server;
-        private final ItemStack icon;
+        private ItemStack icon;
+        private Text motd;
         
         private long time;
         private boolean updating;
@@ -191,22 +187,36 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             this.server = server;
             this.client = MinecraftClient.getInstance();
             
+            this.refreshCache();
+        }
+        
+        public void refresh() {
+        	this.updating = true;
+        	try {
+        		this.server.update();
+				this.refreshCache();
+        	} finally {
+        		this.updating = false;
+        	}
+		}
+        
+        private void refreshCache() {
             Item item = Registries.ITEM.get(new Identifier("minecraft", server.getItemIcon().toLowerCase()));
             this.icon = new ItemStack(item);
             if (server.isUsingCosmetics()) this.icon.addEnchantment(Enchantments.UNBREAKING, 1);
+            
+            this.motd = Kuphack.translateColor(this.server.getMOTD());
         }
-        
-        @Override
+
+		@Override
         public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
         	if (screen.categoryWidget.isMouseOver(mouseX, mouseY)) hovered = false;
         	
             this.client.textRenderer.draw(matrices, this.server.getName(), (float)(x + 32 + 3), (float)(y + 1), 0xFFFFFF);
-            Text motd = Text.of(Kuphack.translateColor(this.server.getMOTD()));
             List<OrderedText> motdList = this.client.textRenderer.wrapLines(motd, entryWidth - 32 - 2);
             for (int i = 0; i < Math.min(motdList.size(), 2); ++i) {
                 this.client.textRenderer.draw(matrices, motdList.get(i), (float)(x + 32 + 3), (float)(y + 12 + this.client.textRenderer.fontHeight * i), 0x808080);
             }
-            
             Text playerCountText = Text.of(updating ? "Updating..."
             	: this.server.getPlayerCount() + "/" + this.server.getMaxPlayerCount()
             );

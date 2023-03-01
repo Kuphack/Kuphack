@@ -78,11 +78,6 @@ public class FlagMixin {
 	}
 	
 	private GenericContainerScreen get() {
-		Object o = (Object)this;
-		if (o instanceof GenericContainerScreen) {
-			GenericContainerScreen oc = (GenericContainerScreen)o;
-			return oc;
-		}
-		return null;
+		return (Object) this instanceof GenericContainerScreen cast ? cast : null;
 	}
 }
