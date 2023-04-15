@@ -24,8 +24,9 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.Enchantments;
@@ -164,7 +165,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
     }
 
     @Override
-    protected boolean isFocused() {
+	public boolean isFocused() {
         return this.screen.getFocused() == this;
     }
 
@@ -274,7 +275,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
             MatrixStack matrixStack = RenderSystem.getModelViewStack();
             matrixStack.push();
-            matrixStack.translate(x, y, 100.0f + client.getItemRenderer().zOffset);
+            matrixStack.translate(x, y, 100.0f + ItemRenderer.field_41120);
             matrixStack.translate(8.0, 8.0, 0.0);
             matrixStack.scale(1.0f, -1.0f, 1.0f);
             matrixStack.scale(16.0f, 16.0f, 16.0f);
@@ -286,7 +287,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             if (bl) {
                 DiffuseLighting.disableGuiDepthLighting();
             }
-            client.getItemRenderer().renderItem(stack, ModelTransformation.Mode.GUI, false, matrixStack2, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, model);
+            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrixStack2, immediate, LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, model);
             immediate.draw();
             RenderSystem.enableDepthTest();
             if (bl) {

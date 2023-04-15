@@ -120,18 +120,18 @@ public class SpreadsheetWidget extends DrawableHelper {
             int m = y + this.getY() + 13;
             int n = border ? -16777216 : -1;
             if (border) {
-                this.drawHorizontalLine(matrices, j, i, k - 1, n);
-                this.drawHorizontalLine(matrices, j + 1, i, k, n);
-                this.drawHorizontalLine(matrices, j, i, k + 1, n);
-                this.drawHorizontalLine(matrices, l, j - 1, m - 1, n);
-                this.drawHorizontalLine(matrices, l, j - 1, m, n);
-                this.drawHorizontalLine(matrices, l, j - 1, m + 1, n);
-                this.drawVerticalLine(matrices, j - 1, m, k, n);
-                this.drawVerticalLine(matrices, j + 1, m, k, n);
+                drawHorizontalLine(matrices, j, i, k - 1, n);
+                drawHorizontalLine(matrices, j + 1, i, k, n);
+                drawHorizontalLine(matrices, j, i, k + 1, n);
+                drawHorizontalLine(matrices, l, j - 1, m - 1, n);
+                drawHorizontalLine(matrices, l, j - 1, m, n);
+                drawHorizontalLine(matrices, l, j - 1, m + 1, n);
+                drawVerticalLine(matrices, j - 1, m, k, n);
+                drawVerticalLine(matrices, j + 1, m, k, n);
             } else {
-                this.drawHorizontalLine(matrices, j, i, k, n);
-                this.drawHorizontalLine(matrices, l, j, m, n);
-                this.drawVerticalLine(matrices, j, m, k, n);
+                drawHorizontalLine(matrices, j, i, k, n);
+                drawHorizontalLine(matrices, l, j, m, n);
+                drawVerticalLine(matrices, j, m, k, n);
             }
         }
         for (SpreadsheetWidget spreadsheetWidget : this.children) {
@@ -157,8 +157,8 @@ public class SpreadsheetWidget extends DrawableHelper {
 
         AdvancementFrame frame = AdvancementFrame.TASK;
         int sprite = AdvancementObtainedStatus.OBTAINED.getSpriteIndex();
-        this.drawTexture(matrices, x + this.getX() + 3, y + this.getY(), frame.getTextureV(), 128 + sprite * 26, 26, 26);
-        this.client.getItemRenderer().renderInGui(widget.getIcon(), x + this.getX() + 8, y + this.getY() + 5);
+        drawTexture(matrices, x + this.getX() + 3, y + this.getY(), frame.getTextureV(), 128 + sprite * 26, 26, 26);
+        this.client.getItemRenderer().renderInGui(matrices, widget.getIcon(), x + this.getX() + 8, y + this.getY() + 5);
 
         for (SpreadsheetWidget spreadsheetWidget : children) {
 //        	Widget widget = spreadsheetWidget.getWidget();
@@ -213,8 +213,8 @@ public class SpreadsheetWidget extends DrawableHelper {
                 this.renderDescriptionBackground(matrices, m, l, this.width, n, 10, 200, 26, 0, 52);
             }
         }
-        this.drawTexture(matrices, m, l, 0, advancementObtainedStatus.getSpriteIndex() * 26, j, 26);
-        this.drawTexture(matrices, m + j, l, 200 - k, advancementObtainedStatus2.getSpriteIndex() * 26, k, 26);
+        drawTexture(matrices, m, l, 0, advancementObtainedStatus.getSpriteIndex() * 26, j, 26);
+        drawTexture(matrices, m + j, l, 200 - k, advancementObtainedStatus2.getSpriteIndex() * 26, k, 26);
 //        this.drawTexture(matrices, originX + this.x + 3, originY + this.y, this.display.getFrame().getTextureV(), 128 + advancementObtainedStatus3.getSpriteIndex() * 26, 26, 26);
         
         if (bl) {
@@ -237,7 +237,7 @@ public class SpreadsheetWidget extends DrawableHelper {
                 this.client.textRenderer.draw(matrices, this.description.get(o), (float)(m + 5), (float)(originY + this.getY() + 9 + 17 + o * this.client.textRenderer.fontHeight), -5592406);
             }
         }
-        this.client.getItemRenderer().renderInGui(this.widget.getIcon(), originX + this.getX() + 8, originY + this.getY() + 5);
+        this.client.getItemRenderer().renderInGui(matrices, this.widget.getIcon(), originX + this.getX() + 8, originY + this.getY() + 5);
     }
 
     /**
@@ -247,12 +247,12 @@ public class SpreadsheetWidget extends DrawableHelper {
      * central box) and draws each of them.
      */
     protected void renderDescriptionBackground(MatrixStack matrices, int x, int y, int width, int height, int cornerSize, int textureWidth, int textureHeight, int u, int v) {
-        this.drawTexture(matrices, x, y, u, v, cornerSize, cornerSize);
+        drawTexture(matrices, x, y, u, v, cornerSize, cornerSize);
         this.drawTextureRepeatedly(matrices, x + cornerSize, y, width - cornerSize - cornerSize, cornerSize, u + cornerSize, v, textureWidth - cornerSize - cornerSize, textureHeight);
-        this.drawTexture(matrices, x + width - cornerSize, y, u + textureWidth - cornerSize, v, cornerSize, cornerSize);
-        this.drawTexture(matrices, x, y + height - cornerSize, u, v + textureHeight - cornerSize, cornerSize, cornerSize);
+        drawTexture(matrices, x + width - cornerSize, y, u + textureWidth - cornerSize, v, cornerSize, cornerSize);
+        drawTexture(matrices, x, y + height - cornerSize, u, v + textureHeight - cornerSize, cornerSize, cornerSize);
         this.drawTextureRepeatedly(matrices, x + cornerSize, y + height - cornerSize, width - cornerSize - cornerSize, cornerSize, u + cornerSize, v + textureHeight - cornerSize, textureWidth - cornerSize - cornerSize, textureHeight);
-        this.drawTexture(matrices, x + width - cornerSize, y + height - cornerSize, u + textureWidth - cornerSize, v + textureHeight - cornerSize, cornerSize, cornerSize);
+        drawTexture(matrices, x + width - cornerSize, y + height - cornerSize, u + textureWidth - cornerSize, v + textureHeight - cornerSize, cornerSize, cornerSize);
         this.drawTextureRepeatedly(matrices, x, y + cornerSize, cornerSize, height - cornerSize - cornerSize, u, v + cornerSize, textureWidth, textureHeight - cornerSize - cornerSize);
         this.drawTextureRepeatedly(matrices, x + cornerSize, y + cornerSize, width - cornerSize - cornerSize, height - cornerSize - cornerSize, u + cornerSize, v + cornerSize, textureWidth - cornerSize - cornerSize, textureHeight - cornerSize - cornerSize);
         this.drawTextureRepeatedly(matrices, x + width - cornerSize, y + cornerSize, cornerSize, height - cornerSize - cornerSize, u + textureWidth - cornerSize, v + cornerSize, textureWidth, textureHeight - cornerSize - cornerSize);
@@ -269,7 +269,7 @@ public class SpreadsheetWidget extends DrawableHelper {
             for (int l = 0; l < height; l += textureHeight) {
                 int m = y + l;
                 int n = Math.min(textureHeight, height - l);
-                this.drawTexture(matrices, j, m, u, v, k, n);
+                drawTexture(matrices, j, m, u, v, k, n);
             }
         }
     }

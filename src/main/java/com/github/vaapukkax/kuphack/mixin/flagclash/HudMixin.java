@@ -11,6 +11,7 @@ import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.flagclash.FoodItem;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -76,10 +77,8 @@ public class HudMixin {
 
 			for (int aj = 0; aj < ah + ad; ++aj) {
 				if (aj < ah) {
-					get().drawTexture(matrices, n - aj * 8 - 9, t, 16, 18, 9, 9);
-				} else {
-					get().drawTexture(matrices, n - aj * 8 - 9, t, 25, 18, 9, 9);
-				}
+					DrawableHelper.drawTexture(matrices, n - aj * 8 - 9, t, 16, 18, 9, 9);
+				} else DrawableHelper.drawTexture(matrices, n - aj * 8 - 9, t, 25, 18, 9, 9);
 			}
 			b = true;
 		}
@@ -88,7 +87,4 @@ public class HudMixin {
 		return b;
 	}
 
-	private InGameHud get() {
-		return (InGameHud) ((Object) this);
-	}
 }

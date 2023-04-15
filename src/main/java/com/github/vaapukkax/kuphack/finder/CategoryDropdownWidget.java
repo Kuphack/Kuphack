@@ -65,9 +65,8 @@ public class CategoryDropdownWidget extends ClickableWidget {
         }
         
         for (Element element : screen.children()) {
-        	if (element instanceof ClickableWidget) {
-        		ClickableWidget widget = (ClickableWidget)element;
-        		if (widget.isFocused()) widget.changeFocus(false);
+        	if (element instanceof ClickableWidget widget) {
+        		if (widget.isFocused()) widget.setFocused(false);
         	}
         }
         if (over || this.isFocused())

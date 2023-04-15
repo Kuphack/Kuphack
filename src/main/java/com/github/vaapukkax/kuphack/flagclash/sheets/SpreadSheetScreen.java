@@ -142,7 +142,7 @@ public class SpreadSheetScreen extends Screen {
 
 	private void drawAdvancementTree(MatrixStack matrices, int mouseX, int mouseY, int x, int y) {
 		if (selectedTab == null) {
-			SpreadSheetScreen.drawCenteredText(matrices, this.textRenderer, EMPTY_TEXT,
+			SpreadSheetScreen.drawCenteredTextWithShadow(matrices, this.textRenderer, EMPTY_TEXT,
 				this.width / 2, this.height / 2, 0xFFFFFF
 			);
 			return;
@@ -168,7 +168,7 @@ public class SpreadSheetScreen extends Screen {
 			RenderSystem.setShaderTexture(0, TABS_TEXTURE);
 			RenderSystem.defaultBlendFunc();
 			for (SpreadsheetTab spreadsheetTab : this.tabs.values()) {
-				spreadsheetTab.drawIcon(0, 0, this.itemRenderer);
+				spreadsheetTab.drawIcon(matrices, 0, 0, this.itemRenderer);
 			}
 			RenderSystem.disableBlend();
 		}

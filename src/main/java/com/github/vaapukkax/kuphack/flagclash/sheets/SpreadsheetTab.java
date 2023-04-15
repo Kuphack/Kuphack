@@ -113,8 +113,8 @@ public class SpreadsheetTab extends DrawableHelper {
         this.type.drawBackground(matrices, this, x, y, selected, this.index);
     }
 
-    public void drawIcon(int x, int y, ItemRenderer itemRenderer) {
-        this.type.drawIcon(x, y, this.index, itemRenderer, this.icon);
+    public void drawIcon(MatrixStack matrices, int x, int y, ItemRenderer itemRenderer) {
+        this.type.drawIcon(matrices, x, y, this.index, itemRenderer, this.icon);
     }
 
     public void render(MatrixStack matrices) {

@@ -35,7 +35,6 @@ import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 import com.github.vaapukkax.kuphack.flagclash.HookshotHelperFeature;
 import com.github.vaapukkax.kuphack.flagclash.ItemEntityInfoFeature;
 import com.github.vaapukkax.kuphack.flagclash.StablePipeFeature;
-import com.github.vaapukkax.kuphack.flagclash.StariteTracerFeature;
 import com.github.vaapukkax.kuphack.flagclash.UltraSignalProgressFeature;
 import com.github.vaapukkax.kuphack.updater.CheckOption;
 import com.github.vaapukkax.kuphack.updater.UpdateChecker;
@@ -58,6 +57,7 @@ import net.kyori.adventure.text.minimessage.ParsingException;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.font.TextRenderer.TextLayerType;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -115,7 +115,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		features.add(new StablePipeFeature());
 		features.add(new HookshotHelperFeature());
 		features.add(new UltraSignalProgressFeature());
-		features.add(new StariteTracerFeature());
+//		features.add(new StariteTracerFeature());
 
 		// FLAGCLASH & OVERCOOKED
 		features.add(new ItemEntityInfoFeature());
@@ -409,8 +409,8 @@ public class Kuphack implements ModInitializer, EventHolder {
 		int j = (int) (g * 255.0F) << 24;
 		TextRenderer textRenderer = client.textRenderer;
 		float h = (float) (-textRenderer.getWidth((StringVisitable) text) / 2);
-		textRenderer.draw((Text) text, h, 0, -1, false, matrix4f, consumer, false, j, light);
-
+		textRenderer.draw((Text) text, h, 0, -1, false, matrix4f, consumer, TextLayerType.NORMAL, j, light);
+		
 		matrix.pop();
 	}
 	
@@ -423,6 +423,17 @@ public class Kuphack implements ModInitializer, EventHolder {
 	
 	public static String stripColor(Text message) {
 		return stripColor(message.getString());
+	}
+	
+	public static String stripMiniColor(String message) {
+		if (message.isBlank())
+			return message;
+		try {
+			return MiniMessage.miniMessage().stripTags(stripColor(message));
+		} catch (ParsingException e) {
+			LOGGER.warn(e.getMessage());
+			return "";
+		}
 	}
 	
 	public static Text translateColor(String message) {

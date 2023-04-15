@@ -7,9 +7,9 @@ public class ServerActivityComparator implements Comparator<Server> {
 	
 	@Override
 	public int compare(Server o1, Server o2) {
-		
-		double o1a = o1.getPlayerCount()/(double)Math.max(1, o1.getPlan().getPlayerCount());
-		double o2a = o2.getPlayerCount()/(double)Math.max(1, o2.getPlan().getPlayerCount());
+		// No longer taking max player count because of external servers
+		double o1a = o1.getPlayerCount(); //(double)Math.max(1, o1.getPlan().getPlayerCount());
+		double o2a = o2.getPlayerCount(); //(double)Math.max(1, o2.getPlan().getPlayerCount());
 		
 		if (o1a > o2a) return-1;
 		if (o1a < o2a) return 1;

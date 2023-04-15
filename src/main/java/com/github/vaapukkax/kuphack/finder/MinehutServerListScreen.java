@@ -118,7 +118,7 @@ public class MinehutServerListScreen extends Screen {
         	serverListWidget.updateServers();
         });
         this.addSelectableChild(this.textField);
-        this.textField.setTextFieldFocused(true);
+        this.textField.setFocused(true);
         this.setInitialFocus(this.textField);
         this.updateJoinButtonState();
         
@@ -167,10 +167,10 @@ public class MinehutServerListScreen extends Screen {
                 for (Server entry : servers) {
                 	entries.add(entry);
                 	
-                	for (String word : entry.getMOTD().split("\\s")) {
+                	for (String word : Kuphack.stripMiniColor(entry.getMOTD()).split("\\s")) {
                 		word = word.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
                 		if (word.length() > 2 && !Arrays.asList("minehut", "server", "and", "the", "for", "join").contains(word)) {
-                			trending.put(word, (trending.containsKey(word) ? trending.get(word) : 0)+1);
+                			trending.put(word, (trending.containsKey(word) ? trending.get(word) : 0) + 1);
                 		}
                 	}
                 }
@@ -257,12 +257,12 @@ public class MinehutServerListScreen extends Screen {
     	this.serverListWidget.render(matrices, mouseX, mouseY, delta);
         
         if (error != null) {
-        	drawCenteredText(matrices, this.textRenderer, "Wild error appeard!", this.width / 2, this.height / 2 - textRenderer.fontHeight, 0xFF0000);
+        	drawCenteredTextWithShadow(matrices, this.textRenderer, "Wild error appeard!", this.width / 2, this.height / 2 - textRenderer.fontHeight, 0xFF0000);
         	
         	int i = 0;
         	List<Text> lines = split(this.error);
         	for (Text line : lines) {
-        		drawCenteredText(matrices, this.textRenderer, line, this.width / 2, this.height / 2 + textRenderer.fontHeight * i, 0xFFFFFF);
+        		drawCenteredTextWithShadow(matrices, this.textRenderer, line, this.width / 2, this.height / 2 + textRenderer.fontHeight * i, 0xFFFFFF);
         		i++;
         	}
         } else if (!refreshButton.active) {
@@ -270,8 +270,8 @@ public class MinehutServerListScreen extends Screen {
         	drawTextWithShadow(matrices, this.textRenderer, text, client.getWindow().getScaledWidth() - this.textRenderer.getWidth(text) - 5, 5, 0xFFFFFF);
         }
         
-        drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
-        drawCenteredText(matrices, this.textRenderer, Text.of("Servers: "+serverListWidget.getServerCount()+" ("+serverCount+") | Players: "+serverListWidget.getPlayerCount()+" ("+playerCount+")"), this.width / 2, 20 - this.textRenderer.fontHeight, 0xFFFFFF);
+        drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
+        drawCenteredTextWithShadow(matrices, this.textRenderer, Text.of("Servers: "+serverListWidget.getServerCount()+" ("+serverCount+") | Players: "+serverListWidget.getPlayerCount()+" ("+playerCount+")"), this.width / 2, 20 - this.textRenderer.fontHeight, 0xFFFFFF);
         
         this.categoryWidget.render(matrices, mouseX, mouseY, delta);
         this.textField.render(matrices, mouseX, mouseY, delta);

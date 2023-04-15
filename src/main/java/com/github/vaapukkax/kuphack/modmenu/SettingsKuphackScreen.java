@@ -150,7 +150,7 @@ public class SettingsKuphackScreen extends Screen {
     
         this.renderBackground(matrices);
         this.buttonList.render(matrices, mouseX, mouseY, delta);
-        drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+        drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
         textRenderer.drawWithShadow(matrices, connected, this.width - this.textRenderer.getWidth(connected) - 15, 15, 0xFFFFFF);
         super.render(matrices, mouseX, mouseY, delta);
     }

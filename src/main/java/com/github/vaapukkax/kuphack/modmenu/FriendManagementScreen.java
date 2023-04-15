@@ -61,7 +61,7 @@ public class FriendManagementScreen extends Screen {
     			
 				new Thread(() -> {
 					this.active = false;
-					this.setTextFieldFocused(false);
+					this.setFocused(false);
 					try {
 						UUID uuid = getMinecraftId(name);
 						if (uuid == null) return;
@@ -79,7 +79,7 @@ public class FriendManagementScreen extends Screen {
     	this.fieldWidget.setCursor(0);
     	this.fieldWidget.setTextPredicate(text -> text.matches("^\\w{0,16}$"));
         this.addDrawableChild(this.fieldWidget);
-        this.fieldWidget.setTextFieldFocused(true);
+        this.fieldWidget.setFocused(true);
         this.setInitialFocus(this.fieldWidget);
     	
         int y = 65;
@@ -113,11 +113,11 @@ public class FriendManagementScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         this.buttonList.render(matrices, mouseX, mouseY, delta);
-        drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+        drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
         super.render(matrices, mouseX, mouseY, delta);
 
         if (feature.getFriends().isEmpty()) {
-        	drawCenteredText(matrices, this.textRenderer, "You have no friends! :(", this.width / 2, this.height / 2, 0xFFFFFF);
+        	drawCenteredTextWithShadow(matrices, this.textRenderer, "You have no friends! :(", this.width / 2, this.height / 2, 0xFFFFFF);
         }
     }
 
