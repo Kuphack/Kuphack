@@ -22,11 +22,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConfirmLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -142,17 +142,17 @@ public class SettingsKuphackScreen extends Screen {
 	}
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
     	SupportedServer server = Kuphack.getServer();
     	Text connected = Text.of(server != null ? "Connected to " + server
     		: Kuphack.isOnMinehut() ? "No extra features on this server"
     	: "");
     
-        this.renderBackground(matrices);
-        this.buttonList.render(matrices, mouseX, mouseY, delta);
-        drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
-        textRenderer.drawWithShadow(matrices, connected, this.width - this.textRenderer.getWidth(connected) - 15, 15, 0xFFFFFF);
-        super.render(matrices, mouseX, mouseY, delta);
+        this.renderBackground(context);
+        this.buttonList.render(context, mouseX, mouseY, delta);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, connected, this.width - this.textRenderer.getWidth(connected) - 15, 15, 0xFFFFFF);
+        super.render(context, mouseX, mouseY, delta);
     }
     
     @Override

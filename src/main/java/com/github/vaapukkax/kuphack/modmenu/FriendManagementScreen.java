@@ -14,13 +14,13 @@ import com.github.vaapukkax.kuphack.flagclash.FriendFeature;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -110,14 +110,14 @@ public class FriendManagementScreen extends Screen {
     }
     
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderBackground(matrices);
-        this.buttonList.render(matrices, mouseX, mouseY, delta);
-        drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        this.renderBackground(context);
+        this.buttonList.render(context, mouseX, mouseY, delta);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+        super.render(context, mouseX, mouseY, delta);
 
         if (feature.getFriends().isEmpty()) {
-        	drawCenteredTextWithShadow(matrices, this.textRenderer, "You have no friends! :(", this.width / 2, this.height / 2, 0xFFFFFF);
+        	context.drawCenteredTextWithShadow(this.textRenderer, "You have no friends! :(", this.width / 2, this.height / 2, 0xFFFFFF);
         }
     }
 

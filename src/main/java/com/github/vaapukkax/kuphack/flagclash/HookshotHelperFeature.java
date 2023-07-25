@@ -13,7 +13,7 @@ import com.github.vaapukkax.kuphack.events.InteractEvent;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
@@ -43,9 +43,9 @@ public class HookshotHelperFeature extends Feature implements HudRenderCallback,
 	}
 
 	@Override
-	public void onHudRender(MatrixStack matrices, float tickDelta) {
+	public void onHudRender(DrawContext context, float tickDelta) {
 		if (!isPlaying() || !isHookAhead()) return;
-		client.textRenderer.draw(matrices, ">    <",
+		context.drawTextWithShadow(client.textRenderer, ">    <",
 			client.getWindow().getScaledWidth() / 2 - client.textRenderer.getWidth(">    <") / 2,
 			client.getWindow().getScaledHeight()/2 - client.textRenderer.fontHeight / 2 + 1
 		, 0xffffff);
@@ -54,7 +54,7 @@ public class HookshotHelperFeature extends Feature implements HudRenderCallback,
 	public boolean isHookAhead() {
 		HitResult result = client.player.raycast(this.getHookReach(), client.getTickDelta(), true);
 		if (result instanceof BlockHitResult blockResult) {
-			Block block = client.player.world.getBlockState(blockResult.getBlockPos()).getBlock();
+			Block block = client.player.clientWorld.getBlockState(blockResult.getBlockPos()).getBlock();
 			return BLOCKS.contains(block);
 		}
 		return false;

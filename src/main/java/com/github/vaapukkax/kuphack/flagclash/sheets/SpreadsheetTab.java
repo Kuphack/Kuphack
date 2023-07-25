@@ -12,15 +12,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 @Environment(value=EnvType.CLIENT)
-public class SpreadsheetTab extends DrawableHelper {
+public class SpreadsheetTab {
 
     private final MinecraftClient client;
     private final SpreadSheetScreen screen;
@@ -109,21 +108,21 @@ public class SpreadsheetTab extends DrawableHelper {
     
     
     
-    public void drawBackground(MatrixStack matrices, int x, int y, boolean selected) {
-        this.type.drawBackground(matrices, this, x, y, selected, this.index);
+    public void drawBackground(DrawContext context, Identifier background, int x, int y, boolean selected) {
+        this.type.drawBackground(context, background, x, y, selected, this.index);
     }
 
-    public void drawIcon(MatrixStack matrices, int x, int y, ItemRenderer itemRenderer) {
-        this.type.drawIcon(matrices, x, y, this.index, itemRenderer, this.icon);
+    public void drawIcon(DrawContext context, int x, int y) {
+        this.type.drawIcon(context, x, y, this.index, this.icon);
     }
 
-    public void render(MatrixStack matrices) {
+    public void render(DrawContext context) {
         if (!this.initialized) {
             this.originX = 117 - (this.maxPanX + this.minPanX) / 2;
             this.originY = 56 - (this.maxPanY + this.minPanY) / 2;
             this.initialized = true;
         }
-        matrices.push();
+        context.getMatrices().push();;
         RenderSystem.enableDepthTest();
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthFunc(515);
@@ -132,17 +131,17 @@ public class SpreadsheetTab extends DrawableHelper {
         int j = MathHelper.floor(this.originY);
         
         if (renderLines) {
-        	this.rootWidget.renderLines(matrices, i, j, true);
-        	this.rootWidget.renderLines(matrices, i, j, false);
+        	this.rootWidget.renderLines(context, i, j, true);
+        	this.rootWidget.renderLines(context, i, j, false);
         }
-        this.rootWidget.renderWidgets(matrices, i, j);
+        this.rootWidget.renderWidgets(context, i, j);
         RenderSystem.depthFunc(518);
-        matrices.translate(0.0, 0.0, -950.0);
+        context.getMatrices().translate(0.0, 0.0, -950.0);
 //        RenderSystem.colorMask(false, false, false, false);
 //        SpreadsheetTab.fill(matrices, 4680, 2260, -4680, -2260, -16777216);
 //        RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthFunc(515);
-        matrices.pop();
+        context.getMatrices().pop();
     }
     
 
@@ -175,20 +174,20 @@ public class SpreadsheetTab extends DrawableHelper {
 //        }
 //    }
 
-    public void drawWidgetTooltip(MatrixStack matrices, int mouseX, int mouseY, int x, int y) {
-        matrices.push();
-        matrices.translate(0.0, 0.0, -200.0);
+    public void drawWidgetTooltip(DrawContext context, int mouseX, int mouseY, int x, int y) {
+        context.getMatrices().push();
+        context.getMatrices().translate(0.0, 0.0, -200.0);
 //        SpreadsheetTab.fill(matrices, 0, 0, 234, 113, MathHelper.floor(this.alpha * 255.0f) << 24);
         int i = MathHelper.floor(this.originX);
         int j = MathHelper.floor(this.originY);
 //        if (mouseX > 0 && mouseX < 234 && mouseY > 0 && mouseY < 113) {
             for (SpreadsheetWidget advancementWidget : this.widgets.values()) {
                 if (!advancementWidget.shouldRender(i, j, mouseX, mouseY)) continue;
-                advancementWidget.drawTooltip(matrices, i, j, 1-screen.alpha/1.5f, x, y);
+                advancementWidget.drawTooltip(context, i, j, 1-screen.alpha/1.5f, x, y);
                 break;
             }
 //        }
-        matrices.pop();
+        context.getMatrices().pop();
     }
 
     public boolean isClickOnTab(int screenX, int screenY, double mouseX, double mouseY) {

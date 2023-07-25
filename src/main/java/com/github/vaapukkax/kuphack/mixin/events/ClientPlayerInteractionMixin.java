@@ -56,7 +56,7 @@ public class ClientPlayerInteractionMixin {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (player != client.player) return;
 
-		BlockInteractEvent event = new BlockInteractEvent(player.world.getBlockState(result.getBlockPos()), hand, player.getStackInHand(hand));
+		BlockInteractEvent event = new BlockInteractEvent(player.clientWorld.getBlockState(result.getBlockPos()), hand, player.getStackInHand(hand));
 		Event.call(event); 
 		if (event.isCancelled()) ci.setReturnValue(ActionResult.FAIL);
 	}

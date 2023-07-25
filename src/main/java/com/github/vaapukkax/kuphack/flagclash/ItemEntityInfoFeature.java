@@ -9,6 +9,7 @@ import com.github.vaapukkax.kuphack.SupportedServer;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -54,8 +55,9 @@ public class ItemEntityInfoFeature extends Feature {
 			int offset = -(longest + 20) / 2;
 			
 			matrices.translate(0, 0, -400);
-			screen.renderTooltip(
-				matrices, text, stack.getTooltipData(),
+			DrawContext context = new DrawContext(client, client.getBufferBuilders().getEntityVertexConsumers());
+			context.drawTooltip(textRenderer,
+				text, stack.getTooltipData(),
 				offset, 0
 			);
 			matrices.pop();
@@ -67,9 +69,10 @@ public class ItemEntityInfoFeature extends Feature {
 	
 	private void renderFeather(MatrixStack matrices, VertexConsumerProvider provider, ItemStack stack) {
 		List<Text> text = stack.getTooltip(client.player, TooltipContext.BASIC);
+		matrices.push();
 		matrices.translate(0, 1, 0);
 		Kuphack.renderText(text.get(0), matrices, provider);
-		matrices.translate(0, -1, 0);
+		matrices.pop();
 	}
 	
 	@Override

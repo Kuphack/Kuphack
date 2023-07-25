@@ -58,7 +58,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.font.TextRenderer.TextLayerType;
-import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.toast.SystemToast;
@@ -74,7 +74,6 @@ import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ScoreboardPlayerScore;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
@@ -164,7 +163,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		});
 		if (isFeather()) { // replacement for the extra info on the FlagClash sidebar
 			MinecraftClient client = MinecraftClient.getInstance();
-			HudRenderCallback.EVENT.register((matrices, delta) -> {
+			HudRenderCallback.EVENT.register((context, delta) -> {
 				if (client.player == null || getServer() != SupportedServer.FLAGCLASH) return;
 				boolean flag = this.getFeature(FlagLocation.class).isFlagDown();
 				if (!flag && FlagClash.isUpgradeCostUnsure()) return;
@@ -172,7 +171,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 				Text text = Text.literal(flag ?
 					"Upgrade Time: "  + FlagClash.timeAsString(FlagClash.getUpgradeTime())
 					: "Upgrade Cost: "+ FlagClash.toVisualValue(FlagClash.getUpgradeCost()));
-				client.textRenderer.drawWithShadow(matrices, text,
+				context.drawTextWithShadow(client.textRenderer, text,
 					client.getWindow().getScaledWidth() - client.textRenderer.getWidth(text) - 5,
 					client.getWindow().getScaledHeight() - 30 + client.textRenderer.fontHeight
 				, Formatting.GOLD.getColorValue());
@@ -363,7 +362,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		return lines;
 	}
 	
-    public static void renderSidebar(MatrixStack matrices, ScoreboardObjective objective) {
+    public static void renderSidebar(DrawContext context, ScoreboardObjective objective) {
     	MinecraftClient client = MinecraftClient.getInstance();
     	TextRenderer textRenderer = client.textRenderer;
 		int scaledWidth = client.getWindow().getScaledWidth(),
@@ -386,32 +385,32 @@ public class Kuphack implements ModInitializer, EventHolder {
         for (Text line : lines) {
             int y = bottom - ++i * textRenderer.fontHeight;
             int right = scaledWidth - 1;
-            InGameHud.fill(matrices, textX - 2, y, right, y + textRenderer.fontHeight, footerAlpha);
-            textRenderer.draw(matrices, line, (float) textX, (float)y, -1);
+            context.fill(textX - 2, y, right, y + textRenderer.fontHeight, footerAlpha);
+            context.drawText(textRenderer, line, textX, y, -1, false);
 
             if (i != lines.size()) continue;
-            InGameHud.fill(matrices, textX - 2, y - textRenderer.fontHeight - 1, right, y - 1, tabAlpha);
-            InGameHud.fill(matrices, textX - 2, y - 1, right, y, footerAlpha);
-            textRenderer.draw(matrices, title, (float)(textX + width / 2 - titleWidth / 2), (float)(y - textRenderer.fontHeight), -1);
+            context.fill(textX - 2, y - textRenderer.fontHeight - 1, right, y - 1, tabAlpha);
+            context.fill(textX - 2, y - 1, right, y, footerAlpha);
+            context.drawText(textRenderer, title, (textX + width / 2 - titleWidth / 2), (y - textRenderer.fontHeight), -1, false);
         }
+        
 	}
 	
-	public static void renderText(Text text, MatrixStack matrix, VertexConsumerProvider consumer) {
-		final int light = 255;
-
+	public static void renderText(Text text, MatrixStack matrices, VertexConsumerProvider consumer) {
 		MinecraftClient client = MinecraftClient.getInstance();
-
-		matrix.push();
-		matrix.multiply(client.gameRenderer.getCamera().getRotation());
-		matrix.scale(-0.025F, -0.025F, 0.025F);
-		Matrix4f matrix4f = matrix.peek().getPositionMatrix();
+		final int light = 255;
+		
+		matrices.push();
+		matrices.multiply(client.gameRenderer.getCamera().getRotation());
+		matrices.scale(-0.025F, -0.025F, 0.025F);
+		Matrix4f matrix4f = matrices.peek().getPositionMatrix();
 		float g = client.options.getTextBackgroundOpacity(0.25F);
 		int j = (int) (g * 255.0F) << 24;
 		TextRenderer textRenderer = client.textRenderer;
-		float h = (float) (-textRenderer.getWidth((StringVisitable) text) / 2);
+		float h = (float) (-textRenderer.getWidth(text) / 2);
 		textRenderer.draw((Text) text, h, 0, -1, false, matrix4f, consumer, TextLayerType.NORMAL, j, light);
 		
-		matrix.pop();
+		matrices.pop();
 	}
 	
 	private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-ORX]");

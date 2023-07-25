@@ -19,10 +19,10 @@ import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.option.GameOptions;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -150,7 +150,7 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 	 * Functionality for adding a friend and showing text when looking at a friend
 	 */
 	@Override
-	public void onHudRender(MatrixStack matrix, float delta) {
+	public void onHudRender(DrawContext context, float delta) {
 		if (!isOnServer()) return;
 		MinecraftClient client = MinecraftClient.getInstance();
 		
@@ -174,11 +174,11 @@ public class FriendFeature extends Feature implements EventHolder, HudRenderCall
 			
 			if (isFriend(player)) {
 				String text = isDisabled() ? "Friend feature is disabled" : client.targetedEntity.getName().getString() + " Friended";
-				client.textRenderer.drawWithShadow(matrix, text,
+				context.drawTextWithShadow(client.textRenderer, text,
 					client.getWindow().getScaledWidth()/2 - client.textRenderer.getWidth(text)/2, 30
 				, (isDisabled() ? new Color(255, 85, 85) : new Color(85, 255, 85)).getRGB());
 				text = isDisabled() ? "Remove friend by Middle Clicking" : "Remove by Middle Clicking";
-				client.textRenderer.drawWithShadow(matrix, text,
+				context.drawTextWithShadow(client.textRenderer, text,
 					client.getWindow().getScaledWidth()/2 - client.textRenderer.getWidth(text)/2, 39
 				, (isDisabled() ? new Color(170, 0, 0) : new Color(0, 170, 0)).getRGB());
 			}

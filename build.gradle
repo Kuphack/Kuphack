@@ -1,14 +1,14 @@
 plugins {
-	id 'fabric-loom' version '1.0-SNAPSHOT'
+	id 'fabric-loom' version '1.3-SNAPSHOT'
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
 
 repositories {
 	maven { url 'https://maven.terraformersmc.com/' }
@@ -17,13 +17,16 @@ repositories {
 }
 
 dependencies {
+	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	
-	modImplementation "com.terraformersmc:modmenu:6.1.0-rc.4"
-	modImplementation include("net.kyori:adventure-platform-fabric:5.8.0")
+	modImplementation "com.terraformersmc:modmenu:7.2.1"
+	modImplementation include("net.kyori:adventure-platform-fabric:5.9.0")
 	include implementation("net.kyori:adventure-text-serializer-legacy:4.12.0")
 	include implementation("com.github.vaapukkax:minehut-java-wrapper:1.2.3")
 }
@@ -41,12 +44,15 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 java {
+	withSourcesJar()
 
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
 
@@ -57,5 +63,8 @@ publishing {
 		}
 	}
 
-	repositories {}
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	repositories {
+
+	}
 }

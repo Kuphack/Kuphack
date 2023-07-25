@@ -4,10 +4,10 @@ import com.github.vaapukkax.kuphack.Feature;
 import com.github.vaapukkax.kuphack.SupportedServer;
 
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.sound.SoundInstanceListener;
 import net.minecraft.client.sound.WeightedSoundSet;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 
@@ -41,11 +41,11 @@ public class UltraSignalProgressFeature extends Feature implements HudRenderCall
 	}
 
 	@Override
-	public void onHudRender(MatrixStack matrices, float tickDelta) {		
+	public void onHudRender(DrawContext context, float tickDelta) {		
 		if (System.currentTimeMillis()-show > 5000) return;
 		
 		Text text = Text.of("Ultra Signal ("+(int)(progress*100)+"%)");
-		client.textRenderer.drawWithShadow(matrices, text,
+		context.drawTextWithShadow(client.textRenderer, text,
 			client.getWindow().getScaledWidth() / 2 - client.textRenderer.getWidth(text) / 2,
 			client.getWindow().getScaledHeight() - 68 - client.textRenderer.fontHeight, 0x0000ff
 		);

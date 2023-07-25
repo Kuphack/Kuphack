@@ -8,12 +8,12 @@ import com.github.vaapukkax.kuphack.modmenu.ButtonList.ButtonEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
-import net.minecraft.client.util.math.MatrixStack;
 
 @Environment(value=EnvType.CLIENT)
 public class ButtonList extends ElementListWidget<ButtonEntry> {
@@ -52,9 +52,9 @@ public class ButtonList extends ElementListWidget<ButtonEntry> {
         }
 
         @Override
-        public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float delta) {
             widget.setY(y);
-            widget.render(matrices, mouseX, mouseY, delta);
+            widget.render(context, mouseX, mouseY, delta);
         }
 
         @Override

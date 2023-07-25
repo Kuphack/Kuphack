@@ -15,9 +15,9 @@ import com.github.vaapukkax.kuphack.SupportedServer;
 import com.github.vaapukkax.kuphack.flagclash.FlagClash;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 
@@ -31,7 +31,7 @@ public class FlagMixin {
 	@Shadow protected int titleX, titleY;
 	
 	@Inject(at = @At(value = "INVOKE"), method = "drawForeground", cancellable = true)
-	protected void drawForeground(MatrixStack matrices, int mouseX, int mouseY, CallbackInfo ci) {
+	protected void drawForeground(DrawContext context, int mouseX, int mouseY, CallbackInfo ci) {
 		if (get() == null || Kuphack.getServer() != SupportedServer.FLAGCLASH) return;
 		MinecraftClient m = MinecraftClient.getInstance();
 		Text title = get().getTitle();
@@ -48,8 +48,8 @@ public class FlagMixin {
 		}
 		
 		if (ci.isCancelled()) {
-			m.textRenderer.draw(matrices, title, (float)this.titleX, (float)this.titleY, 4210752);
-			m.textRenderer.draw(matrices, this.playerInventoryTitle, (float)this.playerInventoryTitleX, (float)this.playerInventoryTitleY, 4210752);
+			context.drawTextWithShadow(m.textRenderer, title, this.titleX, this.titleY, 4210752);
+			context.drawTextWithShadow(m.textRenderer, this.playerInventoryTitle, this.playerInventoryTitleX, this.playerInventoryTitleY, 4210752);
 		}
 	}
 	

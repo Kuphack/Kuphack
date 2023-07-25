@@ -8,18 +8,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.github.vaapukkax.kuphack.Kuphack;
 import com.github.vaapukkax.kuphack.SupportedServer;
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.scoreboard.ScoreboardObjective;
 
 @Mixin(InGameHud.class)
 public class ScoreboardMixin {
 
 	@Inject(method = "renderScoreboardSidebar", at = @At(value = "INVOKE"), cancellable = true)
-    private void renderScoreboardSidebar(MatrixStack matrices, ScoreboardObjective objective, CallbackInfo callback) {
+    private void renderScoreboardSidebar(DrawContext context, ScoreboardObjective objective, CallbackInfo callback) {
 		if (Kuphack.getServer() == SupportedServer.FLAGCLASH) {
 			callback.cancel();
-			Kuphack.renderSidebar(matrices, objective);
+			Kuphack.renderSidebar(context, objective);
 		}
     }
 	

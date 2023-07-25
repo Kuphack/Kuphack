@@ -15,12 +15,11 @@ import com.github.vaapukkax.minehut.PredefinedCategory;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
@@ -94,13 +93,15 @@ public class CategoryDropdownWidget extends ClickableWidget {
     }
 
     @Override
-    public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public void renderButton(DrawContext context, int mouseX, int mouseY, float delta) {
 		int color = this.isFocused() ? -1 : -6250336;
 		int height = this.height / 2 * (this.isFocused() ? (options.size()) : 2);
 		if (this.isFocused()) height += 3;
-		
-		TextFieldWidget.fill(matrices, this.getX() - 1, this.getY() - 1 - height + this.height, this.getX() + this.width + 1, this.getY() + this.height + 1, color);
-		TextFieldWidget.fill(matrices, this.getX(), this.getY() - height + this.height, this.getX() + this.width, this.getY() + this.height, -16777216);
+
+		context.getMatrices().push();
+		context.getMatrices().translate(0, 0, 1);
+		context.fill(this.getX() - 1, this.getY() - 1 - height + this.height, this.getX() + this.width + 1, this.getY() + this.height + 1, color);
+		context.fill(this.getX(), this.getY() - height + this.height, this.getX() + this.width, this.getY() + this.height, -16777216);
 		
 		if (this.isFocused()) {
 			int i = 0;
@@ -109,9 +110,9 @@ public class CategoryDropdownWidget extends ClickableWidget {
 
 				boolean active = categories.contains(category);
 				if (active || rectangle.intersects(new Rectangle(mouseX, mouseY, 1, 1))) {
-					if (this.removed != category || active) TextFieldWidget.fill(matrices, rectangle.x, rectangle.y, rectangle.x + rectangle.width, rectangle.y + rectangle.height, Color.getHSBColor(i/17f, 1f, 1f).getRGB());
+					if (this.removed != category || active) context.fill(rectangle.x, rectangle.y, rectangle.x + rectangle.width, rectangle.y + rectangle.height, Color.getHSBColor(i/17f, 1f, 1f).getRGB());
 				} else if (this.removed == category) this.removed = null;
-				textRenderer.drawWithShadow(matrices, category.toString(), rectangle.x + 2, rectangle.y + 1, Color.WHITE.getRGB());
+				context.drawTextWithShadow(textRenderer, category.toString(), rectangle.x + 2, rectangle.y + 1, Color.WHITE.getRGB());
 				
 				i++;
 			}
@@ -119,10 +120,11 @@ public class CategoryDropdownWidget extends ClickableWidget {
 			String text = categories.isEmpty() ? "[All Categories]"
 				: categories.size() == 1 ? categories.get(0).toString()
 				: categories.size() + " Categories...";
-			textRenderer.drawWithShadow(
-				matrices, text, this.getX() + 4, this.getY() + (this.height - 8) / 2, Color.WHITE.getRGB()
+			context.drawTextWithShadow(
+				textRenderer, text, this.getX() + 4, this.getY() + (this.height - 8) / 2, Color.WHITE.getRGB()
 			);
 		}
+		context.getMatrices().pop();
     }
     
     private Rectangle getBounds(PredefinedCategory category) {

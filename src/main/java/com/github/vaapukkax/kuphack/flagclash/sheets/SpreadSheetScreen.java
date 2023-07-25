@@ -10,6 +10,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -105,25 +106,25 @@ public class SpreadSheetScreen extends Screen {
 	}
 
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		int i = (this.width - 252) / 2;
 		int j = (this.height - 140) / 2;
 		
 		
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 0.5f);
-		this.renderBackground(matrices);
+		this.renderBackground(context);
 		
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1f);
-		this.drawAdvancementTree(matrices, mouseX, mouseY, i, j);
+		this.drawAdvancementTree(context, mouseX, mouseY, i, j);
 		
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.world != null) {
 			RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha/2);
-			this.renderBackground(matrices);
+			this.renderBackground(context);
 		}
 		
-		this.drawWindow(matrices, i, j);
-		this.drawWidgetTooltip(matrices, mouseX, mouseY, i, j);
+		this.drawWindow(context, i, j);
+		this.drawWidgetTooltip(context, mouseX, mouseY, i, j);
 	}
 
 	@Override
@@ -140,9 +141,9 @@ public class SpreadSheetScreen extends Screen {
 		return true;
 	}
 
-	private void drawAdvancementTree(MatrixStack matrices, int mouseX, int mouseY, int x, int y) {
+	private void drawAdvancementTree(DrawContext context, int mouseX, int mouseY, int x, int y) {
 		if (selectedTab == null) {
-			SpreadSheetScreen.drawCenteredTextWithShadow(matrices, this.textRenderer, EMPTY_TEXT,
+			context.drawCenteredTextWithShadow(this.textRenderer, EMPTY_TEXT,
 				this.width / 2, this.height / 2, 0xFFFFFF
 			);
 			return;
@@ -151,14 +152,14 @@ public class SpreadSheetScreen extends Screen {
 		matrixStack.push();
 		matrixStack.translate(x + 9, y + 18, 0.0);
 		RenderSystem.applyModelViewMatrix();
-		selectedTab.render(matrices);
+		selectedTab.render(context);
 		matrixStack.pop();
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.depthFunc(515);
 		RenderSystem.disableDepthTest();
 	}
 
-	public void drawWindow(MatrixStack matrices, int x, int y) {
+	public void drawWindow(DrawContext context, int x, int y) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderSystem.enableBlend();
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
@@ -168,13 +169,13 @@ public class SpreadSheetScreen extends Screen {
 			RenderSystem.setShaderTexture(0, TABS_TEXTURE);
 			RenderSystem.defaultBlendFunc();
 			for (SpreadsheetTab spreadsheetTab : this.tabs.values()) {
-				spreadsheetTab.drawIcon(matrices, 0, 0, this.itemRenderer);
+				spreadsheetTab.drawIcon(context, 0, 0);
 			}
 			RenderSystem.disableBlend();
 		}
 	}
 
-	private void drawWidgetTooltip(MatrixStack matrices, int mouseX, int mouseY, int x, int y) {
+	private void drawWidgetTooltip(DrawContext context, int mouseX, int mouseY, int x, int y) {
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 		if (this.selectedTab != null) {
 			MatrixStack matrixStack = RenderSystem.getModelViewStack();
@@ -182,7 +183,7 @@ public class SpreadSheetScreen extends Screen {
 			matrixStack.translate(x + 9, y + 18, 400.0);
 			RenderSystem.applyModelViewMatrix();
 			RenderSystem.enableDepthTest();
-			this.selectedTab.drawWidgetTooltip(matrices, mouseX - x - 9, mouseY - y - 18, x, y);
+			this.selectedTab.drawWidgetTooltip(context, mouseX - x - 9, mouseY - y - 18, x, y);
 			RenderSystem.disableDepthTest();
 			matrixStack.pop();
 			RenderSystem.applyModelViewMatrix();
@@ -192,7 +193,7 @@ public class SpreadSheetScreen extends Screen {
 			for (SpreadsheetTab spreadsheetTab : this.tabs.values()) {
 				if (!spreadsheetTab.isClickOnTab(0, 0, mouseX, mouseY))
 					continue;
-				this.renderTooltip(matrices, spreadsheetTab.getTitle(), spreadsheetTab.getType().getTabX(spreadsheetTab.getIndex())+20, mouseY+10);
+				context.drawTooltip(textRenderer, spreadsheetTab.getTitle(), spreadsheetTab.getType().getTabX(spreadsheetTab.getIndex())+20, mouseY+10);
 				bl = true;
 			}
 		}

@@ -17,10 +17,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -43,6 +42,7 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
 	
     private static final Identifier UNKNOWN_SERVER_TEXTURE = new Identifier("textures/misc/unknown_server.png");
     private static final Identifier SERVER_SELECTION_TEXTURE = new Identifier("textures/gui/server_selection.png");
+    private static final Identifier ICONS_TEXTURE = new Identifier("textures/gui/icons.png");
     
     private final MinehutServerListScreen screen;
     private final List<ServerEntry> servers = new ArrayList<>();
@@ -59,8 +59,8 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
     }
     
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-    	super.render(matrices, mouseX, mouseY, delta);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    	super.render(context, mouseX, mouseY, delta);
     	if (screen.categoryWidget.isMouseOver(mouseX, mouseY)) return;
     	
     	try {
@@ -210,24 +210,21 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
         }
 
 		@Override
-        public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+        public void render(DrawContext context, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
         	if (screen.categoryWidget.isMouseOver(mouseX, mouseY)) hovered = false;
         	
-            this.client.textRenderer.draw(matrices, this.server.getName(), (float)(x + 32 + 3), (float)(y + 1), 0xFFFFFF);
+            context.drawTextWithShadow(client.textRenderer, this.server.getName(), x + 32 + 3, y + 1, 0xFFFFFF);
             List<OrderedText> motdList = this.client.textRenderer.wrapLines(motd, entryWidth - 32 - 2);
             for (int i = 0; i < Math.min(motdList.size(), 2); ++i) {
-                this.client.textRenderer.draw(matrices, motdList.get(i), (float)(x + 32 + 3), (float)(y + 12 + this.client.textRenderer.fontHeight * i), 0x808080);
+                context.drawTextWithShadow(client.textRenderer, motdList.get(i), x + 32 + 3, y + 12 + this.client.textRenderer.fontHeight * i, 0x808080);
             }
             Text playerCountText = Text.of(updating ? "Updating..."
             	: this.server.getPlayerCount() + "/" + this.server.getMaxPlayerCount()
             );
             int width = this.client.textRenderer.getWidth(playerCountText);
-            this.client.textRenderer.draw(matrices, playerCountText, (float)(x + entryWidth - width - 15 - 2), (float)(y + 1), 0x808080);
+            context.drawTextWithShadow(client.textRenderer, playerCountText, x + entryWidth - width - 15 - 2, y + 1, 0x808080);
 
-            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-            RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            RenderSystem.setShaderTexture(0, DrawableHelper.GUI_ICONS_TEXTURE);
-            DrawableHelper.drawTexture(matrices, x + entryWidth - 15, y, 0, 176, 10, 8, 256, 256);
+            context.drawTexture(ICONS_TEXTURE, x + entryWidth - 15, y, 0, 176, 10, 8, 256, 256);
 
             if (this.icon != null) {
             	int iconX = x;
@@ -239,21 +236,17 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             	
                 renderGuiItem(this.icon, iconX, y+8, scale);
             } else {
-                this.draw(matrices, x, y, UNKNOWN_SERVER_TEXTURE);
+                context.drawTexture(UNKNOWN_SERVER_TEXTURE, x, y, 0.0f, 0.0f, 32, 32, 32, 32);
             }
 
             if (this.client.options.getTouchscreen().getValue() || hovered) {
-                RenderSystem.setShaderTexture(0, SERVER_SELECTION_TEXTURE);
-                DrawableHelper.fill(matrices, x, y, x + 32, y + 32, -1601138544);
-                RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-                RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+                context.fill(x, y, x + 32, y + 32, -1601138544);
                 int mx = mouseX - x;
-//                int my = mouseY - y;
                 if (this.canConnect()) {
                     if (mx < 32 && mx > 16) {
-                        DrawableHelper.drawTexture(matrices, x, y, 0.0f, 32.0f, 32, 32, 256, 256);
+                        context.drawTexture(SERVER_SELECTION_TEXTURE, x, y, 0.0f, 32.0f, 32, 32, 256, 256);
                     } else {
-                        DrawableHelper.drawTexture(matrices, x, y, 0.0f, 0.0f, 32, 32, 256, 256);
+                    	context.drawTexture(SERVER_SELECTION_TEXTURE, x, y, 0.0f, 0.0f, 32, 32, 256, 256);
                     }
                 }
             }
@@ -261,13 +254,13 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
 
         
         /*
-         *  Modified from ItemRenderer
+         *  Modified from ItemRenderer to support scaling
          */
         
         @SuppressWarnings("deprecation")
 		protected void renderGuiItem(ItemStack stack, int x, int y, float scale) {
         	BakedModel model = client.getItemRenderer().getModel(stack, null, null, 0);
-        	
+
             client.getTextureManager().getTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE).setFilter(false, false);
             RenderSystem.setShaderTexture(0, SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
             RenderSystem.enableBlend();
@@ -297,13 +290,6 @@ public class MinehutServerListWidget extends AlwaysSelectedEntryListWidget<Mineh
             RenderSystem.applyModelViewMatrix();
         }
         
-        protected void draw(MatrixStack matrices, int x, int y, Identifier textureId) {
-            RenderSystem.setShaderTexture(0, textureId);
-            RenderSystem.enableBlend();
-            DrawableHelper.drawTexture(matrices, x, y, 0.0f, 0.0f, 32, 32, 32, 32);
-            RenderSystem.disableBlend();
-        }
-
         private boolean canConnect() {
             return true;
         }

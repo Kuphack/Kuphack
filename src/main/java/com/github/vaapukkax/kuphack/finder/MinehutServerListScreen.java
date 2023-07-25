@@ -24,6 +24,7 @@ import com.github.vaapukkax.minehut.Server;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ConnectScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -31,7 +32,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 
@@ -252,31 +252,31 @@ public class MinehutServerListScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
-    	this.renderBackground(matrices);
-    	this.serverListWidget.render(matrices, mouseX, mouseY, delta);
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    	this.renderBackground(context);
+    	this.serverListWidget.render(context, mouseX, mouseY, delta);
         
         if (error != null) {
-        	drawCenteredTextWithShadow(matrices, this.textRenderer, "Wild error appeard!", this.width / 2, this.height / 2 - textRenderer.fontHeight, 0xFF0000);
+        	context.drawCenteredTextWithShadow(this.textRenderer, "Wild error appeard!", this.width / 2, this.height / 2 - textRenderer.fontHeight, 0xFF0000);
         	
         	int i = 0;
         	List<Text> lines = split(this.error);
         	for (Text line : lines) {
-        		drawCenteredTextWithShadow(matrices, this.textRenderer, line, this.width / 2, this.height / 2 + textRenderer.fontHeight * i, 0xFFFFFF);
+        		context.drawCenteredTextWithShadow(this.textRenderer, line, this.width / 2, this.height / 2 + textRenderer.fontHeight * i, 0xFFFFFF);
         		i++;
         	}
         } else if (!refreshButton.active) {
         	Text text = Text.of("Refreshing...");
-        	drawTextWithShadow(matrices, this.textRenderer, text, client.getWindow().getScaledWidth() - this.textRenderer.getWidth(text) - 5, 5, 0xFFFFFF);
+        	context.drawTextWithShadow(this.textRenderer, text, client.getWindow().getScaledWidth() - this.textRenderer.getWidth(text) - 5, 5, 0xFFFFFF);
         }
         
-        drawCenteredTextWithShadow(matrices, this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
-        drawCenteredTextWithShadow(matrices, this.textRenderer, Text.of("Servers: "+serverListWidget.getServerCount()+" ("+serverCount+") | Players: "+serverListWidget.getPlayerCount()+" ("+playerCount+")"), this.width / 2, 20 - this.textRenderer.fontHeight, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Servers: "+serverListWidget.getServerCount()+" ("+serverCount+") | Players: "+serverListWidget.getPlayerCount()+" ("+playerCount+")"), this.width / 2, 20 - this.textRenderer.fontHeight, 0xFFFFFF);
         
-        this.categoryWidget.render(matrices, mouseX, mouseY, delta);
-        this.textField.render(matrices, mouseX, mouseY, delta);
+        this.categoryWidget.render(context, mouseX, mouseY, delta);
+        this.textField.render(context, mouseX, mouseY, delta);
 
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(context, mouseX, mouseY, delta);
     }
     
     public void connect() {
@@ -294,7 +294,7 @@ public class MinehutServerListScreen extends Screen {
 	    		}
 
 	        	ServerInfo info = new ServerInfo(serverEntry.toString(), serverEntry.getAddress(), false);
-				ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info);
+				ConnectScreen.connect(this, this.client, ServerAddress.parse(info.address), info, false);
 	        }
     	}
     }

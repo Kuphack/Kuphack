@@ -2,10 +2,9 @@ package com.github.vaapukkax.kuphack.flagclash.sheets;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 
 @Environment(value=EnvType.CLIENT)
 enum SpreadsheetTabType {
@@ -32,7 +31,7 @@ enum SpreadsheetTabType {
         return this.tabCount;
     }
 
-    public void drawBackground(MatrixStack matrices, DrawableHelper tab, int x, int y, boolean selected, int index) {
+    public void drawBackground(DrawContext context, Identifier texture, int x, int y, boolean selected, int index) {
         int i = this.u;
         if (index > 0) {
             i += this.width;
@@ -41,10 +40,10 @@ enum SpreadsheetTabType {
             i += this.width;
         }
         int j = selected ? this.v + this.height : this.v;
-        DrawableHelper.drawTexture(matrices, x + this.getTabX(index), y + this.getTabY(index), i, j, this.width, this.height);
+        context.drawTexture(texture, x + this.getTabX(index), y + this.getTabY(index), i, j, this.width, this.height);
     }
 
-    public void drawIcon(MatrixStack matrices, int x, int y, int index, ItemRenderer itemRenderer, ItemStack icon) {
+    public void drawIcon(DrawContext context, int x, int y, int index, ItemStack icon) {
         int i = x + this.getTabX(index);
         int j = y + this.getTabY(index);
         switch (this) {
@@ -68,7 +67,7 @@ enum SpreadsheetTabType {
                 j += 5;
             }
         }
-        itemRenderer.renderInGui(matrices, icon, i, j);
+        context.drawItem(icon, i, j);
     }
 
     public int getTabX(int index) {

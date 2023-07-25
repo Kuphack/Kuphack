@@ -1,25 +1,21 @@
 {
-  "required": true,
-  "minVersion": "0.8",
-  "package": "com.github.vaapukkax.kuphack.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    
-  ],
-  "client": [
-    events.BlockPlaceMixin,
-    events.BlockUpdateMixin,
-    events.ChatMixin,
-    events.ClientPlayerInteractionMixin,
-    flagclash.SpreadsheetKeybindMixin,
-    flagclash.ItemEntityRendererMixin,
-    flagclash.FlagMixin,
-    flagclash.HudMixin,
-    flagclash.ScoreboardMixin,
-    MultiplayerScreenMixin,
-    VinueText
-  ],
-  "injectors": {
-    "defaultRequire": 1
-  }
+	"required": true,
+	"package": "com.github.vaapukkax.kuphack.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"events.BlockPlaceMixin",
+		"events.BlockUpdateMixin",
+		"events.ChatMixin",
+		"events.ClientPlayerInteractionMixin",
+		"flagclash.SpreadsheetKeybindMixin",
+		"flagclash.ItemEntityRendererMixin",
+		"flagclash.FlagMixin",
+		"flagclash.HudMixin",
+		"flagclash.ScoreboardMixin",
+		"MultiplayerScreenMixin",
+		"VinueText"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
 }
