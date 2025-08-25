@@ -1,7 +1,6 @@
 package dev.watukas.kuphack.updater;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -25,13 +24,21 @@ public class UpdateToast implements Toast {
 	private static final Identifier BACKGROUND_TOP = Identifier.of("kuphack", "textures/gui/toast/top.png");
 	
 	public static final int DEFAULT_DURATION_MS = 5000;
+	
+	private final Exception exception;
 	private final UpdateStatus status;
+	
 	private Toast.Visibility visibility = Toast.Visibility.HIDE;
 
 	private final int height;
 	
 	public UpdateToast(UpdateStatus status) {
+		this(status, null);
+	}
+	
+	public UpdateToast(UpdateStatus status, Exception exception) {
 		this.status = status;
+		this.exception = null;
 		
 		MinecraftClient client = MinecraftClient.getInstance();
 		this.height = content().size() * client.textRenderer.fontHeight + 8;
@@ -54,9 +61,13 @@ public class UpdateToast implements Toast {
 	}
 	
 	public List<OrderedText> content() {
-		if (this.status == null)
-			return Arrays.asList(Text.of("Couldn't retrieve update status, an error occurred?").asOrderedText());
 		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		if (this.status == null)
+			return textRenderer.wrapLines(Text.of(
+				this.exception != null
+					? "Couldn't retrieve update status, an error occurred."
+					: "No updates were found, nice!"
+			), this.getWidth() - 10);
 
 		ArrayList<OrderedText> text = new ArrayList<>();
 		if (status.additional() != null) {

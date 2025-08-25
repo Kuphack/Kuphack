@@ -117,7 +117,7 @@ public class SettingsKuphackScreen extends Screen {
 			}
 			client.getToastManager().add(new UpdateToast(status));
 		} catch (Exception e) {
-			client.getToastManager().add(new UpdateToast(null));
+			client.getToastManager().add(new UpdateToast(null, e));
 			failedStatus = true;
 			e.printStackTrace();
 		}
