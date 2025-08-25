@@ -1,10 +1,14 @@
 plugins {
-	id 'fabric-loom' version '1.3-SNAPSHOT'
+	id 'fabric-loom' version '1.11-SNAPSHOT'
 	id 'maven-publish'
+	id 'java'
 }
 
 version = project.mod_version
 group = project.maven_group
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 
 base {
 	archivesName = project.archives_base_name
@@ -12,22 +16,25 @@ base {
 
 repositories {
 	maven { url 'https://maven.terraformersmc.com/' }
+	maven {
+       name = "sonatype-oss-snapshots1"
+       url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+       mavenContent { snapshotsOnly() }
+   	}
 	mavenLocal()
 	mavenCentral()
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	
-	modImplementation "com.terraformersmc:modmenu:7.2.1"
-	modImplementation include("net.kyori:adventure-platform-fabric:5.9.0")
-	include implementation("net.kyori:adventure-text-serializer-legacy:4.12.0")
+	modImplementation "com.terraformersmc:modmenu:15.0.0-beta.3"
+	modImplementation include("net.kyori:adventure-platform-fabric:6.6.0")
+	include implementation("net.kyori:adventure-text-serializer-legacy:4.24.0")
 	include implementation("com.github.vaapukkax:minehut-java-wrapper:1.2.3")
 }
 
@@ -40,14 +47,14 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {

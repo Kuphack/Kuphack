@@ -1,17 +1,17 @@
 {
 	"required": true,
-	"package": "com.github.vaapukkax.kuphack.mixin",
-	"compatibilityLevel": "JAVA_17",
+	"package": "dev.watukas.kuphack.mixin",
+	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"events.BlockPlaceMixin",
 		"events.BlockUpdateMixin",
 		"events.ChatMixin",
 		"events.ClientPlayerInteractionMixin",
-		"flagclash.SpreadsheetKeybindMixin",
 		"flagclash.ItemEntityRendererMixin",
 		"flagclash.FlagMixin",
 		"flagclash.HudMixin",
 		"flagclash.ScoreboardMixin",
+		"flagclash.PlayerListSortMixin",
 		"MultiplayerScreenMixin",
 		"VinueText"
 	],
