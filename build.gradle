@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
+	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 	id 'java'
 }
@@ -21,6 +21,9 @@ repositories {
        url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
        mavenContent { snapshotsOnly() }
    	}
+   	maven {
+        url = "https://api.modrinth.com/maven"
+    }
 	mavenLocal()
 	mavenCentral()
 }
