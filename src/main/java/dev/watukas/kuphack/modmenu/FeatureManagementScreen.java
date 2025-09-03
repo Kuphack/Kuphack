@@ -6,12 +6,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import dev.watukas.kuphack.Feature;
 import dev.watukas.kuphack.Kuphack;
 import dev.watukas.kuphack.SupportedServer;
-import dev.watukas.kuphack.flagclash.FriendFeature;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -48,10 +48,11 @@ public class FeatureManagementScreen extends Screen {
 			);
 			buttonList.addWidget(groupWidget);
 			for (Feature feature : map.get(group)) {
-				Text text = Text.of(feature.getName() + (feature instanceof FriendFeature ? "..." : " ["+feature.getTextState()+"]"));
+				Function<FeatureManagementScreen, Screen> supplier = feature.screenFunction();
+				Text text = Text.of(feature.getName() + (supplier != null ? "..." : " ["+feature.getTextState()+"]"));
 				ButtonWidget widget = ButtonWidget.builder(text, button -> {
-					if (feature instanceof FriendFeature) {
-						this.client.setScreen(new FriendManagementScreen(this));
+					if (supplier != null) {
+						this.client.setScreen(supplier.apply(this));
 					} else {
 						feature.toggle();
 						button.setMessage(Text.of(feature.getName() + " ["+feature.getTextState()+"]"));
@@ -72,7 +73,7 @@ public class FeatureManagementScreen extends Screen {
 	public void render(DrawContext context, int mouseX, int mouseY, float delta) {
 		super.render(context, mouseX, mouseY, delta);
 		this.buttonList.render(context, mouseX, mouseY, delta);
-		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+		context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFFFF);
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package dev.watukas.kuphack.mixin.flagclash;
 
-import java.util.List;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,13 +13,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 
 @Mixin(HandledScreen.class)
 public class FlagMixin {
-	
-	private double time = -1;
 	
 	@Shadow protected int playerInventoryTitleX, playerInventoryTitleY;
 	@Shadow protected Text playerInventoryTitle;
@@ -34,11 +29,7 @@ public class FlagMixin {
 		Text title = get().getTitle();
 		
 		if (title.getString().contains("Shop")) {
-			if (!isHoldingFlag()) {
-				FlagClash.setUpgradeCost(getUpgradePrice());
-				time = FlagClash.getUpgradeTime();
-			}
-			if (time == -1.0) return;
+			double time = FlagClash.getUpgradeTime();
 			ci.cancel();
 			
 			title = title.copy().append(Text.literal(" " + FlagClash.timeAsString(time)).withColor(0xFFCCCCCC));
@@ -50,31 +41,32 @@ public class FlagMixin {
 		}
 	}
 	
-	private long getUpgradePrice() {
-		try {
-			for (ItemStack stack : get().getScreenHandler().slots.stream()
-					.map(slot -> slot.getStack())
-					.toList()) {
-				if (!stack.getName().getString().contains("Level Up"))
-					continue;
-				
-				List<String> lore = Kuphack.getStripLore(stack);
-				String[] line = lore.getLast().strip().split("\\s+");
-				
-				return FlagClash.toRealValue(line[0]);
-			}
-		} catch (Exception e) {
-			Kuphack.error(e);
-		}
-		return 0;
-	}
-	
-	private boolean isHoldingFlag() {
-		ItemStack is = get().getScreenHandler().getCursorStack();
-		return (is != null && is.getItem().getName().getString().toLowerCase().contains("banner"));
-	}
+//	private long getUpgradePrice() {
+//		try {
+//			for (ItemStack stack : get().getScreenHandler().slots.stream()
+//					.map(slot -> slot.getStack())
+//					.toList()) {
+//				if (!stack.getName().getString().contains("Level Up"))
+//					continue;
+//				
+//				List<String> lore = Kuphack.getStripLore(stack);
+//				String[] line = lore.getLast().strip().split("\\s+");
+//				
+//				return FlagClash.toRealValue(line[0]);
+//			}
+//		} catch (Exception e) {
+//			Kuphack.error(e);
+//		}
+//		return 0;
+//	}
+//	
+//	private boolean isHoldingFlag() {
+//		ItemStack is = get().getScreenHandler().getCursorStack();
+//		return (is != null && is.getItem().getName().getString().toLowerCase().contains("banner"));
+//	}
 	
 	private GenericContainerScreen get() {
 		return (Object) this instanceof GenericContainerScreen cast ? cast : null;
 	}
+
 }

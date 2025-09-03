@@ -95,7 +95,7 @@ public class FriendManagementScreen extends Screen {
 	        	feature.removeFriend(profile);
 	        	this.init();
 	        }).tooltip(Tooltip.of(Text.of(
-	        	"Remove '" + profile.getName() + "' by clicking"
+	        	this.feature.isDisabled() ? "Friends are disabled" : ( "Remove '" + profile.getName() + "' by clicking" )
 	        ))).position(this.width / 2 - 150 / 2, y).width(150).build();
         	widget.active = !feature.isDisabled();
 	        this.widgets.put(profile, buttonList.addWidget(widget));
@@ -119,10 +119,10 @@ public class FriendManagementScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
     	super.render(context, mouseX, mouseY, delta);    	
         this.buttonList.render(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFFFF);
 
         if (feature.getFriends().isEmpty()) {
-        	context.drawCenteredTextWithShadow(this.textRenderer, "You have no friends! :(", this.width / 2, this.height / 2, 0xFFFFFF);
+        	context.drawCenteredTextWithShadow(this.textRenderer, "You have no friends! :(", this.width / 2, this.height / 2, 0xFFFFFFFF);
         }
     }
 

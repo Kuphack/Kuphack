@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Locale;
 
 import dev.watukas.kuphack.Feature;
-import dev.watukas.kuphack.Kuphack;
+import dev.watukas.kuphack.Rendering;
 import dev.watukas.kuphack.SupportedServer;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
@@ -71,7 +71,7 @@ public class FlagBreakTimeFeature extends Feature implements WorldRenderEvents.A
 				Text.of("Removing flag..."),
 				Text.literal(format.format(seconds)).withColor(0xFFFF2266)
 			);
-			Kuphack.renderText(text, matrix, client.getBufferBuilders().getEffectVertexConsumers());
+			Rendering.renderText(text, matrix, client.getBufferBuilders().getEffectVertexConsumers());
 			
 			matrix.pop();
 		} else this.time = -1;

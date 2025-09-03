@@ -1,16 +1,11 @@
 package dev.watukas.kuphack;
 
 import java.awt.Color;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -18,16 +13,10 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.vaapukkax.minehut.Minehut;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.ibm.icu.text.DecimalFormat;
 import com.ibm.icu.text.DecimalFormatSymbols;
 
@@ -35,13 +24,15 @@ import dev.watukas.kuphack.Event.EventHolder;
 import dev.watukas.kuphack.Event.EventMention;
 import dev.watukas.kuphack.events.ChatEvent;
 import dev.watukas.kuphack.events.ServerJoinEvent;
-import dev.watukas.kuphack.finder.MinehutButtonState;
+import dev.watukas.kuphack.flagclash.DynamiteProjectoryFeature;
 import dev.watukas.kuphack.flagclash.FlagBreakTimeFeature;
 import dev.watukas.kuphack.flagclash.FlagClash;
 import dev.watukas.kuphack.flagclash.FlagLocation;
 import dev.watukas.kuphack.flagclash.FriendFeature;
 import dev.watukas.kuphack.flagclash.ItemEntityInfoFeature;
+import dev.watukas.kuphack.flagclash.QuickBindFeature;
 import dev.watukas.kuphack.flagclash.RevokerRadiusFeature;
+import dev.watukas.kuphack.settings.KuphackSettings;
 import dev.watukas.kuphack.updater.CheckOption;
 import dev.watukas.kuphack.updater.UpdateChecker;
 import net.fabricmc.api.EnvType;
@@ -56,11 +47,8 @@ import net.kyori.adventure.platform.modcommon.MinecraftClientAudiences;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.ParsingException;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.network.ServerInfo.ServerType;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -73,9 +61,7 @@ import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.scoreboard.number.BlankNumberFormat;
 import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 public class Kuphack implements ModInitializer, EventHolder {
@@ -86,9 +72,8 @@ public class Kuphack implements ModInitializer, EventHolder {
 	private CloseableHttpClient httpClient;
 	private Minehut minehut;
 	private final ArrayList<Feature> features = new ArrayList<>();
-	
-	public MinehutButtonState serverListButton = isFeather() ? MinehutButtonState.LEFT_CORNER : MinehutButtonState.RIGHT_CORNER;
-	public CheckOption updateOption = CheckOption.LOOKUP;
+
+	private KuphackSettings settings;
 	
 	private SupportedServer server;
 	private long customCheckTimeout = -1;
@@ -96,6 +81,8 @@ public class Kuphack implements ModInitializer, EventHolder {
 	@Override
 	public void onInitialize() {
 		Kuphack.instance = this;
+		
+		this.settings = new KuphackSettings(FabricLoader.getInstance().getConfigDir().resolve("kuphack.json"));
 		
 		RequestConfig config = RequestConfig.custom()
 			.setConnectTimeout(5000)
@@ -121,19 +108,15 @@ public class Kuphack implements ModInitializer, EventHolder {
 		
 		// FLAGCLASH
 		features.add(new FriendFeature());
+		features.add(new QuickBindFeature());
 		features.add(new FlagBreakTimeFeature());
 		features.add(new FlagLocation());
 		features.add(new RevokerRadiusFeature());
 		features.add(new ItemEntityInfoFeature());
+		features.add(new DynamiteProjectoryFeature());
 		
 		Event.register(new FlagClash());
-		
-		// Multiplayer Button Setting
-		JsonObject object = this.readDataFile();
-		if (object.has("mhButtonState"))
-			this.serverListButton = MinehutButtonState.valueOf(object.get("mhButtonState").getAsString());
-		if (object.has("auto-update"))
-			this.updateOption = CheckOption.of(object.get("auto-update"));
+		Rendering.flagClashDebug();
 		
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
 			this.minehut.close(); // closes httpClient
@@ -173,7 +156,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 
 		new Thread(() -> {
 			try {
-				if (updateOption != CheckOption.OFF) UpdateChecker.checkAndDownload();
+				if (settings().updateOption() != CheckOption.OFF) UpdateChecker.checkAndDownload();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -203,30 +186,6 @@ public class Kuphack implements ModInitializer, EventHolder {
 		}
 	}
 
-	public JsonObject readDataFile() {
-		try (BufferedReader reader = Files.newBufferedReader(getDataFile(), Charset.defaultCharset())) {
-			return Objects.requireNonNullElseGet(
-				new Gson().fromJson(reader.lines().collect(Collectors.joining("\n")), JsonObject.class),
-				JsonObject::new
-			);
-		} catch (IOException | JsonParseException e) {
-			e.printStackTrace();
-		}
-		return new JsonObject();
-	}
-	
-	public Path getDataFile() {
-		Path path = FabricLoader.getInstance().getConfigDir().resolve("kuphack.json");
-		if (Files.exists(path)) return path;
-		
-		try {	
-			Files.createFile(path);
-		} catch (IOException e) {
-			new IOException("Couldn't create Kuphack settings file", e).printStackTrace();
-		}
-		return path;
-	}
-	
 	public void register(Feature feature) {
 		if (!features.contains(feature)) features.add(feature);
 	}
@@ -353,12 +312,12 @@ public class Kuphack implements ModInitializer, EventHolder {
 				
 				long upgradeCost = FlagClash.getUpgradeCost();
 				if (upgradeCost > 0) {
-					MutableText content = Text.literal(FlagClash.toSmallText(" Upgrade: ")).withColor(0xDCD2B8)
+					MutableText content = Text.literal(FlagClash.toSmallText(" Upgrade: ")).withColor(0xB8B8DC)
 						.append(
 							Text.literal(FlagClash.toVisualValue(upgradeCost)).withColor(0x28d283)
 						);
 		
-			        if (Kuphack.get().getFeature(FlagLocation.class).isFlagDown()) {
+			        if (Kuphack.get().getFeature(FlagLocation.class).isFlagDown() || FlagClash.hasActiveMultiplier()) {
 			        	
 			        	double time = FlagClash.getUpgradeTime();
 			        	if (time != -1) {
@@ -375,7 +334,14 @@ public class Kuphack implements ModInitializer, EventHolder {
 			        	}
 			        }
 		        	
-			        lines.add(lines.size() - 2, content);
+			        for (int i  = 0; i < lines.size(); i++) {
+			        	String line = lines.get(i).getString();
+			        	if (line.contains(FlagClash.toSmallText("gold:"))) {
+			        		lines.add(i + 1, content);
+			        		break;
+			        	}
+			        }
+			        
 		        }		        
 			}
 			
@@ -384,6 +350,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 					return Text.literal(" kuphack.cc").withColor(0xFF545454);
 				return text;
 			});
+			lines.removeIf(text -> text.getString().contains("discord"));
 			
 		} catch (Exception e) {
 			Kuphack.error(e);
@@ -391,60 +358,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		
 		return lines;
 	}
-	
-    public static void renderSidebar(DrawContext context, ScoreboardObjective objective) {
-    	MinecraftClient client = MinecraftClient.getInstance();
-    	TextRenderer textRenderer = client.textRenderer;
-		int scaledWidth = client.getWindow().getScaledWidth(),
-			scaledHeight= client.getWindow().getScaledHeight();
-    	List<Text> lines = Kuphack.getModifiedSidebar();
 
-        Text title = objective.getDisplayName();
-        final int titleWidth = textRenderer.getWidth(title);
-        int width = titleWidth;
-
-        for (Text line : lines) width = Math.max(width, textRenderer.getWidth(line));
-
-        int footerHeight = lines.size() * textRenderer.fontHeight;
-        int bottom = scaledHeight / 2 + footerHeight / 3;
-
-        int textX = scaledWidth - width - 1;
-        int footerAlpha = client.options.getTextBackgroundColor(0.3f),
-        	tabAlpha = client.options.getTextBackgroundColor(0.4f);
-        int i = 0;
-        for (Text line : Lists.reverse(lines)) {
-            int y = bottom - ++i * textRenderer.fontHeight;
-            int right = scaledWidth - 1;
-            context.fill(textX - 2, y, right, y + textRenderer.fontHeight, footerAlpha);
-            context.drawText(textRenderer, line, textX, y, -1, false);
-
-            if (i != lines.size()) continue;
-            context.fill(textX - 2, y - textRenderer.fontHeight - 1, right, y - 1, tabAlpha);
-            context.fill(textX - 2, y - 1, right, y, footerAlpha);
-            context.drawText(textRenderer, title, (textX + width / 2 - titleWidth / 2), (y - textRenderer.fontHeight), -1, false);
-        }
-        
-	}
-	
-	public static void renderText(List<Text> lines, MatrixStack matrices, VertexConsumerProvider consumer) {
-		MinecraftClient client = MinecraftClient.getInstance();
-		final int light = 255;
-		
-		matrices.push();
-		matrices.scale(-0.025F, -0.025F, -0.025F);
-		matrices.multiply(new Quaternionf().rotateY(client.gameRenderer.getCamera().getYaw() / -MathHelper.DEGREES_PER_RADIAN));
-		
-		Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-		TextRenderer textRenderer = client.textRenderer;
-		for (int i = 0; i < lines.size(); i++) {
-			OrderedText text = lines.get(i).asOrderedText();
-			float h = (float) (-textRenderer.getWidth(text) / 2);
-			textRenderer.drawWithOutline(text, h, (i - lines.size() + 1) * (textRenderer.fontHeight + 2), -1, 0xFF440000, matrix4f, consumer, light);
-		}
-		
-		matrices.pop();
-	}
-	
 	private static final Pattern COLOR_PATTERN = Pattern.compile("(?i)§[0-9A-FK-ORX]");
 	
 	public static String stripColor(String message) {
@@ -522,6 +436,29 @@ public class Kuphack implements ModInitializer, EventHolder {
 	 */
 	public static List<Text> getLore(ItemStack stack) {
 		return stack.get(DataComponentTypes.LORE).lines();
+	}
+	
+	public static KuphackSettings settings() {
+		return get().settings;
+	}
+
+	public static boolean isUsingShaders() {
+		if (!FabricLoader.getInstance().isModLoaded("iris"))
+			return false;
+		
+//		return IrisApi.getInstance().isShaderPackInUse();
+		
+		try {
+		    Class<?> irisApiClass = Class.forName("net.irisshaders.iris.api.v0.IrisApi");
+		    Method getInstanceMethod = irisApiClass.getMethod("getInstance");
+		    Method isShaderPackInUseMethod = irisApiClass.getMethod("isShaderPackInUse");
+
+		    Object irisApiInstance = getInstanceMethod.invoke(null);
+		    return (boolean) isShaderPackInUseMethod.invoke(irisApiInstance);
+		} catch (Exception e) {
+		    LOGGER.warn("Failed shader check (via reflection)", e);
+		    return false;
+		}
 	}
 	
 }

@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import dev.watukas.kuphack.Kuphack;
+import dev.watukas.kuphack.Rendering;
 import dev.watukas.kuphack.SupportedServer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -27,7 +28,7 @@ public class ScoreboardMixin {
 			
 			if (objective != null) {
 				context.createNewRootLayer();
-				Kuphack.renderSidebar(context, objective);
+				Rendering.renderSidebar(context, objective);
 			}
 		}
 	}

@@ -14,13 +14,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 
+import dev.watukas.kuphack.Event.EventHolder;
+import dev.watukas.kuphack.Event.EventMention;
 import dev.watukas.kuphack.Feature;
 import dev.watukas.kuphack.Kuphack;
 import dev.watukas.kuphack.SupportedServer;
-import dev.watukas.kuphack.Event.EventHolder;
-import dev.watukas.kuphack.Event.EventMention;
 import dev.watukas.kuphack.events.DamageEvent;
-import dev.watukas.kuphack.modmenu.SettingsKuphackScreen;
+import dev.watukas.kuphack.modmenu.FriendManagementScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -42,7 +42,7 @@ public class FriendFeature extends Feature implements EventHolder {
 	private PlayerEntity lastDamaged;
 	
 	public FriendFeature() {
-		super("Lets you not attack your friends", SupportedServer.FLAGCLASH);
+		super("Lets you not attack your friends", FriendManagementScreen::new, SupportedServer.FLAGCLASH);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.CHAT,
 			Identifier.of("kuphack", "friend-overlay"), this::onHudRender
 		);
@@ -123,7 +123,7 @@ public class FriendFeature extends Feature implements EventHolder {
 	 * Loads the friends from the config/save file
 	 */
 	public void load() {
-		JsonObject object = Kuphack.get().readDataFile();
+		JsonObject object = Kuphack.settings().read();
 		
 		this.friends.clear();
 		if (object.has("friends")) object.get("friends").getAsJsonArray().forEach(element -> {
@@ -160,9 +160,9 @@ public class FriendFeature extends Feature implements EventHolder {
 	 * Saves friends to the file without overwriting other settings
 	 */
 	public void save() {
-		JsonObject object = Kuphack.get().readDataFile();
+		JsonObject object = Kuphack.settings().read();
 		object.add("friends", toJsonArray());
-		SettingsKuphackScreen.write(object);
+		Kuphack.settings().write(object);
 	}
 	
 	public JsonArray toJsonArray() {
@@ -214,6 +214,8 @@ public class FriendFeature extends Feature implements EventHolder {
 							if (player.isInvisibleTo(client.player))
 								client.player.sendMessage(Text.of("§cCan't friend someone who is invisible"), true);
 							else addFriend(player);
+						} else {
+							client.player.sendMessage(Text.of("§cYou need to §f[SHIFT + MIDDLE CLICK]§c to friend someone"), true);
 						}
 					} else removeFriend(player);
 					

@@ -32,15 +32,7 @@ public class PlayerListSortMixin {
 	private void collectPlayerEntries(CallbackInfoReturnable<List<PlayerListEntry>> ci) {
 		if (SupportedServer.current() != SupportedServer.FLAGCLASH)
 			return;
-		List<PlayerListEntry> list = ci.getReturnValue().stream().sorted(Comparator.comparingInt(e -> {
-			try {
-				String name = e.getDisplayName().getString();
-				name = name.substring(name.indexOf("[") + 1, name.indexOf("]"));
-				return 0 - Integer.parseInt(name);
-			} catch (Exception exc) {
-				return 0;
-			}
-		})).toList();
+		List<PlayerListEntry> list = ci.getReturnValue().stream().sorted(comparator()).toList();
 		
 		MinecraftClient client = MinecraftClient.getInstance();
 		for (PlayerListEntry e : list) {
@@ -54,6 +46,19 @@ public class PlayerListSortMixin {
 		
 		ci.setReturnValue(list);
 		
+	}
+	
+	private Comparator<PlayerListEntry> comparator() {
+//		return (a, b) -> a.getProfile().getName().compareTo(b.getProfile().getName());
+		return Comparator.comparingInt(e -> {
+			try {
+				String name = e.getDisplayName().getString();
+				name = name.substring(name.indexOf("[") + 1, name.indexOf("]"));
+				return 0 - Integer.parseInt(name);
+			} catch (Exception exc) {
+				return 0;
+			}
+		});
 	}
 	
 	private static Text replaceWithStyle(Text text, String target, UnaryOperator<Style> operator) {

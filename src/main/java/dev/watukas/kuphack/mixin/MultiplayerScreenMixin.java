@@ -7,12 +7,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.google.gson.JsonObject;
-
 import dev.watukas.kuphack.Kuphack;
 import dev.watukas.kuphack.finder.MinehutButtonState;
 import dev.watukas.kuphack.finder.MinehutServerListScreen;
-import dev.watukas.kuphack.modmenu.SettingsKuphackScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
@@ -31,7 +28,7 @@ public class MultiplayerScreenMixin extends Screen {
 
 	@Inject(method = "init", at = @At(value = "HEAD"))
 	protected void init(CallbackInfo ci) {
-		MinehutButtonState state = Kuphack.get().serverListButton;
+		MinehutButtonState state = Kuphack.settings().minehutButtonState();
 		
 		if (state != MinehutButtonState.HIDDEN) {
 			int x =
@@ -52,13 +49,12 @@ public class MultiplayerScreenMixin extends Screen {
 	
 	@Inject(method = "keyPressed", at = @At(value = "INVOKE"), cancellable = true)
 	public void keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> ci) {
-		if ((this.widget.active || this.widget.isHovered()) && keyCode == GLFW.GLFW_KEY_DELETE) {
+		if (this.widget == null)
+			return;
+		if (keyCode == GLFW.GLFW_KEY_DELETE && (this.widget.active || this.widget.isHovered())) {
 			widget.playDownSound(MinecraftClient.getInstance().getSoundManager());
-	    	JsonObject object = Kuphack.get().readDataFile();
-	    	object.addProperty("mhButtonState", MinehutButtonState.HIDDEN.name());
-	    	SettingsKuphackScreen.write(object);
+	    	Kuphack.settings().minehutButtonState(MinehutButtonState.HIDDEN);
 	    	this.executor.execute(this::clearAndInit);
-	    	Kuphack.get().serverListButton = MinehutButtonState.HIDDEN;
 	    	ci.setReturnValue(true);
 		}
 	}

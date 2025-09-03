@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.watukas.kuphack.Feature;
-import dev.watukas.kuphack.Kuphack;
+import dev.watukas.kuphack.Rendering;
 import dev.watukas.kuphack.SupportedServer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.gui.screen.Screen;
@@ -36,7 +36,7 @@ public class ItemEntityInfoFeature extends Feature {
 		matrix.push();
 		matrix.scale(0.75f, 0.75f, 0.75f);
 		matrix.translate(0, 1f, 0);
-		Kuphack.renderText(text, matrix, provider);
+		Rendering.renderText(text, matrix, provider);
 		matrix.pop();
 	}
 	

@@ -12,8 +12,10 @@
 		"flagclash.HudMixin",
 		"flagclash.ScoreboardMixin",
 		"flagclash.PlayerListSortMixin",
+		"flagclash.SneakNameText",
+		"flagclash.TntEntityRendererMixin",
 		"MultiplayerScreenMixin",
-		"VinueText"
+		"EntityHelper"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -18,13 +18,11 @@ import org.lwjgl.glfw.GLFW;
 import com.github.vaapukkax.minehut.Minehut;
 import com.github.vaapukkax.minehut.NetworkStatistics;
 import com.github.vaapukkax.minehut.NetworkStatistics.NetworkStat;
-
-import dev.watukas.kuphack.Kuphack;
-import dev.watukas.kuphack.SupportedServer;
-
 import com.github.vaapukkax.minehut.PredefinedCategory;
 import com.github.vaapukkax.minehut.Server;
 
+import dev.watukas.kuphack.Kuphack;
+import dev.watukas.kuphack.SupportedServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -281,16 +279,16 @@ public class MinehutServerListScreen extends Screen {
         	int i = 0;
         	List<Text> lines = split(this.error);
         	for (Text line : lines) {
-        		context.drawCenteredTextWithShadow(this.textRenderer, line, this.width / 2, this.height / 2 + textRenderer.fontHeight * i, 0xFFFFFF);
+        		context.drawCenteredTextWithShadow(this.textRenderer, line, this.width / 2, this.height / 2 + textRenderer.fontHeight * i, 0xFFFFFFFF);
         		i++;
         	}
         } else if (!refreshButton.active) {
         	Text text = Text.of("Refreshing...");
-        	context.drawTextWithShadow(this.textRenderer, text, client.getWindow().getScaledWidth() - this.textRenderer.getWidth(text) - 5, 5, 0xFFFFFF);
+        	context.drawTextWithShadow(this.textRenderer, text, client.getWindow().getScaledWidth() - this.textRenderer.getWidth(text) - 5, 5, 0xFFFFFFFF);
         }
         
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFF);
-        context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Servers: "+serverListWidget.getServerCount()+" ("+serverCount+") | Players: "+serverListWidget.getPlayerCount()+" ("+playerCount+")"), this.width / 2, 20 - this.textRenderer.fontHeight, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Servers: "+serverListWidget.getServerCount()+" ("+serverCount+") | Players: "+serverListWidget.getPlayerCount()+" ("+playerCount+")"), this.width / 2, 20 - this.textRenderer.fontHeight, 0xFFFFFFFF);
         
         this.categoryWidget.render(context, mouseX, mouseY, delta);
         this.textField.render(context, mouseX, mouseY, delta);
@@ -307,7 +305,7 @@ public class MinehutServerListScreen extends Screen {
 	    	} else {
 	    		if (client.world != null) {
 	    			client.world.disconnect(Text.of("Redirecting"));
-	    			this.client.disconnect(null, true);
+	    			this.client.disconnectWithProgressScreen();
 	    		}
 
 	        	ServerInfo info = new ServerInfo(serverEntry.toString(), serverEntry.getAddress(), ServerType.OTHER);

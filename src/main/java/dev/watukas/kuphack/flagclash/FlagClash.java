@@ -5,17 +5,15 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import dev.watukas.kuphack.Event.EventHolder;
 import dev.watukas.kuphack.Kuphack;
 import dev.watukas.kuphack.SupportedServer;
-import dev.watukas.kuphack.Event.EventHolder;
-import dev.watukas.kuphack.Event.EventMention;
-import dev.watukas.kuphack.events.InventoryClickEvent;
 import dev.watukas.kuphack.modmenu.FeatureManagementScreen;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 
 /**
@@ -30,51 +28,26 @@ public class FlagClash implements EventHolder {
 	private static final HashMap<String, Stat> statCache = new HashMap<>();
 	
 	private static final String[] suffixes = { "k", "m", "b", "t", "q", "p", "s", "e", "o", "n", "d", "u", "v", "h", "i", "j", "l", "r", "w", "x", "y", "z" };
-
-	private static long upgradeCost = -1;
-
-	@EventMention
-	public void onEvent(InventoryClickEvent e) {
-		if (Kuphack.getServer() != SupportedServer.FLAGCLASH)
-			return;
-		if ((Registries.ITEM.getId(e.getItem()).getPath().contains("banner")) && 
-				e.getStack().getName().getString().contains("Level Up")) {
-			String line = Kuphack.getStripLore(e.getStack()).getLast().strip();
-			if (getGold() >= toRealValue(line.split(" ")[0])) {
-				upgradeCost = -1;
-			}
-		}
-	}
 	
 	public static long getUpgradeCost() {
-		if (FlagClash.upgradeCost == -1) {
-			int level = getLevel();
-			if (level < 1)
-				return -1;
-			int gps = level + level * level;
-			
-			int time;
-			if (level > 10)
-				time = 300 + level * 20;
-			else
-				time = 20 + level * 50;
-			
-			return Math.min(2000, time) * gps;
-		}
-		return FlagClash.upgradeCost;
-	}
-	
-	public static void setUpgradeCost(long value) {
-		if (value > 0)
-			FlagClash.upgradeCost = value;
+		int level = getLevel();
+		if (level < 1)
+			return -1;
+		int gps = level + level * level;
+		
+		int time;
+		if (level > 10)
+			time = 300 + level * 20;
 		else
-			FlagClash.upgradeCost = -1;
+			time = 20 + level * 50;
+		
+		return Math.min(2000, time) * gps;
 	}
 	
 	public static double getUpgradeTime() {
-		if (upgradeCost <= 0)
+		if (getUpgradeCost() <= 0)
 			return -1;
-		double time = ((upgradeCost - getGold()) / (getGPS() * FlagClash.getMultiplier()));
+		double time = ((getUpgradeCost() - getGold()) / (getGPS() * FlagClash.getMultiplier()));
 		if (time < 0)
 			return 0;
 		return time;
@@ -82,7 +55,7 @@ public class FlagClash implements EventHolder {
 	
 	public static String timeAsString(double time) {
 		if (time < 60) return (int) time + "s";
-		String text = (int)(time / 60 % 60) + "min";
+		String text = (int) Math.ceil(time / 60 % 60) + "min";
 		if (time > 3600) text = Kuphack.round(time / 60.0 / 60.0) + "h";
 		return text;
 	}
@@ -115,22 +88,34 @@ public class FlagClash implements EventHolder {
 			return toRealValue(split[1]);
 		} catch (Exception e) {
 			Kuphack.error(e);
-			return 1;
+			int level = getLevel();
+			return level * level + level;
 		}
 	}
 	
-	public static double getMultiplier() {
+	private static Double getMultiplierRaw() {
 		try {
 			String[] split = getStat("Gold").data.split("\\s+");
 			
 			if (split.length < 3)
-				return 1;
+				return null;
 			
-			return 1 + Double.parseDouble(split[2].replace("(+", "").replace("%)", "")) / 100.0;
+			return Double.parseDouble(split[2].replace("(", "").replace("%)", ""));
 		} catch (Exception e) {
 			Kuphack.error(e);
-			return 1;
+			return null;
 		}
+	}
+	
+	public static boolean hasActiveMultiplier() {
+		return getMultiplierRaw() != null;
+	}
+	
+	public static double getMultiplier() {
+		Double raw = getMultiplierRaw();
+		if (raw == null)
+			return 1;
+		return 1 + raw / 100.0;
 	}
 	
 	public static long toRealValue(String text) {
@@ -165,7 +150,8 @@ public class FlagClash implements EventHolder {
 		if (Kuphack.getServer() != SupportedServer.FLAGCLASH)
 			return statCache.getOrDefault(name, new Stat(name, "0", null));
 		String displayName = toSmallText(name);
-		for (Text line : Kuphack.getScoreboard()) {
+		List<Text> lines = Kuphack.getScoreboard();
+		for (Text line : lines) {
 			Matcher matcher = SIDEBAR_PATTERN.matcher(Kuphack.stripColor(line));
 			if (!matcher.matches())
 				continue;
@@ -178,6 +164,8 @@ public class FlagClash implements EventHolder {
 		}
 		if (statCache.containsKey(name))
 			return statCache.get(name);
+		if (lines.isEmpty())
+			throw new IllegalStateException("Couldn't retrieve '" + displayName + "' (there is no sidebar)");
 		throw new IllegalArgumentException("Couldn't find '" + displayName + "' on the sidebar");
 	}
 	

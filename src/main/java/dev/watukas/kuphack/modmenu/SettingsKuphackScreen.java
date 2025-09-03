@@ -1,19 +1,8 @@
 package dev.watukas.kuphack.modmenu;
 
-import java.io.Writer;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
-import dev.watukas.kuphack.AdBlockFeature;
-import dev.watukas.kuphack.Feature;
 import dev.watukas.kuphack.Kuphack;
 import dev.watukas.kuphack.SupportedServer;
 import dev.watukas.kuphack.finder.MinehutButtonState;
@@ -55,14 +44,13 @@ public class SettingsKuphackScreen extends Screen {
         int y = 40;
         
         this.addDrawableChild(ButtonWidget.builder(
-        	Text.of("MH List Button: "+Kuphack.get().serverListButton), button -> {
+        	Text.of("MH List Button: "+ Kuphack.settings().minehutButtonState()), button -> {
         		List<MinehutButtonState> list = Arrays.asList(MinehutButtonState.values());
-        		int i = list.indexOf(Kuphack.get().serverListButton)+1;
-        		if (i >= list.size()) i = 0;
+        		int i = (list.indexOf(Kuphack.settings().minehutButtonState()) + 1) % list.size();
         		 
-        		Kuphack.get().serverListButton = list.get(i);
+        		Kuphack.settings().minehutButtonState(list.get(i));
         		
-        		button.setMessage(Text.of("MH List Button: "+Kuphack.get().serverListButton));
+        		button.setMessage(Text.of("MH List Button: " + Kuphack.settings().minehutButtonState()));
         	})
         	.position(x, y) // top-left
         	.tooltip(Tooltip.of(Text.of("Affects the location of the Minehut server list button in the multiplayer menu")))
@@ -75,9 +63,9 @@ public class SettingsKuphackScreen extends Screen {
         ))).position(xR, y).build()); // top-right
         
         this.addDrawableChild(ButtonWidget.builder(
-        	Text.of("Update Notifier: "+Kuphack.get().updateOption), button -> {
-        		Kuphack.get().updateOption = Kuphack.get().updateOption.next();
-        		button.setMessage(Text.of("Update Notifier: "+Kuphack.get().updateOption));
+        	Text.of("Update Notifier: "+Kuphack.settings().updateOption()), button -> {
+        		Kuphack.settings().updateOption(Kuphack.settings().updateOption().next());
+        		button.setMessage(Text.of("Update Notifier: " + Kuphack.settings().updateOption()));
         	}).position(x, y += 24) // mid-left
         .tooltip(Tooltip.of(Text.of(Kuphack.isFeather() ?
         	"Notifies you in chat when there is a new Kuphack release"
@@ -152,45 +140,19 @@ public class SettingsKuphackScreen extends Screen {
     
         this.buttonList.render(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFF);
-        context.drawTextWithShadow(this.textRenderer, connected, this.width - this.textRenderer.getWidth(connected) - 15, 15, 0xFFFFFF);
+        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 15, 0xFFFFFFFF);
+        context.drawTextWithShadow(this.textRenderer, connected, this.width - this.textRenderer.getWidth(connected) - 15, 15, 0xFFFFFFFF);
     }
     
     @Override
     public void removed() {
-    	this.saveChanges();
+    	Kuphack.settings().save();
     	super.removed();
     }
     
     @Override
     public void close() {
     	this.client.setScreen(parent);
-    }
-    
-    private void saveChanges() {
-    	JsonObject object = Kuphack.get().readDataFile();
-    	
-    	JsonArray array = new JsonArray();
-    	Kuphack.get().getFeatures().stream().filter(Feature::isDisabled)
-    		.forEach(feature -> array.add(feature.getClass().getSimpleName()));
-    	object.add("disabled", array);
-    	object.addProperty("ad-block-strict", Kuphack.get().getFeature(AdBlockFeature.class).strict);
-    	object.addProperty("mhButtonState", Kuphack.get().serverListButton.name());
-    	object.addProperty("auto-update", Kuphack.get().updateOption.id());
-    	
-    	write(object);
-    }
-    
-    public static void write(JsonObject object) {
-    	Gson gson = new GsonBuilder()
-        	.setPrettyPrinting()
-        	.create();
-    	try (Writer writer = Files.newBufferedWriter(Kuphack.get().getDataFile(), Charset.defaultCharset(),
-    		    StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-    		writer.write(gson.toJson(object));
-    	} catch (Exception e) {
-    		e.printStackTrace();
-    	}
     }
 
 }

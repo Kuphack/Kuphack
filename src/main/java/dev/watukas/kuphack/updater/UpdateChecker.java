@@ -27,7 +27,7 @@ public class UpdateChecker {
 			boolean settingsScreen = MinecraftClient.getInstance().currentScreen instanceof SettingsKuphackScreen;
 			if (isNewer(getModVersion(), latestRelease.version()))
 				status = new UpdateStatus(null, Text.literal("Woah, a dev build!").withColor(0xFFFFAAFF), false);
-			else if (Kuphack.get().updateOption == CheckOption.CHECK_AND_DOWNLOAD)
+			else if (Kuphack.settings().updateOption() == CheckOption.CHECK_AND_DOWNLOAD)
 				download(latestRelease);
 			else if (settingsScreen)
 				status = new UpdateStatus(latestRelease, Text.literal("New release was found").withColor(0xFFAAFFAA), true);
