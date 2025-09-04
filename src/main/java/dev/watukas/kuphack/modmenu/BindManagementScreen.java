@@ -91,7 +91,7 @@ public class BindManagementScreen extends Screen {
     		this.feature.binds().remove(target);
     		if (keyCode != GLFW.GLFW_KEY_ESCAPE) {
     			this.target.set(keyCode);
-    			this.feature.binds().add(this.target);
+    			this.feature.binds().add(0, this.target);
     		}
     		this.target = null;
     		this.executor.execute(this::clearAndInit);
