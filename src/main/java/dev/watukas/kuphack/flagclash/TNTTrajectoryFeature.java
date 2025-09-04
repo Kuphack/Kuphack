@@ -34,11 +34,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
-public class DynamiteProjectoryFeature extends Feature implements WorldRenderEvents.AfterEntities, EventHolder {
+public class TNTTrajectoryFeature extends Feature implements WorldRenderEvents.AfterEntities, EventHolder {
 
 	private final DecimalFormat formatter = new DecimalFormat("0.0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));;
 
-	public DynamiteProjectoryFeature() {
+	public TNTTrajectoryFeature() {
 		super("Shows you the line up for a TNT (it's close enough)", SupportedServer.FLAGCLASH);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.HOTBAR,
 			Identifier.of("kuphack", "tnt-timer"), this::renderHud

@@ -24,7 +24,7 @@ import dev.watukas.kuphack.Event.EventHolder;
 import dev.watukas.kuphack.Event.EventMention;
 import dev.watukas.kuphack.events.ChatEvent;
 import dev.watukas.kuphack.events.ServerJoinEvent;
-import dev.watukas.kuphack.flagclash.DynamiteProjectoryFeature;
+import dev.watukas.kuphack.flagclash.TNTTrajectoryFeature;
 import dev.watukas.kuphack.flagclash.FlagBreakTimeFeature;
 import dev.watukas.kuphack.flagclash.FlagClash;
 import dev.watukas.kuphack.flagclash.FlagLocation;
@@ -113,7 +113,7 @@ public class Kuphack implements ModInitializer, EventHolder {
 		features.add(new FlagLocation());
 		features.add(new RevokerRadiusFeature());
 		features.add(new ItemEntityInfoFeature());
-		features.add(new DynamiteProjectoryFeature());
+		features.add(new TNTTrajectoryFeature());
 		
 		Event.register(new FlagClash());
 		Rendering.flagClashDebug();

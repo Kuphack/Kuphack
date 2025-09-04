@@ -20,6 +20,7 @@ public abstract class Feature {
 	private final Function<FeatureManagementScreen, Screen> screenFunction;
 	private boolean disabled;
 	
+	private final String defName;
 	private final String description;
 	
 	public Feature(String description, SupportedServer... servers) {
@@ -31,6 +32,11 @@ public abstract class Feature {
 		this.screenFunction = screenFunction;
 		this.servers = servers;
 		this.disabled = shouldBeDisabled();
+		
+		this.defName = this.getClass().getSimpleName()
+			.replaceAll("Feature$", "")
+			.replaceAll("([a-z])([A-Z])", "$1 $2")
+			.replaceAll("([A-Z])([A-Z][a-z])", "$1 $2");
 	}
 	
 	private boolean shouldBeDisabled() {
@@ -76,15 +82,7 @@ public abstract class Feature {
 	}
 
 	public String getName() {
-		String name = getClass().getSimpleName();
-		if (name.endsWith("Feature")) name = name.substring(0, name.length() - "Feature".length());
-		
-		StringBuilder builder = new StringBuilder();
-		for (int c : name.chars().toArray()) {
-			if (!builder.isEmpty() && Character.isUpperCase(c)) builder.append(" ");
-			builder.append((char)c);
-		}
-		return builder.toString();
+		return this.defName;
 	}
 
 	public String getDescription() {
